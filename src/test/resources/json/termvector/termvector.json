@@ -1,0 +1,49 @@
+{
+  "text": {
+    "field_statistics": {
+      "doc_count": 2,
+      "sum_doc_freq": 6,
+      "sum_ttf": 8
+    },
+    "terms": {
+      "test": {
+        "doc_freq": 2,
+        "term_freq": 3,
+        "tokens": [
+          {
+            "end_offset": 12,
+            "payload": "d29yZA==",
+            "position": 1,
+            "start_offset": 8
+          },
+          {
+            "end_offset": 17,
+            "payload": "d29yZA==",
+            "position": 2,
+            "start_offset": 13
+          },
+          {
+            "end_offset": 22,
+            "payload": "d29yZA==",
+            "position": 3,
+            "start_offset": 18
+          }
+        ],
+        "ttf": 4
+      },
+      "twitter": {
+        "doc_freq": 2,
+        "term_freq": 1,
+        "tokens": [
+          {
+            "end_offset": 7,
+            "payload": "d29yZA==",
+            "position": 0,
+            "start_offset": 0
+          }
+        ],
+        "ttf": 2
+      }
+    }
+  }
+}

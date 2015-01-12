@@ -1,0 +1,3 @@
+cluster.name: elasticsearch-dev
+
+script.disable_dynamic: false

@@ -1,0 +1,24 @@
+[
+  {
+    "_index": "twitter",
+    "_type": "tweet",
+    "_id": "1",
+    "_score": 1.7,
+    "_source": {
+      "user": "kimchy",
+      "postDate": "2009-11-15T14:12:12",
+      "message": "trying out Elasticsearch"
+    }
+  },
+  {
+    "_index": "twitter",
+    "_type": "tweet",
+    "_id": "2",
+    "_score": 0.3,
+    "_source": {
+      "user": "test",
+      "postDate": "2015-01-11T17:38:12",
+      "message": "doing some client for elasticsearch"
+    }
+  }
+]
