@@ -18,6 +18,7 @@ import org.elasticsearch.action.exists.ExistsRequest;
 import org.elasticsearch.action.explain.ExplainRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.percolate.PercolateRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.support.PlainActionFuture;
 import org.elasticsearch.action.termvector.TermVectorRequest;
@@ -36,6 +37,7 @@ import com.github.obourgain.elasticsearch.http.handler.document.UpdateActionHand
 import com.github.obourgain.elasticsearch.http.handler.search.CountActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.ExistsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.ExplainActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.search.PercolateActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.SearchActionHandler;
 import com.github.obourgain.elasticsearch.http.response.count.CountResponse;
 import com.github.obourgain.elasticsearch.http.response.delete.DeleteResponse;
@@ -44,6 +46,7 @@ import com.github.obourgain.elasticsearch.http.response.exists.ExistsResponse;
 import com.github.obourgain.elasticsearch.http.response.explain.ExplainResponse;
 import com.github.obourgain.elasticsearch.http.response.get.GetResponse;
 import com.github.obourgain.elasticsearch.http.response.index.IndexResponse;
+import com.github.obourgain.elasticsearch.http.response.percolate.PercolateResponse;
 import com.github.obourgain.elasticsearch.http.response.search.SearchResponse;
 import com.github.obourgain.elasticsearch.http.response.termvectors.TermVectorResponse;
 import com.github.obourgain.elasticsearch.http.response.update.UpdateResponse;
@@ -82,6 +85,7 @@ public class HttpClientImpl implements HttpClient {
     CountActionHandler countActionHandler = new CountActionHandler(this);
     ExistsActionHandler existsActionHandler = new ExistsActionHandler(this);
     ExplainActionHandler explainActionHandler = new ExplainActionHandler(this);
+    PercolateActionHandler percolateActionHandler = new PercolateActionHandler(this);
 
     public HttpClientImpl(Collection<String> hosts) {
         this.urlProviderStrategy = new RoundRobinUrlProviderStrategy(hosts);
@@ -250,6 +254,16 @@ public class HttpClientImpl implements HttpClient {
     public Future<ExplainResponse> explain(ExplainRequest request) {
         PlainActionFuture<ExplainResponse> future = PlainActionFuture.newFuture();
         explain(request, future);
+        return future;
+    }
+
+    public void percolate(PercolateRequest request, ActionListener<PercolateResponse> listener) {
+        percolateActionHandler.execute(request, listener);
+    }
+
+    public Future<PercolateResponse> percolate(PercolateRequest request) {
+        PlainActionFuture<PercolateResponse> future = PlainActionFuture.newFuture();
+        percolate(request, future);
         return future;
     }
 

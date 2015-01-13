@@ -1,0 +1,10 @@
+[
+  {
+    "_index": "my-index",
+    "_id": "1"
+  },
+  {
+    "_index": "my-index",
+    "_id": "2"
+  }
+]

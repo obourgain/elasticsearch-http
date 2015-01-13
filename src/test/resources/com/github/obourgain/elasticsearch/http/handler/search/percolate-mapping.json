@@ -1,0 +1,9 @@
+{
+  "my-type": {
+    "properties": {
+      "message": {
+        "type": "string"
+      }
+    }
+  }
+}

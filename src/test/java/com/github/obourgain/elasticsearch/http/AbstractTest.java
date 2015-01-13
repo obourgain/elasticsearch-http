@@ -20,6 +20,7 @@ import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 
 /**
  * @author olivier bourgain
@@ -110,6 +111,12 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
                 .field("the_boolean_field", true)
                 .field("the_long_array_field", new Long[]{42L, 53L})
                 .endObject();
+    }
+
+    public void assertShardsSuccessfulForIT(Shards shards) {
+        Assertions.assertThat(shards.getTotal()).isEqualTo(getNumShards(THE_INDEX).numPrimaries);
+        Assertions.assertThat(shards.getSuccessful()).isEqualTo(getNumShards(THE_INDEX).numPrimaries);
+        Assertions.assertThat(shards.getFailed()).isEqualTo(0);
     }
 
 }

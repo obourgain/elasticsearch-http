@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.response.parser;
+package com.github.obourgain.elasticsearch.http.response.entity;
 
 import static org.assertj.core.api.Assertions.*;
 import org.assertj.core.api.Assertions;
@@ -6,6 +6,7 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
+import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
 
 public class ShardParserTest {
 
@@ -19,6 +20,6 @@ public class ShardParserTest {
         assertThat(shards.getTotal()).isEqualTo(3);
         assertThat(shards.getSuccessful()).isEqualTo(3);
         assertThat(shards.getFailed()).isEqualTo(0);
-
     }
+
 }

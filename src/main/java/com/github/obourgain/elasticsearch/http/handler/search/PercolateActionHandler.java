@@ -4,24 +4,21 @@ import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.percolate.PercolateAction;
 import org.elasticsearch.action.percolate.PercolateRequest;
-import org.elasticsearch.action.percolate.PercolateRequestBuilder;
-import org.elasticsearch.action.percolate.PercolateResponse;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.lucene.uid.Versions;
-import org.elasticsearch.common.xcontent.XContentHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClientImpl;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
-import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
+import com.github.obourgain.elasticsearch.http.response.percolate.PercolateResponse;
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.Response;
 
 /**
  * @author olivier bourgain
  */
-public class PercolateActionHandler implements ActionHandler<PercolateRequest, PercolateResponse, PercolateRequestBuilder> {
+public class PercolateActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(PercolateActionHandler.class);
 
@@ -31,15 +28,17 @@ public class PercolateActionHandler implements ActionHandler<PercolateRequest, P
         this.httpClient = httpClient;
     }
 
-    @Override
     public PercolateAction getAction() {
         return PercolateAction.INSTANCE;
     }
 
-    @Override
     public void execute(PercolateRequest request, final ActionListener<PercolateResponse> listener) {
-        // TODO test
         logger.debug("percolate request {}", request);
+        // TODO percolate_format
+        // TODO percolate count
+        // TODO highlight
+        // TODO percolate existing doc
+        // TODO multi percolate
         GetRequest getRequest = request.getRequest();
         try {
             StringBuilder url = new StringBuilder(httpClient.getUrl()).append("/");
@@ -103,15 +102,14 @@ public class PercolateActionHandler implements ActionHandler<PercolateRequest, P
             }
 
             if(request.source() != null) {
-                String data = XContentHelper.convertToJson(request.source(), false);
-                httpRequest.setBody(data);
+                httpRequest.setBody(request.source().toBytes());
             }
             HttpRequestUtils.addIndicesOptions(httpRequest, request);
 
             httpRequest.execute(new ListenerAsyncCompletionHandler<PercolateResponse>(listener) {
                 @Override
-                protected PercolateResponse convert(ResponseWrapper responseWrapper) {
-                    return responseWrapper.toPercolateResponse();
+                protected PercolateResponse convert(Response response) {
+                    return PercolateResponse.parse(response);
                 }
             });
         } catch (Exception e) {
