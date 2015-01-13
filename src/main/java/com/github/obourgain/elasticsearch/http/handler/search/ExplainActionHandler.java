@@ -61,7 +61,7 @@ public class ExplainActionHandler {
 
             httpRequest
                     .setBody(request.source().toBytes())
-                    .execute(new ListenerAsyncCompletionHandler<ExplainResponse>(request, listener) {
+                    .execute(new ListenerAsyncCompletionHandler<ExplainResponse>(listener) {
                         @Override
                         protected ExplainResponse convert(Response response) {
                             return ExplainResponse.parse(response);

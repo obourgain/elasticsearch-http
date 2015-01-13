@@ -1,0 +1,20 @@
+[
+  {
+    "value": 1,
+    "description": "tf(freq=1.0), with freq of:",
+    "details": [
+      {
+        "value": 1,
+        "description": "termFreq=1.0"
+      }
+    ]
+  },
+  {
+    "value": 0.30685282,
+    "description": "idf(docFreq=1, maxDocs=1)"
+  },
+  {
+    "value": 0.5,
+    "description": "fieldNorm(doc=0)"
+  }
+]

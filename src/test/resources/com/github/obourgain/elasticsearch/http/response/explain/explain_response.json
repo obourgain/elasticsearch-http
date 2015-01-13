@@ -1,0 +1,36 @@
+{
+  "_index": "twitter",
+  "_type": "tweet",
+  "_id": "1",
+  "matched": true,
+  "explanation": {
+    "value": 0.15342641,
+    "description": "weight(message:out in 0) [PerFieldSimilarity], result of:",
+    "details": [
+      {
+        "value": 0.15342641,
+        "description": "fieldWeight in 0, product of:",
+        "details": [
+          {
+            "value": 1,
+            "description": "tf(freq=1.0), with freq of:",
+            "details": [
+              {
+                "value": 1,
+                "description": "termFreq=1.0"
+              }
+            ]
+          },
+          {
+            "value": 0.30685282,
+            "description": "idf(docFreq=1, maxDocs=1)"
+          },
+          {
+            "value": 0.5,
+            "description": "fieldNorm(doc=0)"
+          }
+        ]
+      }
+    ]
+  }
+}

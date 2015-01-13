@@ -1,0 +1,10 @@
+{
+  "_index": "twitter",
+  "_type": "tweet",
+  "_id": "1",
+  "matched": false,
+  "explanation": {
+    "value": 0,
+    "description": "no matching term"
+  }
+}
