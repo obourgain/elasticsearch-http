@@ -33,7 +33,7 @@ public class SearchActionHandlerTest extends AbstractTest {
         Assertions.assertThat(searchResponse.getTookInMillis()).isLessThan(end - start);
         Assertions.assertThat(searchResponse.getScrollId()).isNull();
 
-        assertShardsSuccessfulForIT(searchResponse.getShards());
+        assertShardsSuccessfulForIT(searchResponse.getShards(), THE_INDEX);
     }
 
     @Test

@@ -1,6 +1,8 @@
 package com.github.obourgain.elasticsearch.http.response.entity;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import org.elasticsearch.common.xcontent.XContentParser;
 import lombok.Getter;
@@ -8,7 +10,7 @@ import lombok.experimental.Builder;
 
 @Getter
 @Builder
-public class Hits {
+public class Hits implements Iterable<Hit>{
 
     private long total;
     private List<Hit> hits;
@@ -21,6 +23,7 @@ public class Hits {
             XContentParser.Token token;
             String currentFieldName = null;
             HitsBuilder builder = builder();
+            builder.hits(Collections.<Hit>emptyList());
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
                 if (token == XContentParser.Token.FIELD_NAME) {
                     currentFieldName = parser.currentName();
@@ -41,4 +44,12 @@ public class Hits {
         }
     }
 
+    @Override
+    public Iterator<Hit> iterator() {
+        return hits.iterator();
+    }
+
+    public Hit getAt(int i) {
+        return hits.get(i);
+    }
 }

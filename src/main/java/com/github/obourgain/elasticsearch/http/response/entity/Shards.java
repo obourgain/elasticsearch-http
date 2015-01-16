@@ -23,4 +23,12 @@ public class Shards {
         return new Shards(total, successful, failed);
     }
 
+    @Override
+    public String toString() {
+        return "Shards{" +
+                "total=" + total +
+                ", successful=" + successful +
+                ", failed=" + failed +
+                '}';
+    }
 }

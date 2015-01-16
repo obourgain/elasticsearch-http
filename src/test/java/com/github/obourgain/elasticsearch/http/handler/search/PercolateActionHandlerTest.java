@@ -43,7 +43,7 @@ public class PercolateActionHandlerTest extends AbstractTest {
         PercolateResponse response = httpClient.percolate(request).get();
         long end = System.currentTimeMillis();
 
-        assertShardsSuccessfulForIT(response.getShards());
+        assertShardsSuccessfulForIT(response.getShards(), THE_INDEX);
         Assertions.assertThat(response.getTookInMillis()).isLessThan(end - start);
 
         Assertions.assertThat(response.getTotal()).isEqualTo(1);

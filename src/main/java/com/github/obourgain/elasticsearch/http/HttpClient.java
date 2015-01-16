@@ -1,8 +1,15 @@
 package com.github.obourgain.elasticsearch.http;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.Future;
+import org.elasticsearch.action.Action;
+import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.ActionRequestBuilder;
+import org.elasticsearch.action.ActionRequestValidationException;
+import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.GenericAction;
 import org.elasticsearch.action.count.CountRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -11,6 +18,7 @@ import org.elasticsearch.action.exists.ExistsRequest;
 import org.elasticsearch.action.explain.ExplainRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.mlt.MoreLikeThisRequest;
 import org.elasticsearch.action.percolate.PercolateRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.support.PlainActionFuture;
@@ -24,6 +32,7 @@ import com.github.obourgain.elasticsearch.http.handler.document.DeleteActionHand
 import com.github.obourgain.elasticsearch.http.handler.document.DeleteByQueryActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.GetActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.IndexActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.document.MoreLikeThisActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.TermVectorsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.UpdateActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.CountActionHandler;
@@ -65,17 +74,18 @@ public class HttpClient {
     private UrlProviderStrategy urlProviderStrategy;
     private HttpAdminClient httpAdminClient;
 
-    private IndexActionHandler indexActionHandler = new IndexActionHandler(this);
-    private GetActionHandler getActionHandler = new GetActionHandler(this);
-    private DeleteActionHandler deleteActionHandler = new DeleteActionHandler(this);
-    private UpdateActionHandler updateActionHandler = new UpdateActionHandler(this);
-    private DeleteByQueryActionHandler deleteByQueryActionHandler = new DeleteByQueryActionHandler(this);
-    private TermVectorsActionHandler termVectorActionHandler = new TermVectorsActionHandler(this);
-    private SearchActionHandler searchActionHandler = new SearchActionHandler(this);
-    private CountActionHandler countActionHandler = new CountActionHandler(this);
-    private ExistsActionHandler existsActionHandler = new ExistsActionHandler(this);
-    private ExplainActionHandler explainActionHandler = new ExplainActionHandler(this);
-    private PercolateActionHandler percolateActionHandler = new PercolateActionHandler(this);
+    IndexActionHandler indexActionHandler = new IndexActionHandler(this);
+    GetActionHandler getActionHandler = new GetActionHandler(this);
+    DeleteActionHandler deleteActionHandler = new DeleteActionHandler(this);
+    UpdateActionHandler updateActionHandler = new UpdateActionHandler(this);
+    DeleteByQueryActionHandler deleteByQueryActionHandler = new DeleteByQueryActionHandler(this);
+    TermVectorsActionHandler termVectorActionHandler = new TermVectorsActionHandler(this);
+    SearchActionHandler searchActionHandler = new SearchActionHandler(this);
+    CountActionHandler countActionHandler = new CountActionHandler(this);
+    ExistsActionHandler existsActionHandler = new ExistsActionHandler(this);
+    ExplainActionHandler explainActionHandler = new ExplainActionHandler(this);
+    PercolateActionHandler percolateActionHandler = new PercolateActionHandler(this);
+    MoreLikeThisActionHandler moreLikeThisActionHandler = new MoreLikeThisActionHandler(this);
 
     public HttpClient(Collection<String> hosts) {
         this.urlProviderStrategy = new RoundRobinUrlProviderStrategy(hosts);
@@ -94,6 +104,12 @@ public class HttpClient {
         // searchShard
         // search template
 ////        tempActionHandlers.put(MultiGetAction.INSTANCE, new MultiGetActionHandler(this));
+//        tempActionHandlers.put(SearchAction.INSTANCE, new SearchActionHandler(this));
+//        tempActionHandlers.put(ExistsAction.INSTANCE, new ExistsActionHandler(this));
+//        tempActionHandlers.put(SearchScrollAction.INSTANCE, new SearchScrollActionHandler(this));
+//        tempActionHandlers.put(ClearScrollAction.INSTANCE, new ClearScrollActionHandler(this));
+//        tempActionHandlers.put(ExplainAction.INSTANCE, new ExplainActionHandler(this));
+//        tempActionHandlers.put(PercolateAction.INSTANCE, new PercolateActionHandler(this));
 //        tempActionHandlers.put(MoreLikeThisAction.INSTANCE, new MoreLikeThisActionHandler(this));
 //        tempActionHandlers.put(BulkAction.INSTANCE, new BulkActionHandler(this));
 
@@ -220,6 +236,16 @@ public class HttpClient {
     public Future<PercolateResponse> percolate(PercolateRequest request) {
         PlainActionFuture<PercolateResponse> future = PlainActionFuture.newFuture();
         percolate(request, future);
+        return future;
+    }
+
+    public void moreLikeThis(MoreLikeThisRequest request, ActionListener<SearchResponse> listener) {
+        moreLikeThisActionHandler.execute(request, listener);
+    }
+
+    public Future<SearchResponse> moreLikeThis(MoreLikeThisRequest request) {
+        PlainActionFuture<SearchResponse> future = PlainActionFuture.newFuture();
+        moreLikeThis(request, future);
         return future;
     }
 

@@ -118,10 +118,10 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
                 .endObject();
     }
 
-    public void assertShardsSuccessfulForIT(Shards shards) {
-        Assertions.assertThat(shards.getTotal()).isEqualTo(getNumShards(THE_INDEX).numPrimaries);
-        Assertions.assertThat(shards.getSuccessful()).isEqualTo(getNumShards(THE_INDEX).numPrimaries);
-        Assertions.assertThat(shards.getFailed()).isEqualTo(0);
+    public void assertShardsSuccessfulForIT(Shards shards, String indexName) {
+        Assertions.assertThat(shards.getTotal()).describedAs(shards.toString()).isEqualTo(getNumShards(indexName).numPrimaries);
+        Assertions.assertThat(shards.getSuccessful()).describedAs(shards.toString()).isEqualTo(getNumShards(indexName).numPrimaries);
+        Assertions.assertThat(shards.getFailed()).describedAs(shards.toString()).isEqualTo(0);
     }
 
     public void assertSettingsEquals(Settings expected, Settings actual) {
