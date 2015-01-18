@@ -3,12 +3,15 @@ package com.github.obourgain.elasticsearch.http;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.MapEntry;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -20,6 +23,8 @@ import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.MapType;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 
 /**
@@ -117,6 +122,48 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
         Assertions.assertThat(shards.getTotal()).isEqualTo(getNumShards(THE_INDEX).numPrimaries);
         Assertions.assertThat(shards.getSuccessful()).isEqualTo(getNumShards(THE_INDEX).numPrimaries);
         Assertions.assertThat(shards.getFailed()).isEqualTo(0);
+    }
+
+    public void assertSettingsEquals(Settings expected, Settings actual) {
+        for (Map.Entry<String, String> entry : expected.getAsMap().entrySet()) {
+            Assertions.assertThat(expected.get(entry.getKey())).isEqualTo(entry.getValue());
+        }
+    }
+
+    public void assertMappingsEquals(Map<String, Object> expected, MappingMetaData actual) {
+        Map<String, Object> sourceAsMap;
+        try {
+            sourceAsMap = actual.getSourceAsMap();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        for (Map.Entry<String, Object> entry : expected.entrySet()) {
+            String key = entry.getKey();
+            Assertions.assertThat(sourceAsMap.containsKey(key)).isTrue();
+            Object actualValue = sourceAsMap.get(key);
+            if(entry.getValue() instanceof Map) {
+                assertMapContainsValues((Map) entry.getValue(), ((Map) sourceAsMap.get(entry.getKey())));
+            }
+            Assertions.assertThat(actualValue).isEqualTo(entry.getValue());
+        }
+    }
+
+    protected void assertMapContainsValues(Map<Object, Object> expectedValues, Map<Object, Object>  actual) {
+        for (Map.Entry entry : expectedValues.entrySet()) {
+            Assertions.assertThat(actual.containsKey(entry.getKey())).isTrue();
+            Assertions.assertThat(actual.get(entry.getKey())).isEqualTo(entry.getValue());
+        }
+    }
+
+    protected Map<String, Object> mappingAsJsonToMap(String mappingAsJson) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        MapType mapType = objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class);
+        try {
+            return new ObjectMapper().readValue(mappingAsJson, mapType);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

@@ -8,8 +8,6 @@ import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.create.CreateIndexAction;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestAccessor;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
@@ -22,15 +20,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.obourgain.elasticsearch.http.HttpClientImpl;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
-import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
-import com.google.common.collect.ImmutableMap;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.createindex.CreateIndexResponse;
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.Response;
 
 /**
  * @author olivier bourgain
  */
-public class CreateIndexActionHandler implements ActionHandler<CreateIndexRequest, CreateIndexResponse, CreateIndexRequestBuilder> {
+public class CreateIndexActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(CreateIndexActionHandler.class);
 
@@ -40,16 +37,16 @@ public class CreateIndexActionHandler implements ActionHandler<CreateIndexReques
         this.indicesAdminClient = indicesAdminClient;
     }
 
-    @Override
     public CreateIndexAction getAction() {
         return CreateIndexAction.INSTANCE;
     }
 
-    @Override
     public void execute(CreateIndexRequest request, final ActionListener<CreateIndexResponse> listener) {
         logger.debug("create index request {}", request);
         try {
             HttpClientImpl httpClient = indicesAdminClient.getHttpClient();
+// TODO warmers
+// TODO creation date http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-create-index.html#_creation_date
 
             String index = CreateIndexRequestAccessor.index(request);
             // TODO cause is unused in the rest API ?
@@ -105,7 +102,6 @@ public class CreateIndexActionHandler implements ActionHandler<CreateIndexReques
                 jsonBuilder.endObject();
             }
 
-
             if (!customs.isEmpty()) {
                 for (Map.Entry<String, IndexMetaData.Custom> entry : customs.entrySet()) {
                     IndexMetaData.Custom value = entry.getValue();
@@ -128,34 +124,15 @@ public class CreateIndexActionHandler implements ActionHandler<CreateIndexReques
             String body = jsonBuilder.string();
             httpRequest.setBody(body);
 
-            httpRequest
-                    .execute(new ListenerAsyncCompletionHandler<CreateIndexResponse>(listener) {
+            httpRequest.execute(new ListenerAsyncCompletionHandler<CreateIndexResponse>(listener) {
                         @Override
-                        protected CreateIndexResponse convert(ResponseWrapper responseWrapper) {
-                            return responseWrapper.toCreateIndexResponse();
+                        protected CreateIndexResponse convert(Response response) {
+                            return CreateIndexResponse.parse(response);
                         }
                     });
         } catch (Exception e) {
             listener.onFailure(e);
         }
-    }
-
-    private Map<String, Object> aliasToMap(Alias alias, String index) {
-        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        builder.put("index", index);
-        String filter = alias.filter();
-        if (filter != null) {
-            builder.put("filter", filter);
-        }
-        String searchRouting = alias.searchRouting();
-        if (searchRouting != null) {
-            builder.put("search_routing", searchRouting);
-        }
-        String indexRouting = alias.indexRouting();
-        if (indexRouting != null) {
-            builder.put("index_routing", indexRouting);
-        }
-        return builder.build();
     }
 
 }
