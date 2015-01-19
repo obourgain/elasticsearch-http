@@ -15,19 +15,17 @@ import org.elasticsearch.action.admin.indices.close.CloseIndexAction;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.flush.FlushAction;
+import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsAction;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingAction;
 import org.elasticsearch.action.admin.indices.open.OpenIndexAction;
 import org.elasticsearch.action.admin.indices.optimize.OptimizeAction;
-import org.elasticsearch.action.admin.indices.refresh.RefreshAction;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsAction;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsAction;
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesAction;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateAction;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryRequest;
-import org.elasticsearch.action.exists.ExistsRequest;
 import org.elasticsearch.action.support.PlainActionFuture;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.slf4j.Logger;
@@ -54,6 +52,7 @@ import com.github.obourgain.elasticsearch.http.handler.admin.indices.settings.Up
 import com.github.obourgain.elasticsearch.http.response.admin.indices.create.CreateIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.DeleteIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.exists.IndicesExistsResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.flush.FlushResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.refresh.RefreshResponse;
 import com.github.obourgain.elasticsearch.http.response.validate.ValidateQueryResponse;
 import com.google.common.collect.ImmutableMap;
@@ -73,6 +72,7 @@ public class HttpIndicesAdminClient {
     private DeleteIndexActionHandler deleteIndexActionHandler = new DeleteIndexActionHandler(this);
     private IndicesExistsActionHandler indicesExistsActionHandler = new IndicesExistsActionHandler(this);
     private RefreshActionHandler refreshActionHandler = new RefreshActionHandler(this);
+    private FlushActionHandler flushActionHandler = new FlushActionHandler(this);
 
     public HttpIndicesAdminClient(HttpClientImpl httpClient) {
         this.httpClient = httpClient;
@@ -88,7 +88,7 @@ public class HttpIndicesAdminClient {
         tempActionHandlers.put(IndicesAliasesAction.INSTANCE, new IndicesAliasesActionHandler(this));
         tempActionHandlers.put(GetAliasesAction.INSTANCE, new GetAliasesActionHandler(this));
 //        tempActionHandlers.put(RefreshAction.INSTANCE, new RefreshActionHandler(this));
-        tempActionHandlers.put(FlushAction.INSTANCE, new FlushActionHandler(this));
+//        tempActionHandlers.put(FlushAction.INSTANCE, new FlushActionHandler(this));
         tempActionHandlers.put(OptimizeAction.INSTANCE, new OptimizeActionHandler(this));
         tempActionHandlers.put(OpenIndexAction.INSTANCE, new OpenIndexActionHandler(this));
         tempActionHandlers.put(CloseIndexAction.INSTANCE, new CloseIndexActionHandler(this));
@@ -170,6 +170,16 @@ public class HttpIndicesAdminClient {
     public Future<RefreshResponse> refresh(RefreshRequest request) {
         PlainActionFuture<RefreshResponse> future = PlainActionFuture.newFuture();
         refresh(request, future);
+        return future;
+    }
+
+    public void flush(FlushRequest request, ActionListener<FlushResponse> listener) {
+        flushActionHandler.execute(request, listener);
+    }
+
+    public Future<FlushResponse> flush(FlushRequest request) {
+        PlainActionFuture<FlushResponse> future = PlainActionFuture.newFuture();
+        flush(request, future);
         return future;
     }
 

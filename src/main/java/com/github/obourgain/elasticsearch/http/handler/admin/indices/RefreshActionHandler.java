@@ -42,6 +42,11 @@ public class RefreshActionHandler {
             HttpRequestUtils.addIndicesOptions(httpRequest, request);
             httpRequest.addQueryParam("force", String.valueOf(request.force()));
             httpRequest.execute(new ListenerAsyncCompletionHandler<RefreshResponse>(listener) {
+                // TODO 404
+//                {
+//                    "error": "IndexMissingException[[twitter22] missing]",
+//                        "status": 404
+//                }
                         @Override
                         protected RefreshResponse convert(Response response) {
                             return RefreshResponse.parse(response);
