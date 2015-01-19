@@ -14,7 +14,7 @@ import org.elasticsearch.action.admin.indices.alias.get.GetAliasesAction;
 import org.elasticsearch.action.admin.indices.close.CloseIndexAction;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsAction;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.flush.FlushAction;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsAction;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingAction;
@@ -26,6 +26,7 @@ import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsAction;
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesAction;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateAction;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryRequest;
+import org.elasticsearch.action.exists.ExistsRequest;
 import org.elasticsearch.action.support.PlainActionFuture;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.slf4j.Logger;
@@ -51,6 +52,7 @@ import com.github.obourgain.elasticsearch.http.handler.admin.indices.open.OpenIn
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.settings.UpdateSettingsActionHandler;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.create.CreateIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.DeleteIndexResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.exists.IndicesExistsResponse;
 import com.github.obourgain.elasticsearch.http.response.validate.ValidateQueryResponse;
 import com.google.common.collect.ImmutableMap;
 
@@ -67,6 +69,7 @@ public class HttpIndicesAdminClient {
     private ValidateQueryActionHandler validateQueryActionHandler = new ValidateQueryActionHandler(this);
     private CreateIndexActionHandler createIndexActionHandler = new CreateIndexActionHandler(this);
     private DeleteIndexActionHandler deleteIndexActionHandler = new DeleteIndexActionHandler(this);
+    private IndicesExistsActionHandler indicesExistsActionHandler = new IndicesExistsActionHandler(this);
 
     public HttpIndicesAdminClient(HttpClientImpl httpClient) {
         this.httpClient = httpClient;
@@ -74,7 +77,7 @@ public class HttpIndicesAdminClient {
         tempActionHandlers.put(PutIndexTemplateAction.INSTANCE, new PutIndexTemplateActionHandler(this));
         tempActionHandlers.put(GetIndexTemplatesAction.INSTANCE, new GetTemplatesActionHandler(this));
 //        tempActionHandlers.put(CreateIndexAction.INSTANCE, new CreateIndexActionHandler(this));
-        tempActionHandlers.put(IndicesExistsAction.INSTANCE, new IndicesExistsActionHandler(this));
+//        tempActionHandlers.put(IndicesExistsAction.INSTANCE, new IndicesExistsActionHandler(this));
         tempActionHandlers.put(UpdateSettingsAction.INSTANCE, new UpdateSettingsActionHandler(this));
 //        tempActionHandlers.put(DeleteIndexAction.INSTANCE, new DeleteIndexActionHandler(this));
         tempActionHandlers.put(GetMappingsAction.INSTANCE, new GetMappingsActionHandler(this));
@@ -144,6 +147,16 @@ public class HttpIndicesAdminClient {
     public Future<DeleteIndexResponse> deleteIndex(DeleteIndexRequest request) {
         PlainActionFuture<DeleteIndexResponse> future = PlainActionFuture.newFuture();
         deleteIndex(request, future);
+        return future;
+    }
+
+    public void indexExists(IndicesExistsRequest request, ActionListener<IndicesExistsResponse> listener) {
+        indicesExistsActionHandler.execute(request, listener);
+    }
+
+    public Future<IndicesExistsResponse> indexExists(IndicesExistsRequest request) {
+        PlainActionFuture<IndicesExistsResponse> future = PlainActionFuture.newFuture();
+        indexExists(request, future);
         return future;
     }
 

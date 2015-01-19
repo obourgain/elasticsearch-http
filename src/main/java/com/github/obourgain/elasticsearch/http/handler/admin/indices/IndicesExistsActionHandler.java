@@ -3,24 +3,21 @@ package com.github.obourgain.elasticsearch.http.handler.admin.indices;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsAction;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClientImpl;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
-import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.exists.IndicesExistsResponse;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 
 /**
  * @author olivier bourgain
  */
-public class IndicesExistsActionHandler implements ActionHandler<IndicesExistsRequest, IndicesExistsResponse, IndicesExistsRequestBuilder> {
+public class IndicesExistsActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(IndicesExistsActionHandler.class);
 
@@ -30,12 +27,10 @@ public class IndicesExistsActionHandler implements ActionHandler<IndicesExistsRe
         this.indicesAdminClient = indicesAdminClient;
     }
 
-    @Override
     public IndicesExistsAction getAction() {
         return IndicesExistsAction.INSTANCE;
     }
 
-    @Override
     public void execute(IndicesExistsRequest request, final ActionListener<IndicesExistsResponse> listener) {
         logger.debug("indices exists request {}", request);
         try {
@@ -48,25 +43,8 @@ public class IndicesExistsActionHandler implements ActionHandler<IndicesExistsRe
             httpRequest
                     .execute(new ListenerAsyncCompletionHandler<IndicesExistsResponse>(listener) {
                         @Override
-                        public IndicesExistsResponse onCompleted(Response response) {
-                            int statusCode = response.getStatusCode();
-                            boolean exists;
-                            switch (statusCode) {
-                                case 200:
-                                    exists = true; break;
-                                case 404:
-                                    exists = false; break;
-                                // TODO when cluster blocks, I get a 403
-                                default : throw new IllegalStateException("status code " + statusCode + " is not supported for indices exists request");
-                            }
-                            IndicesExistsResponse indicesExistsResponse = new IndicesExistsResponse(exists);
-                            listener.onResponse(indicesExistsResponse);
-                            return indicesExistsResponse;
-                        }
-
-                        @Override
-                        protected IndicesExistsResponse convert(ResponseWrapper responseWrapper) {
-                            throw new IllegalStateException("not implemented for indices exists");
+                        protected IndicesExistsResponse convert(Response response) {
+                            return IndicesExistsResponse.parse(response);
                         }
                     });
         } catch (Exception e) {
