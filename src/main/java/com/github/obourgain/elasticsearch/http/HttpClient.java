@@ -20,6 +20,7 @@ import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.mlt.MoreLikeThisRequest;
 import org.elasticsearch.action.percolate.PercolateRequest;
+import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.support.PlainActionFuture;
 import org.elasticsearch.action.termvector.TermVectorRequest;
@@ -35,11 +36,13 @@ import com.github.obourgain.elasticsearch.http.handler.document.IndexActionHandl
 import com.github.obourgain.elasticsearch.http.handler.document.MoreLikeThisActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.TermVectorsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.UpdateActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.search.ClearScrollActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.CountActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.ExistsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.ExplainActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.PercolateActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.SearchActionHandler;
+import com.github.obourgain.elasticsearch.http.response.clearscroll.ClearScrollResponse;
 import com.github.obourgain.elasticsearch.http.response.count.CountResponse;
 import com.github.obourgain.elasticsearch.http.response.delete.DeleteResponse;
 import com.github.obourgain.elasticsearch.http.response.deleteByQuery.DeleteByQueryResponse;
@@ -86,6 +89,7 @@ public class HttpClient {
     ExplainActionHandler explainActionHandler = new ExplainActionHandler(this);
     PercolateActionHandler percolateActionHandler = new PercolateActionHandler(this);
     MoreLikeThisActionHandler moreLikeThisActionHandler = new MoreLikeThisActionHandler(this);
+    ClearScrollActionHandler clearScrollActionHandler = new ClearScrollActionHandler(this);
 
     public HttpClient(Collection<String> hosts) {
         this.urlProviderStrategy = new RoundRobinUrlProviderStrategy(hosts);
@@ -246,6 +250,16 @@ public class HttpClient {
     public Future<SearchResponse> moreLikeThis(MoreLikeThisRequest request) {
         PlainActionFuture<SearchResponse> future = PlainActionFuture.newFuture();
         moreLikeThis(request, future);
+        return future;
+    }
+
+    public void clearScroll(ClearScrollRequest request, ActionListener<ClearScrollResponse> listener) {
+        clearScrollActionHandler.execute(request, listener);
+    }
+
+    public Future<ClearScrollResponse> clearScroll(ClearScrollRequest request) {
+        PlainActionFuture<ClearScrollResponse> future = PlainActionFuture.newFuture();
+        clearScroll(request, future);
         return future;
     }
 
