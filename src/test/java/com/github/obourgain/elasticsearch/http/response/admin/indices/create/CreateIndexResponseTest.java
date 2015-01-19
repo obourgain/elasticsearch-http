@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.response.admin.indices.createindex;
+package com.github.obourgain.elasticsearch.http.response.admin.indices.create;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;

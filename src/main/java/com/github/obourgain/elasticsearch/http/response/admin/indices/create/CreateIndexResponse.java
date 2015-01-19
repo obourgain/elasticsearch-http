@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.response.admin.indices.createindex;
+package com.github.obourgain.elasticsearch.http.response.admin.indices.create;
 
 import java.io.IOException;
 import org.elasticsearch.common.xcontent.XContentHelper;

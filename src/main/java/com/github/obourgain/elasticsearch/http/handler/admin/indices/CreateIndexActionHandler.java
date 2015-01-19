@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.obourgain.elasticsearch.http.HttpClientImpl;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.createindex.CreateIndexResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.create.CreateIndexResponse;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 

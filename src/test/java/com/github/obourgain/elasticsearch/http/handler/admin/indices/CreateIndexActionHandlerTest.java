@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
 import com.github.obourgain.elasticsearch.http.TestFilesUtils;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.createindex.CreateIndexResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.create.CreateIndexResponse;
 
 public class CreateIndexActionHandlerTest extends AbstractTest {
 
