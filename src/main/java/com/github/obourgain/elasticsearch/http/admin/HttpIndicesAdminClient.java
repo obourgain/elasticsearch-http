@@ -21,6 +21,7 @@ import org.elasticsearch.action.admin.indices.mapping.put.PutMappingAction;
 import org.elasticsearch.action.admin.indices.open.OpenIndexAction;
 import org.elasticsearch.action.admin.indices.optimize.OptimizeAction;
 import org.elasticsearch.action.admin.indices.refresh.RefreshAction;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsAction;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsAction;
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesAction;
@@ -53,6 +54,7 @@ import com.github.obourgain.elasticsearch.http.handler.admin.indices.settings.Up
 import com.github.obourgain.elasticsearch.http.response.admin.indices.create.CreateIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.DeleteIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.exists.IndicesExistsResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.refresh.RefreshResponse;
 import com.github.obourgain.elasticsearch.http.response.validate.ValidateQueryResponse;
 import com.google.common.collect.ImmutableMap;
 
@@ -70,6 +72,7 @@ public class HttpIndicesAdminClient {
     private CreateIndexActionHandler createIndexActionHandler = new CreateIndexActionHandler(this);
     private DeleteIndexActionHandler deleteIndexActionHandler = new DeleteIndexActionHandler(this);
     private IndicesExistsActionHandler indicesExistsActionHandler = new IndicesExistsActionHandler(this);
+    private RefreshActionHandler refreshActionHandler = new RefreshActionHandler(this);
 
     public HttpIndicesAdminClient(HttpClientImpl httpClient) {
         this.httpClient = httpClient;
@@ -84,7 +87,7 @@ public class HttpIndicesAdminClient {
         tempActionHandlers.put(GetSettingsAction.INSTANCE, new GetSettingsActionHandler(this));
         tempActionHandlers.put(IndicesAliasesAction.INSTANCE, new IndicesAliasesActionHandler(this));
         tempActionHandlers.put(GetAliasesAction.INSTANCE, new GetAliasesActionHandler(this));
-        tempActionHandlers.put(RefreshAction.INSTANCE, new RefreshActionHandler(this));
+//        tempActionHandlers.put(RefreshAction.INSTANCE, new RefreshActionHandler(this));
         tempActionHandlers.put(FlushAction.INSTANCE, new FlushActionHandler(this));
         tempActionHandlers.put(OptimizeAction.INSTANCE, new OptimizeActionHandler(this));
         tempActionHandlers.put(OpenIndexAction.INSTANCE, new OpenIndexActionHandler(this));
@@ -157,6 +160,16 @@ public class HttpIndicesAdminClient {
     public Future<IndicesExistsResponse> indexExists(IndicesExistsRequest request) {
         PlainActionFuture<IndicesExistsResponse> future = PlainActionFuture.newFuture();
         indexExists(request, future);
+        return future;
+    }
+
+    public void refresh(RefreshRequest request, ActionListener<RefreshResponse> listener) {
+        refreshActionHandler.execute(request, listener);
+    }
+
+    public Future<RefreshResponse> refresh(RefreshRequest request) {
+        PlainActionFuture<RefreshResponse> future = PlainActionFuture.newFuture();
+        refresh(request, future);
         return future;
     }
 
