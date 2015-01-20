@@ -11,14 +11,14 @@ import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.GenericAction;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesAction;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesAction;
-import org.elasticsearch.action.admin.indices.close.CloseIndexAction;
+import org.elasticsearch.action.admin.indices.close.CloseIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsAction;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingAction;
-import org.elasticsearch.action.admin.indices.open.OpenIndexAction;
+import org.elasticsearch.action.admin.indices.open.OpenIndexRequest;
 import org.elasticsearch.action.admin.indices.optimize.OptimizeRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsAction;
@@ -49,10 +49,12 @@ import com.github.obourgain.elasticsearch.http.handler.admin.indices.close.Close
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.mapping.put.PutMappingActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.open.OpenIndexActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.settings.UpdateSettingsActionHandler;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.close.CloseIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.create.CreateIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.DeleteIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.exists.IndicesExistsResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.flush.FlushResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.optimize.OptimizeResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.refresh.RefreshResponse;
 import com.github.obourgain.elasticsearch.http.response.validate.ValidateQueryResponse;
@@ -75,6 +77,8 @@ public class HttpIndicesAdminClient {
     private RefreshActionHandler refreshActionHandler = new RefreshActionHandler(this);
     private FlushActionHandler flushActionHandler = new FlushActionHandler(this);
     private OptimizeActionHandler optimizeActionHandler = new OptimizeActionHandler(this);
+    private OpenIndexActionHandler openIndexActionHandler = new OpenIndexActionHandler(this);
+    private CloseIndexActionHandler closeIndexActionHandler = new CloseIndexActionHandler(this);
 
     public HttpIndicesAdminClient(HttpClientImpl httpClient) {
         this.httpClient = httpClient;
@@ -92,8 +96,8 @@ public class HttpIndicesAdminClient {
 //        tempActionHandlers.put(RefreshAction.INSTANCE, new RefreshActionHandler(this));
 //        tempActionHandlers.put(FlushAction.INSTANCE, new FlushActionHandler(this));
 //        tempActionHandlers.put(OptimizeAction.INSTANCE, new OptimizeActionHandler(this));
-        tempActionHandlers.put(OpenIndexAction.INSTANCE, new OpenIndexActionHandler(this));
-        tempActionHandlers.put(CloseIndexAction.INSTANCE, new CloseIndexActionHandler(this));
+//        tempActionHandlers.put(OpenIndexAction.INSTANCE, new OpenIndexActionHandler(this));
+//        tempActionHandlers.put(CloseIndexAction.INSTANCE, new CloseIndexActionHandler(this));
         tempActionHandlers.put(PutMappingAction.INSTANCE, new PutMappingActionHandler(this));
         this.actionHandlers = tempActionHandlers.build();
     }
@@ -192,6 +196,26 @@ public class HttpIndicesAdminClient {
     public Future<OptimizeResponse> optimize(OptimizeRequest request) {
         PlainActionFuture<OptimizeResponse> future = PlainActionFuture.newFuture();
         optimize(request, future);
+        return future;
+    }
+
+    public void open(OpenIndexRequest request, ActionListener<OpenIndexResponse> listener) {
+        openIndexActionHandler.execute(request, listener);
+    }
+
+    public Future<OpenIndexResponse> open(OpenIndexRequest request) {
+        PlainActionFuture<OpenIndexResponse> future = PlainActionFuture.newFuture();
+        open(request, future);
+        return future;
+    }
+
+    public void close(CloseIndexRequest request, ActionListener<CloseIndexResponse> listener) {
+        closeIndexActionHandler.execute(request, listener);
+    }
+
+    public Future<CloseIndexResponse> close(CloseIndexRequest request) {
+        PlainActionFuture<CloseIndexResponse> future = PlainActionFuture.newFuture();
+        close(request, future);
         return future;
     }
 

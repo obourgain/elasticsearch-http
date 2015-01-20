@@ -4,20 +4,18 @@ import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.close.CloseIndexAction;
 import org.elasticsearch.action.admin.indices.close.CloseIndexRequest;
 import org.elasticsearch.action.admin.indices.close.CloseIndexRequestAccessor;
-import org.elasticsearch.action.admin.indices.close.CloseIndexRequestBuilder;
-import org.elasticsearch.action.admin.indices.close.CloseIndexResponse;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClientImpl;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
-import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.close.CloseIndexResponse;
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.Response;
 
-public class CloseIndexActionHandler implements ActionHandler<CloseIndexRequest, CloseIndexResponse, CloseIndexRequestBuilder> {
+public class CloseIndexActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(CloseIndexActionHandler.class);
 
@@ -27,12 +25,10 @@ public class CloseIndexActionHandler implements ActionHandler<CloseIndexRequest,
         this.indicesAdminClient = indicesAdminClient;
     }
 
-    @Override
     public CloseIndexAction getAction() {
         return CloseIndexAction.INSTANCE;
     }
 
-    @Override
     public void execute(CloseIndexRequest request, final ActionListener<CloseIndexResponse> listener) {
         logger.debug("close index request {}", request);
         try {
@@ -51,8 +47,8 @@ public class CloseIndexActionHandler implements ActionHandler<CloseIndexRequest,
             httpRequest
                     .execute(new ListenerAsyncCompletionHandler<CloseIndexResponse>(listener) {
                         @Override
-                        protected CloseIndexResponse convert(ResponseWrapper responseWrapper) {
-                            return responseWrapper.toCloseIndexResponse();
+                        protected CloseIndexResponse convert(Response response) {
+                            return CloseIndexResponse.parse(response);
                         }
                     });
         } catch (Exception e) {

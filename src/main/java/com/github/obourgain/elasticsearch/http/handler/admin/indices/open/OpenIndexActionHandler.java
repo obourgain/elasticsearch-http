@@ -4,20 +4,18 @@ import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.open.OpenIndexAction;
 import org.elasticsearch.action.admin.indices.open.OpenIndexRequest;
 import org.elasticsearch.action.admin.indices.open.OpenIndexRequestAccessor;
-import org.elasticsearch.action.admin.indices.open.OpenIndexRequestBuilder;
-import org.elasticsearch.action.admin.indices.open.OpenIndexResponse;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClientImpl;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
-import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenIndexResponse;
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.Response;
 
-public class OpenIndexActionHandler implements ActionHandler<OpenIndexRequest, OpenIndexResponse, OpenIndexRequestBuilder> {
+public class OpenIndexActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenIndexActionHandler.class);
 
@@ -27,12 +25,10 @@ public class OpenIndexActionHandler implements ActionHandler<OpenIndexRequest, O
         this.indicesAdminClient = indicesAdminClient;
     }
 
-    @Override
     public OpenIndexAction getAction() {
         return OpenIndexAction.INSTANCE;
     }
 
-    @Override
     public void execute(OpenIndexRequest request, final ActionListener<OpenIndexResponse> listener) {
         logger.debug("open index request {}", request);
         try {
@@ -51,8 +47,8 @@ public class OpenIndexActionHandler implements ActionHandler<OpenIndexRequest, O
             httpRequest
                     .execute(new ListenerAsyncCompletionHandler<OpenIndexResponse>(listener) {
                         @Override
-                        protected OpenIndexResponse convert(ResponseWrapper responseWrapper) {
-                            return responseWrapper.toOpenIndexResponse();
+                        protected OpenIndexResponse convert(Response response) {
+                            return OpenIndexResponse.parse(response);
                         }
                     });
         } catch (Exception e) {
