@@ -12,8 +12,7 @@ import org.elasticsearch.search.lookup.SourceLookup;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
 import com.github.obourgain.elasticsearch.http.response.ElasticsearchHttpException;
-import com.github.obourgain.elasticsearch.http.response.entity.Shards;
-import com.github.obourgain.elasticsearch.http.response.search.SearchResponse;
+import com.github.obourgain.elasticsearch.http.response.search.search.SearchResponse;
 
 public class SearchActionHandlerTest extends AbstractTest {
 

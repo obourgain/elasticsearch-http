@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.response.deleteByQuery.DeleteByQueryResponse;
-import com.github.obourgain.elasticsearch.http.response.deleteByQuery.DeleteByQueryResponseParser;
+import com.github.obourgain.elasticsearch.http.response.document.deleteByQuery.DeleteByQueryResponse;
+import com.github.obourgain.elasticsearch.http.response.document.deleteByQuery.DeleteByQueryResponseParser;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 

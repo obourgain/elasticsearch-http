@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.response.search.SearchResponse;
+import com.github.obourgain.elasticsearch.http.response.search.search.SearchResponse;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 
