@@ -12,7 +12,7 @@ import org.elasticsearch.common.hppc.IntOpenHashSet;
 import org.elasticsearch.common.hppc.IntSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.response.exists.ExistsResponse;
 import com.ning.http.client.AsyncHttpClient;
@@ -29,9 +29,9 @@ public class ExistsActionHandler {
         NON_200_VALID_STATUSES.add(404);
     }
 
-    private final HttpClientImpl httpClient;
+    private final HttpClient httpClient;
 
-    public ExistsActionHandler(HttpClientImpl httpClient) {
+    public ExistsActionHandler(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

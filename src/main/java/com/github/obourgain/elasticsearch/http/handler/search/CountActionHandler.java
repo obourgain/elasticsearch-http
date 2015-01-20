@@ -7,11 +7,10 @@ import org.elasticsearch.action.count.CountRequest;
 import org.elasticsearch.action.count.CountRequestAccessor;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.bytes.BytesReference;
-import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.search.internal.SearchContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
 import com.github.obourgain.elasticsearch.http.response.count.CountResponse;
@@ -25,9 +24,9 @@ public class CountActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(CountActionHandler.class);
 
-    private final HttpClientImpl httpClient;
+    private final HttpClient httpClient;
 
-    public CountActionHandler(HttpClientImpl httpClient) {
+    public CountActionHandler(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

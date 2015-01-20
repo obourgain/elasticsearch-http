@@ -7,7 +7,7 @@ import org.elasticsearch.action.admin.indices.open.OpenIndexRequestAccessor;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
@@ -37,7 +37,7 @@ public class OpenIndexActionHandler {
                 indices = "/" + indices;
             }
 
-            HttpClientImpl httpClient = indicesAdminClient.getHttpClient();
+            HttpClient httpClient = indicesAdminClient.getHttpClient();
             AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePost(httpClient.getUrl() + indices + "/_open");
 
             httpRequest.addQueryParam("timeout", String.valueOf(request.timeout()));

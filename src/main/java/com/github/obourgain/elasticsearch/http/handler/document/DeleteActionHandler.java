@@ -7,7 +7,7 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.support.replication.ShardReplicationOperationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.response.delete.DeleteResponse;
 import com.github.obourgain.elasticsearch.http.response.delete.DeleteResponseParser;
@@ -22,9 +22,9 @@ public class DeleteActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(DeleteActionHandler.class);
 
-    private final HttpClientImpl httpClient;
+    private final HttpClient httpClient;
 
-    public DeleteActionHandler(HttpClientImpl httpClient) {
+    public DeleteActionHandler(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

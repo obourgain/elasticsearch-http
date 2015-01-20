@@ -5,7 +5,7 @@ import org.elasticsearch.action.admin.indices.refresh.RefreshAction;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
@@ -33,7 +33,7 @@ public class RefreshActionHandler {
     public void execute(RefreshRequest request, final ActionListener<RefreshResponse> listener) {
         logger.debug("refresh request {}", request);
         try {
-            HttpClientImpl httpClient = indicesAdminClient.getHttpClient();
+            HttpClient httpClient = indicesAdminClient.getHttpClient();
 
             String indices = HttpRequestUtils.indicesOrAll(request);
 

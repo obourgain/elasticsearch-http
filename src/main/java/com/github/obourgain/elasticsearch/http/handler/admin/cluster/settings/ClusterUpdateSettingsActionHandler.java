@@ -13,7 +13,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpClusterAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
@@ -40,7 +40,7 @@ public class ClusterUpdateSettingsActionHandler implements ActionHandler<Cluster
         // TODO test
         logger.debug("cluster update settings request {}", request);
         try {
-            HttpClientImpl httpClient = indicesAdminClient.getHttpClient();
+            HttpClient httpClient = indicesAdminClient.getHttpClient();
             AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePut(httpClient.getUrl() + "/_cluster/settings");
 
             // TODO what to do with headers ?

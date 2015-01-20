@@ -5,7 +5,7 @@ import org.elasticsearch.action.admin.indices.flush.FlushAction;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
@@ -33,7 +33,7 @@ public class FlushActionHandler {
     public void execute(FlushRequest request, final ActionListener<FlushResponse> listener) {
         logger.debug("flush request {}", request);
         try {
-            HttpClientImpl httpClient = indicesAdminClient.getHttpClient();
+            HttpClient httpClient = indicesAdminClient.getHttpClient();
 
             String indices = HttpRequestUtils.indicesOrAll(request);
 

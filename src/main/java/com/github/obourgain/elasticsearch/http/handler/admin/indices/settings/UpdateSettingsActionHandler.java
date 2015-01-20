@@ -12,7 +12,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
@@ -49,7 +49,7 @@ public class UpdateSettingsActionHandler implements ActionHandler<UpdateSettings
                 indices = "/" + indices;
             }
 
-            HttpClientImpl httpClient = indicesAdminClient.getHttpClient();
+            HttpClient httpClient = indicesAdminClient.getHttpClient();
             AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePut(httpClient.getUrl() + indices + "/_settings");
 
             Settings settings = UpdateSettingsRequestAccessor.settings(request);

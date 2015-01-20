@@ -8,7 +8,7 @@ import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResp
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
@@ -37,7 +37,7 @@ public class GetTemplatesActionHandler implements ActionHandler<GetIndexTemplate
     public void execute(GetIndexTemplatesRequest request, final ActionListener<GetIndexTemplatesResponse> listener) {
         logger.debug("get index templates request {}", request);
         try {
-            HttpClientImpl httpClient = indicesAdminClient.getHttpClient();
+            HttpClient httpClient = indicesAdminClient.getHttpClient();
             String names = Strings.arrayToCommaDelimitedString(request.names());
             AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareGet(httpClient.getUrl() + "/_template/" + names);
 

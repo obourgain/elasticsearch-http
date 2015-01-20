@@ -9,7 +9,7 @@ import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
@@ -22,9 +22,9 @@ public class MoreLikeThisActionHandler implements ActionHandler<MoreLikeThisRequ
 
     private static final Logger logger = LoggerFactory.getLogger(MoreLikeThisActionHandler.class);
 
-    private final HttpClientImpl httpClient;
+    private final HttpClient httpClient;
 
-    public MoreLikeThisActionHandler(HttpClientImpl httpClient) {
+    public MoreLikeThisActionHandler(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

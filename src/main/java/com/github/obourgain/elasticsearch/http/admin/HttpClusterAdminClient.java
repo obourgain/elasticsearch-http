@@ -19,7 +19,7 @@ import org.elasticsearch.client.support.AbstractClusterAdminClient;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.cluster.ClusterHealthActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.cluster.ClusterStateActionHandler;
@@ -35,10 +35,10 @@ public class HttpClusterAdminClient extends AbstractClusterAdminClient {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClusterAdminClient.class);
 
-    private final HttpClientImpl httpClient;
+    private final HttpClient httpClient;
     private final ImmutableMap<GenericAction, ActionHandler> actionHandlers;
 
-    public HttpClusterAdminClient(HttpClientImpl httpClient) {
+    public HttpClusterAdminClient(HttpClient httpClient) {
         this.httpClient = httpClient;
 
         ImmutableMap.Builder<GenericAction, ActionHandler> tempActionHandlers = ImmutableMap.builder();
@@ -80,7 +80,7 @@ public class HttpClusterAdminClient extends AbstractClusterAdminClient {
         return null;
     }
 
-    public HttpClientImpl getHttpClient() {
+    public HttpClient getHttpClient() {
         return httpClient;
     }
 }

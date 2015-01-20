@@ -8,7 +8,7 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpClusterAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
@@ -37,7 +37,7 @@ public class ClusterHealthActionHandler implements ActionHandler<ClusterHealthRe
     public void execute(ClusterHealthRequest request, final ActionListener<ClusterHealthResponse> listener) {
         logger.debug("cluster health request {}", request);
         try {
-            HttpClientImpl httpClient = indicesAdminClient.getHttpClient();
+            HttpClient httpClient = indicesAdminClient.getHttpClient();
             StringBuilder url = new StringBuilder();
             url.append(httpClient.getUrl());
             url.append("/_cluster/health");

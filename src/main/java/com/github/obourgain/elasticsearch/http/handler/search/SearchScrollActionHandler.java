@@ -7,7 +7,7 @@ import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
@@ -20,9 +20,9 @@ public class SearchScrollActionHandler implements ActionHandler<SearchScrollRequ
 
     private static final Logger logger = LoggerFactory.getLogger(SearchScrollActionHandler.class);
 
-    private final HttpClientImpl httpClient;
+    private final HttpClient httpClient;
 
-    public SearchScrollActionHandler(HttpClientImpl httpClient) {
+    public SearchScrollActionHandler(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

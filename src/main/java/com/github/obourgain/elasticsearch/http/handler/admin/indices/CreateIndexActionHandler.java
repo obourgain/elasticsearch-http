@@ -17,7 +17,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.create.CreateIndexResponse;
@@ -44,7 +44,7 @@ public class CreateIndexActionHandler {
     public void execute(CreateIndexRequest request, final ActionListener<CreateIndexResponse> listener) {
         logger.debug("create index request {}", request);
         try {
-            HttpClientImpl httpClient = indicesAdminClient.getHttpClient();
+            HttpClient httpClient = indicesAdminClient.getHttpClient();
 // TODO warmers
 // TODO creation date http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-create-index.html#_creation_date
 

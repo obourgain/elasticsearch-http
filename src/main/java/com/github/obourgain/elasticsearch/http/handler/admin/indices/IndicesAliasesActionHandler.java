@@ -17,7 +17,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
@@ -48,7 +48,7 @@ public class IndicesAliasesActionHandler implements ActionHandler<IndicesAliases
     public void execute(IndicesAliasesRequest request, final ActionListener<IndicesAliasesResponse> listener) {
         logger.debug("indices aliases request {}", request);
         try {
-            HttpClientImpl httpClient = indicesAdminClient.getHttpClient();
+            HttpClient httpClient = indicesAdminClient.getHttpClient();
 
             XContentBuilder jsonBuilder = XContentFactory.jsonBuilder().startObject();
             jsonBuilder.startArray("actions");

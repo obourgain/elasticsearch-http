@@ -8,7 +8,7 @@ import org.elasticsearch.action.search.ClearScrollResponse;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
@@ -21,9 +21,9 @@ public class ClearScrollActionHandler implements ActionHandler<ClearScrollReques
 
     private static final Logger logger = LoggerFactory.getLogger(SearchScrollActionHandler.class);
 
-    private final HttpClientImpl httpClient;
+    private final HttpClient httpClient;
 
-    public ClearScrollActionHandler(HttpClientImpl httpClient) {
+    public ClearScrollActionHandler(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

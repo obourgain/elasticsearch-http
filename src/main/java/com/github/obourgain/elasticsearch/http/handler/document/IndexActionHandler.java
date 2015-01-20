@@ -9,7 +9,7 @@ import org.elasticsearch.common.lucene.uid.Versions;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.response.index.IndexResponse;
 import com.github.obourgain.elasticsearch.http.response.index.IndexResponseParser;
@@ -24,9 +24,9 @@ public class IndexActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexActionHandler.class);
 
-    private final HttpClientImpl httpClient;
+    private final HttpClient httpClient;
 
-    public IndexActionHandler(HttpClientImpl httpClient) {
+    public IndexActionHandler(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

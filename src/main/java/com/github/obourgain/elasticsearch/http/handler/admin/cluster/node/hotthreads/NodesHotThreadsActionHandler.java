@@ -17,7 +17,7 @@ import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpClusterAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
@@ -52,7 +52,7 @@ public class NodesHotThreadsActionHandler implements ActionHandler<NodesHotThrea
     public void execute(NodesHotThreadsRequest request, final ActionListener<NodesHotThreadsResponse> listener) {
         logger.debug("nodes hot threads request {}", request);
         try {
-            HttpClientImpl httpClient = indicesAdminClient.getHttpClient();
+            HttpClient httpClient = indicesAdminClient.getHttpClient();
             StringBuilder url = new StringBuilder();
             url.append(httpClient.getUrl());
             url.append("/_nodes/");

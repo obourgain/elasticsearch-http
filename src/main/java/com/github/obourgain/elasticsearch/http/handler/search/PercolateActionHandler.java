@@ -8,7 +8,7 @@ import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.lucene.uid.Versions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
 import com.github.obourgain.elasticsearch.http.response.percolate.PercolateResponse;
@@ -22,9 +22,9 @@ public class PercolateActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(PercolateActionHandler.class);
 
-    private final HttpClientImpl httpClient;
+    private final HttpClient httpClient;
 
-    public PercolateActionHandler(HttpClientImpl httpClient) {
+    public PercolateActionHandler(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

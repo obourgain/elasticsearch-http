@@ -14,7 +14,7 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
@@ -28,9 +28,9 @@ public class SuggestActionHandler implements ActionHandler<SuggestRequest, Sugge
 
     private static final Logger logger = LoggerFactory.getLogger(SuggestActionHandler.class);
 
-    private final HttpClientImpl httpClient;
+    private final HttpClient httpClient;
 
-    public SuggestActionHandler(HttpClientImpl httpClient) {
+    public SuggestActionHandler(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

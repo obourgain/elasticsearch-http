@@ -10,7 +10,7 @@ import org.elasticsearch.common.lucene.uid.Versions;
 import org.elasticsearch.search.fetch.source.FetchSourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.response.get.GetResponse;
 import com.github.obourgain.elasticsearch.http.response.get.GetResponseParser;
@@ -25,9 +25,9 @@ public class GetActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GetActionHandler.class);
 
-    private final HttpClientImpl httpClient;
+    private final HttpClient httpClient;
 
-    public GetActionHandler(HttpClientImpl httpClient) {
+    public GetActionHandler(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

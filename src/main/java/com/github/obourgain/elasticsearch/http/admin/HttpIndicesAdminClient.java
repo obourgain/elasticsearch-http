@@ -1,13 +1,7 @@
 package com.github.obourgain.elasticsearch.http.admin;
 
 import java.util.concurrent.Future;
-import org.elasticsearch.action.Action;
-import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.ActionListener;
-import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.ActionRequestBuilder;
-import org.elasticsearch.action.ActionRequestValidationException;
-import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.GenericAction;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesAction;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesAction;
@@ -27,10 +21,9 @@ import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesActi
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateAction;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryRequest;
 import org.elasticsearch.action.support.PlainActionFuture;
-import org.elasticsearch.client.IndicesAdminClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.CreateIndexActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.DeleteIndexActionHandler;
@@ -67,8 +60,7 @@ public class HttpIndicesAdminClient {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpIndicesAdminClient.class);
 
-    private final HttpClientImpl httpClient;
-    private final ImmutableMap<GenericAction, ActionHandler> actionHandlers;
+    private final HttpClient httpClient;
 
     private ValidateQueryActionHandler validateQueryActionHandler = new ValidateQueryActionHandler(this);
     private CreateIndexActionHandler createIndexActionHandler = new CreateIndexActionHandler(this);
@@ -80,52 +72,20 @@ public class HttpIndicesAdminClient {
     private OpenIndexActionHandler openIndexActionHandler = new OpenIndexActionHandler(this);
     private CloseIndexActionHandler closeIndexActionHandler = new CloseIndexActionHandler(this);
 
-    public HttpIndicesAdminClient(HttpClientImpl httpClient) {
+    public HttpIndicesAdminClient(HttpClient httpClient) {
         this.httpClient = httpClient;
         ImmutableMap.Builder<GenericAction, ActionHandler> tempActionHandlers = ImmutableMap.builder();
         tempActionHandlers.put(PutIndexTemplateAction.INSTANCE, new PutIndexTemplateActionHandler(this));
         tempActionHandlers.put(GetIndexTemplatesAction.INSTANCE, new GetTemplatesActionHandler(this));
-//        tempActionHandlers.put(CreateIndexAction.INSTANCE, new CreateIndexActionHandler(this));
-//        tempActionHandlers.put(IndicesExistsAction.INSTANCE, new IndicesExistsActionHandler(this));
         tempActionHandlers.put(UpdateSettingsAction.INSTANCE, new UpdateSettingsActionHandler(this));
-//        tempActionHandlers.put(DeleteIndexAction.INSTANCE, new DeleteIndexActionHandler(this));
         tempActionHandlers.put(GetMappingsAction.INSTANCE, new GetMappingsActionHandler(this));
         tempActionHandlers.put(GetSettingsAction.INSTANCE, new GetSettingsActionHandler(this));
         tempActionHandlers.put(IndicesAliasesAction.INSTANCE, new IndicesAliasesActionHandler(this));
         tempActionHandlers.put(GetAliasesAction.INSTANCE, new GetAliasesActionHandler(this));
-//        tempActionHandlers.put(RefreshAction.INSTANCE, new RefreshActionHandler(this));
-//        tempActionHandlers.put(FlushAction.INSTANCE, new FlushActionHandler(this));
-//        tempActionHandlers.put(OptimizeAction.INSTANCE, new OptimizeActionHandler(this));
-//        tempActionHandlers.put(OpenIndexAction.INSTANCE, new OpenIndexActionHandler(this));
-//        tempActionHandlers.put(CloseIndexAction.INSTANCE, new CloseIndexActionHandler(this));
         tempActionHandlers.put(PutMappingAction.INSTANCE, new PutMappingActionHandler(this));
-        this.actionHandlers = tempActionHandlers.build();
     }
 
-    public <Request extends ActionRequest, Response extends ActionResponse, RequestBuilder extends ActionRequestBuilder<Request, Response, RequestBuilder, IndicesAdminClient>> ActionFuture<Response> execute(Action<Request, Response, RequestBuilder, IndicesAdminClient> action, Request request) {
-        PlainActionFuture<Response> future = PlainActionFuture.newFuture();
-        ActionRequestValidationException validationException = request.validate();
-        if (validationException != null) {
-            future.onFailure(validationException);
-            return future;
-        }
-        ActionHandler<Request, Response, RequestBuilder> handler = actionHandlers.get(action);
-        if(handler == null) {
-            throw new IllegalStateException("no handler found for action " + action);
-        }
-        handler.execute(request, future);
-        return future;
-    }
-
-    public <Request extends ActionRequest, Response extends ActionResponse, RequestBuilder extends ActionRequestBuilder<Request, Response, RequestBuilder, IndicesAdminClient>> void execute(Action<Request, Response, RequestBuilder, IndicesAdminClient> action, Request request, ActionListener<Response> listener) {
-        ActionHandler<Request, Response, RequestBuilder> handler = actionHandlers.get(action);
-        if(handler == null) {
-            throw new IllegalStateException("no handler found for action " + action);
-        }
-        handler.execute(request, listener);
-    }
-
-    public HttpClientImpl getHttpClient() {
+    public HttpClient getHttpClient() {
         return httpClient;
     }
 

@@ -6,7 +6,7 @@ import org.elasticsearch.action.explain.ExplainRequest;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClientImpl;
+import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.response.explain.ExplainResponse;
 import com.ning.http.client.AsyncHttpClient;
@@ -19,9 +19,9 @@ public class ExplainActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ExplainActionHandler.class);
 
-    private final HttpClientImpl httpClient;
+    private final HttpClient httpClient;
 
-    public ExplainActionHandler(HttpClientImpl httpClient) {
+    public ExplainActionHandler(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 

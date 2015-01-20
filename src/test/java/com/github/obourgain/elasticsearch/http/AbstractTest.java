@@ -38,7 +38,7 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
     public static final String THE_ID = "the_id";
 
     protected TransportClient transportClient;
-    protected HttpClientImpl httpClient;
+    protected HttpClient httpClient;
 
     @Before
     public void setUpClient() throws IOException, InterruptedException, NoSuchFieldException, IllegalAccessException {
@@ -56,7 +56,7 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
         InetSocketAddress socketAddress = inetSocketTransportAddress.address();
 
         String url = String.format("http://%s:%d", socketAddress.getHostName(), socketAddress.getPort());
-        httpClient = new HttpClientImpl(Collections.singleton(url));
+        httpClient = new HttpClient(Collections.singleton(url));
     }
 
     @After
