@@ -24,7 +24,6 @@ import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionRequestValidationException;
 import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.RoutingMissingException;
-import org.elasticsearch.action.ShardOperationFailedException;
 import org.elasticsearch.action.UnavailableShardsException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
@@ -43,24 +42,10 @@ import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponseAccessor
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasResponseAccessor;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesResponse;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
-import org.elasticsearch.action.admin.indices.close.CloseIndexResponse;
-import org.elasticsearch.action.admin.indices.close.CloseIndexResponseAccessor;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponseAccessor;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponseAccessor;
-import org.elasticsearch.action.admin.indices.flush.FlushResponse;
-import org.elasticsearch.action.admin.indices.flush.FlushResponseAccessor;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponseAccessor;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponseAccessor;
-import org.elasticsearch.action.admin.indices.open.OpenIndexResponse;
-import org.elasticsearch.action.admin.indices.open.OpenIndexResponseAccessor;
-import org.elasticsearch.action.admin.indices.optimize.OptimizeResponse;
-import org.elasticsearch.action.admin.indices.optimize.OptimizeResponseAccessor;
-import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
-import org.elasticsearch.action.admin.indices.refresh.RefreshResponseAccessor;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsResponseAccessor;
@@ -68,27 +53,16 @@ import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResp
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResponseAccessor;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponseAccessor;
-import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryResponse;
-import org.elasticsearch.action.admin.indices.validate.query.ValidateRequestAccessor;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.count.CountRequestAccessor;
-import org.elasticsearch.action.count.CountResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestAccessor;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
-import org.elasticsearch.action.deletebyquery.IndexDeleteByQueryResponse;
-import org.elasticsearch.action.exists.ExistsResponse;
-import org.elasticsearch.action.exists.ExistsResponseAccessor;
-import org.elasticsearch.action.explain.ExplainResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.GetResponseAccessor;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.percolate.PercolateResponse;
 import org.elasticsearch.action.search.ClearScrollResponse;
 import org.elasticsearch.action.search.ReduceSearchPhaseException;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
@@ -97,8 +71,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.action.suggest.SuggestResponseAccessor;
-import org.elasticsearch.action.support.DefaultShardOperationFailedException;
-import org.elasticsearch.action.termvector.TermVectorResponse;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.cluster.ClusterName;
 import org.elasticsearch.cluster.ClusterState;
@@ -153,7 +125,6 @@ import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.elasticsearch.indices.IndexClosedException;
 import org.elasticsearch.indices.IndexMissingException;
 import org.elasticsearch.indices.InvalidIndexNameException;
-import org.elasticsearch.percolator.PercolatorService;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.rest.action.admin.indices.alias.delete.AliasesMissingException;
 import org.elasticsearch.script.expression.ExpressionScriptCompilationException;
@@ -290,12 +261,6 @@ public class ResponseWrapper<Req> {
     }
 
     @Nullable
-    private Map<String, Object> getAsStringObjectMap(String key) {
-        // hide the unchecked cast under the carpet
-        return (Map<String, Object>) getAs(entityWrapper, key, Map.class);
-    }
-
-    @Nullable
     private static Map<String, Object> getAsStringObjectMap(Map map, String key) {
         return (Map<String, Object>) getAs(map, key, Map.class);
     }
@@ -324,68 +289,6 @@ public class ResponseWrapper<Req> {
     public Map<String, GetField> getFields(Map<String, Object> fieldsAsMap) {
         Map<String, Object> fields = getAsStringObjectMap(fieldsAsMap, "fields");
         return getResultToMapOfGetFields(fields);
-    }
-
-    public GetResponse toGetResponse() {
-        return GetResponseAccessor.build(toGetResult(entityWrapper, entityWrapper));
-    }
-
-    public DeleteResponse toDeleteResponse() {
-        // is the document does not exists, its version will be set to 1 on first delete and then incremented each time
-        return new DeleteResponse(getIndex(entityWrapper), getType(entityWrapper), getId(entityWrapper), getVersion(entityWrapper), isFound(entityWrapper));
-    }
-
-    public CountResponse toCountResponse() {
-        Boolean terminatedEarly = getHasTerminatedEarly();
-        Boolean hasTerminatedEarly = terminatedEarly != null ? terminatedEarly : false;
-
-        Map<String, Object> shards = getAsStringObjectMap(entityWrapper, "_shards");
-        List<ShardOperationFailedException> failures = getShardOperationFailures(shards);
-
-        return CountRequestAccessor.build(getAsNumber(entityWrapper, "count").longValue(), hasTerminatedEarly, getTotalShards(), getSuccessfulShards(), getFailedShards(), failures);
-    }
-
-    public IndexResponse toIndexResponse() {
-        Boolean created = getAs(entityWrapper, "created", Boolean.class);
-        return new IndexResponse(getIndex(entityWrapper), getType(entityWrapper), getId(entityWrapper), getVersion(entityWrapper), created);
-    }
-
-    public UpdateResponse toUpdateResponse() {
-        boolean created;
-        switch (response.getStatusCode()) {
-            case 200:
-                created = false;
-                break;
-            case 201:
-                created = true;
-                break;
-            default:
-                throw new IllegalStateException("status code " + response.getStatusCode() + " is not supported");
-        }
-        UpdateResponse updateResponse = new UpdateResponse(getIndex(entityWrapper), getType(entityWrapper), getId(entityWrapper), getVersion(entityWrapper), created);
-        Map<String, Object> getFields = getAsStringObjectMap(entityWrapper, "get");
-        if (getFields != null) {
-            GetResult getResult = toGetResult(entityWrapper, getFields);
-            updateResponse.setGetResult(getResult);
-        }
-        return updateResponse;
-    }
-
-    public TermVectorResponse toTermVectorResponse() {
-        String index = getIndex(entityWrapper);
-        String type = getType(entityWrapper);
-        String id = getId(entityWrapper);
-        TermVectorResponse termVectorResponse = new TermVectorResponse(index, type, id);
-        termVectorResponse.setDocVersion(getVersion(entityWrapper));
-        termVectorResponse.setExists(getAs(entityWrapper, "found", Boolean.class));
-        Map<String, Map<String, Object>> termVectors = getAsNestedStringToMapMap(entityWrapper, "term_vectors");
-        Map<String, Object> fieldAsMap = getAsStringObjectMap(termVectors, "field");
-        if(fieldAsMap != null) {
-            Map<String, Object> termsAsMap = getAsStringObjectMap(fieldAsMap, "terms");
-            Map<String, Object> fieldStatisticsAsMap = getAsStringObjectMap(fieldAsMap, "fieldStatistics");
-            // TODO
-        }
-        return termVectorResponse;
     }
 
     public SearchResponse toSearchResponse() {
@@ -579,54 +482,6 @@ public class ResponseWrapper<Req> {
         return new ClearScrollResponse(error == null, 0);
     }
 
-    public ValidateQueryResponse toValidateQueryResponse() {
-        boolean valid = getAs(entityWrapper, "valid", boolean.class);
-        int totalShards = getTotalShards();
-        int successfulShards = getSuccessfulShards();
-        int failedShards = getFailedShards();
-        // TODO query explanation
-        // TODO shard failures
-        return ValidateRequestAccessor.build(valid, null, totalShards, successfulShards, failedShards, null);
-    }
-
-    public ExplainResponse toExplainResponse() {
-        boolean exists;
-        switch (response.getStatusCode()) {
-            case 200:
-                exists = true;
-                break;
-            case 409:
-            case 404:
-                exists = false;
-                break;
-            default:
-                throw new IllegalStateException("status code " + response.getStatusCode() + " is not supported");
-        }
-        String index = getIndex(entityWrapper);
-        String type = getType(entityWrapper);
-        String id = getId(entityWrapper);
-        Map<String, Object> explanationAsMap = getAsStringObjectMap("explanation");
-        if (explanationAsMap == null) {
-            return new ExplainResponse(index, type, id, exists);
-        } else {
-            Explanation explanation = toExplanation(explanationAsMap);
-            List<Map<String, Object>> details = getAsListOfStringObjectMap(explanationAsMap, "details");
-            if (details != null) {
-                for (Map<String, Object> detail : details) {
-                    explanation.addDetail(toExplanation(detail));
-                }
-            }
-
-            Map<String, Object> getResultAsMap = getAsStringObjectMap("get");
-            if (getResultAsMap != null) {
-                boolean found = (boolean) getResultAsMap.get("found"); // seems like we always have found set to true when doc exists and no "get" field when the doc doesn't
-                GetResult getResult = toExplainGetResult(found, index, type, id, getResultAsMap);
-                return new ExplainResponse(index, type, id, exists, explanation, getResult);
-            }
-            return new ExplainResponse(index, type, id, exists, explanation);
-        }
-    }
-
     private GetResult toExplainGetResult(boolean found, String index, String type, String id, Map<String, Object> getAsMap) {
         if (getAsMap != null) {
             BytesReference sourceAsBytes = getSourceAsBytes(getAsMap);
@@ -658,24 +513,6 @@ public class ResponseWrapper<Req> {
         return explanation;
     }
 
-    public DeleteByQueryResponse toDeleteByQueryResponse() {
-        DeleteByQueryResponse build = DeleteByQueryRequestAccessor.build();
-        Map<String, Map<String, Object>> indices = getAsNestedStringToMapMap(entityWrapper, "_indices");
-        for (Map.Entry<String, Map<String, Object>> entry : indices.entrySet()) {
-            Map<String, Object> values = entry.getValue();
-            Map<String, Object> shards = getAsStringObjectMap(values, "_shards");
-            int successful = (int) shards.get("successful");
-            int failed = (int) shards.get("failed");
-            // TODO get shard failures
-            List<ShardOperationFailedException> shardOperationFailures = getShardSearchFailures(shards);
-
-            IndexDeleteByQueryResponse value = DeleteByQueryRequestAccessor.buildIndexResponse(entry.getKey(), successful, failed, shardOperationFailures);
-            build.getIndices().put(entry.getKey(), value);
-        }
-
-        return build;
-    }
-
     public SuggestResponse toSuggestResponse() {
         List<Suggest.Suggestion> suggestions = new ArrayList<>();
 
@@ -705,37 +542,6 @@ public class ResponseWrapper<Req> {
         Suggest suggest = new Suggest();
         // TODO failures
         return SuggestResponseAccessor.build(suggest, getTotalShards(), getSuccessfulShards(), getFailedShards(), null);
-    }
-
-    public PercolateResponse toPercolateResponse() {
-        // TODO aggs
-        // TODO scores are not available in the response ...
-        long took = getAsNumber(entityWrapper, "took").longValue();
-
-        List<Map<String, Object>> matchesAsList = getAsListOfStringObjectMap(entityWrapper, "matches");
-        PercolateResponse.Match[] matches;
-        if(matchesAsList != null) {
-            matches = new PercolateResponse.Match[matchesAsList.size()];
-            for (int i = 0; i < matchesAsList.size(); i++) {
-                Map<String, Object> matchAsMap = matchesAsList.get(i);
-                Text index = new StringText((String) matchAsMap.get("_index"));
-                Text id = new StringText((String) matchAsMap.get("_id"));
-                Number score = getAsNumber(matchAsMap, "_score");
-                float actualScore = score != null ? score.floatValue() : PercolatorService.NO_SCORE;
-
-                Map<String, List<String>> highlightAsMap = getAsStringListOfStringsMap(matchAsMap, "highlight");
-                Map<String, HighlightField> highlightFieldMap = buildHighlights(highlightAsMap);
-
-                PercolateResponse.Match match = new PercolateResponse.Match(index, id, actualScore, highlightFieldMap);
-                matches[i] = match;
-            }
-        } else {
-            matches = null;
-        }
-
-        Map<String, Object> shards = getAsStringObjectMap(entityWrapper, "_shards");
-        List<ShardOperationFailedException> shardOperationFailures = getShardOperationFailures(shards);
-        return new PercolateResponse(getTotalShards(), getSuccessfulShards(), getFailedShards(), shardOperationFailures, matches, getAsNumber(entityWrapper, "total").longValue(), took, null, null);
     }
 
     @Nullable
@@ -807,49 +613,6 @@ public class ResponseWrapper<Req> {
             String reason = getAs(failureAsMap, "reason", String.class);
             ShardSearchFailure shardSearchFailure = new ShardSearchFailure(reason, searchShardTarget);
             result[i] = shardSearchFailure;
-        }
-        return result;
-    }
-
-    private List<ShardOperationFailedException> getShardOperationFailures(Map<String, Object> map) {
-        if(map == null) {
-            return null;
-        }
-        List<Map<String, Object>> failuresAsMaps = getAsListOfStringObjectMap(map, "failures");
-        if (failuresAsMaps == null) {
-            return null;
-        }
-
-        // "failures":[{"index":"test","shard":1,"reason":"RemoteTransportException[[node_0][local[1]][indices:data/write/delete/by_query[s]]]; nested: QueryParsingException[[test] [has_child] unsupported in delete_by_query api]; "},{"index":"test","shard":0,"reason":"QueryParsingException[[test] [has_child] unsupported in delete_by_query api]"
-        List<ShardOperationFailedException> result = new ArrayList<>();
-        for (Map<String, Object> failuresAsMap : failuresAsMaps) {
-            String reason = getAsString(failuresAsMap, "reason");
-            String index = getAsString(failuresAsMap, "index");
-            int shard = getAsNumber(failuresAsMap, "shard").intValue();
-            // TODO node ID ?
-            // TODO new exception is dirty
-            ShardOperationFailedException failure = new DefaultShardOperationFailedException(index, shard, new Exception(reason));
-            result.add(failure);
-        }
-        return result;
-    }
-
-    private List<ShardOperationFailedException> getShardSearchFailures(Map<String, Object> map) {
-        List<Map<String, Object>> failuresAsMaps = getAsListOfStringObjectMap(map, "failures");
-        if (failuresAsMaps == null) {
-            return null;
-        }
-
-        // "failures":[{"index":"test","shard":1,"reason":"RemoteTransportException[[node_0][local[1]][indices:data/write/delete/by_query[s]]]; nested: QueryParsingException[[test] [has_child] unsupported in delete_by_query api]; "},{"index":"test","shard":0,"reason":"QueryParsingException[[test] [has_child] unsupported in delete_by_query api]"
-        List<ShardOperationFailedException> result = new ArrayList<>();
-        for (Map<String, Object> failuresAsMap : failuresAsMaps) {
-            String reason = getAsString(failuresAsMap, "reason");
-            String index = getAsString(failuresAsMap, "index");
-            int shard = getAsNumber(failuresAsMap, "shard").intValue();
-            // TODO node ID ?
-            SearchShardTarget searchShardTarget = new SearchShardTarget("n/a", index, shard);
-            ShardSearchFailure failure = new ShardSearchFailure(reason, searchShardTarget, stringToRestStatus());
-            result.add(failure);
         }
         return result;
     }
@@ -1398,11 +1161,6 @@ public class ResponseWrapper<Req> {
         return ClusterHealthResponseAccessor.create(clusterName, status, timedOut, numberOfNodes, numberOfDataNodes, activePrimaryShards, activeShards, relocatingShards, initializingShards, unassignedShards, validationFailures, indices);
     }
 
-    public CreateIndexResponse toCreateIndexResponse() {
-        boolean acknowledged = getAs(entityWrapper, "acknowledged", Boolean.class);
-        return CreateIndexResponseAccessor.create(acknowledged);
-    }
-
     private ClusterIndexHealth buildIndexStatus(Map<String, Object> shardEntryAsMap, String indexName) {
         String statusAsString = getAsString(shardEntryAsMap, "status");
         ClusterHealthStatus status = ClusterHealthStatus.valueOf(statusAsString.toUpperCase());
@@ -1628,16 +1386,6 @@ public class ResponseWrapper<Req> {
         return new GetAliasesResponse(aliases.build());
     }
 
-    public RefreshResponse toRefreshResponse() {
-        // TODO failures
-        return RefreshResponseAccessor.create(getTotalShards(), getSuccessfulShards(), getFailedShards(), Collections.<ShardOperationFailedException>emptyList());
-    }
-
-    public DeleteIndexResponse toDeleteIndexResponse() {
-        boolean acknowledged = getAs(entityWrapper, "acknowledged", Boolean.class);
-        return DeleteIndexResponseAccessor.create(acknowledged);
-    }
-
     public NodesHotThreadsResponse toNodesHotThreadsResponse() {
         // TODO
         return new NodesHotThreadsResponse(null, null);
@@ -1721,16 +1469,6 @@ public class ResponseWrapper<Req> {
             }
         }
         return false;
-    }
-
-    public FlushResponse toFlushResponse() {
-        // {"_shards":{"total":22,"successful":11,"failed":0}}
-        Map<String, Object> shards = getAsStringObjectMap(entityWrapper, "_shards");
-        int total = getAsNumber(shards, "total").intValue();
-        int successful = getAsNumber(shards, "successful").intValue();
-        int failed = getAsNumber(shards, "failed").intValue();
-        // TODO shardFailures
-        return FlushResponseAccessor.create(total, successful, failed, Collections.<ShardOperationFailedException>emptyList());
     }
 
     public ClusterStatsResponse toClusterStatsResponse() {
@@ -1975,14 +1713,6 @@ public class ResponseWrapper<Req> {
         }
     }
 
-    public OptimizeResponse toOptimizeResponse() {
-        int totalShards = getTotalShards();
-        int successfulShards = getSuccessfulShards();
-        int failedShards = getFailedShards();
-        // TODO shard failures
-        return OptimizeResponseAccessor.create(totalShards, successfulShards, failedShards, Collections.<ShardOperationFailedException>emptyList());
-    }
-
     public ClusterUpdateSettingsResponse toClusterUpdateSettingsResponse() {
         Map<String, Object> transientsAsMap = getAsStringObjectMap(entityWrapper, "transient");
         Map<String, Object> persistentsAsMap = getAsStringObjectMap(entityWrapper, "persistent");
@@ -1994,16 +1724,6 @@ public class ResponseWrapper<Req> {
     public UpdateSettingsResponse toUpdateSettingsResponse() {
         boolean acknowledged = getAs(entityWrapper, "acknowledged", Boolean.class);
         return UpdateSettingsResponseAccessor.create(acknowledged);
-    }
-
-    public OpenIndexResponse toOpenIndexResponse() {
-        boolean acknowledged = getAs(entityWrapper, "acknowledged", Boolean.class);
-        return OpenIndexResponseAccessor.create(acknowledged);
-    }
-
-    public CloseIndexResponse toCloseIndexResponse() {
-        boolean acknowledged = getAs(entityWrapper, "acknowledged", Boolean.class);
-        return CloseIndexResponseAccessor.create(acknowledged);
     }
 
     public PutMappingResponse toPutMappingResponse() {
@@ -2033,13 +1753,4 @@ public class ResponseWrapper<Req> {
         return new MultiGetResponse(itemResponses);
     }
 
-    public ExistsResponse toExistsResponse() {
-        boolean exists = getAs(entityWrapper, "exists", Boolean.class);
-        // TODO not available in the JSON
-//        int totalShards = getTotalShards();
-//        int successfulShards = getSuccessfulShards();
-//        int failedShards = getFailedShards();
-//        List<ShardOperationFailedException> failures = getShardSearchFailures((Map<String, Object>) entityWrapper.get("_shards"));
-        return ExistsResponseAccessor.create(exists, -1, -1, -1, null);
-    }
 }
