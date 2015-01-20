@@ -31,6 +31,7 @@ public class ValidateQueryActionHandler {
     }
 
     public void execute(ValidateQueryRequest request, final ActionListener<ValidateQueryResponse> listener) {
+        // TODO test
         logger.debug("validate query request {}", request);
         try {
             StringBuilder url = new StringBuilder(httpClient.getHttpClient().getUrl()).append("/")

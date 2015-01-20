@@ -19,7 +19,7 @@ import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsAction;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingAction;
 import org.elasticsearch.action.admin.indices.open.OpenIndexAction;
-import org.elasticsearch.action.admin.indices.optimize.OptimizeAction;
+import org.elasticsearch.action.admin.indices.optimize.OptimizeRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsAction;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsAction;
@@ -53,6 +53,7 @@ import com.github.obourgain.elasticsearch.http.response.admin.indices.create.Cre
 import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.DeleteIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.exists.IndicesExistsResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.flush.FlushResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.optimize.OptimizeResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.refresh.RefreshResponse;
 import com.github.obourgain.elasticsearch.http.response.validate.ValidateQueryResponse;
 import com.google.common.collect.ImmutableMap;
@@ -73,6 +74,7 @@ public class HttpIndicesAdminClient {
     private IndicesExistsActionHandler indicesExistsActionHandler = new IndicesExistsActionHandler(this);
     private RefreshActionHandler refreshActionHandler = new RefreshActionHandler(this);
     private FlushActionHandler flushActionHandler = new FlushActionHandler(this);
+    private OptimizeActionHandler optimizeActionHandler = new OptimizeActionHandler(this);
 
     public HttpIndicesAdminClient(HttpClientImpl httpClient) {
         this.httpClient = httpClient;
@@ -89,7 +91,7 @@ public class HttpIndicesAdminClient {
         tempActionHandlers.put(GetAliasesAction.INSTANCE, new GetAliasesActionHandler(this));
 //        tempActionHandlers.put(RefreshAction.INSTANCE, new RefreshActionHandler(this));
 //        tempActionHandlers.put(FlushAction.INSTANCE, new FlushActionHandler(this));
-        tempActionHandlers.put(OptimizeAction.INSTANCE, new OptimizeActionHandler(this));
+//        tempActionHandlers.put(OptimizeAction.INSTANCE, new OptimizeActionHandler(this));
         tempActionHandlers.put(OpenIndexAction.INSTANCE, new OpenIndexActionHandler(this));
         tempActionHandlers.put(CloseIndexAction.INSTANCE, new CloseIndexActionHandler(this));
         tempActionHandlers.put(PutMappingAction.INSTANCE, new PutMappingActionHandler(this));
@@ -180,6 +182,16 @@ public class HttpIndicesAdminClient {
     public Future<FlushResponse> flush(FlushRequest request) {
         PlainActionFuture<FlushResponse> future = PlainActionFuture.newFuture();
         flush(request, future);
+        return future;
+    }
+
+    public void optimize(OptimizeRequest request, ActionListener<OptimizeResponse> listener) {
+        optimizeActionHandler.execute(request, listener);
+    }
+
+    public Future<OptimizeResponse> optimize(OptimizeRequest request) {
+        PlainActionFuture<OptimizeResponse> future = PlainActionFuture.newFuture();
+        optimize(request, future);
         return future;
     }
 
