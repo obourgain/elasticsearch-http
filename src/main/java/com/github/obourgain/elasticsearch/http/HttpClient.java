@@ -1,16 +1,11 @@
 package com.github.obourgain.elasticsearch.http;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.Future;
-import org.elasticsearch.action.Action;
-import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.ActionListener;
-import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.ActionRequestBuilder;
-import org.elasticsearch.action.ActionRequestValidationException;
-import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.GenericAction;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.count.CountRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequest;
@@ -29,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.admin.HttpAdminClient;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.document.BulkActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.DeleteActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.DeleteByQueryActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.GetActionHandler;
@@ -42,18 +38,18 @@ import com.github.obourgain.elasticsearch.http.handler.search.ExistsActionHandle
 import com.github.obourgain.elasticsearch.http.handler.search.ExplainActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.PercolateActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.SearchActionHandler;
-import com.github.obourgain.elasticsearch.http.response.clearscroll.ClearScrollResponse;
-import com.github.obourgain.elasticsearch.http.response.count.CountResponse;
-import com.github.obourgain.elasticsearch.http.response.delete.DeleteResponse;
-import com.github.obourgain.elasticsearch.http.response.deleteByQuery.DeleteByQueryResponse;
-import com.github.obourgain.elasticsearch.http.response.exists.ExistsResponse;
-import com.github.obourgain.elasticsearch.http.response.explain.ExplainResponse;
-import com.github.obourgain.elasticsearch.http.response.get.GetResponse;
-import com.github.obourgain.elasticsearch.http.response.index.IndexResponse;
-import com.github.obourgain.elasticsearch.http.response.percolate.PercolateResponse;
-import com.github.obourgain.elasticsearch.http.response.search.SearchResponse;
-import com.github.obourgain.elasticsearch.http.response.termvectors.TermVectorResponse;
-import com.github.obourgain.elasticsearch.http.response.update.UpdateResponse;
+import com.github.obourgain.elasticsearch.http.response.search.clearscroll.ClearScrollResponse;
+import com.github.obourgain.elasticsearch.http.response.search.count.CountResponse;
+import com.github.obourgain.elasticsearch.http.response.document.delete.DeleteResponse;
+import com.github.obourgain.elasticsearch.http.response.document.deleteByQuery.DeleteByQueryResponse;
+import com.github.obourgain.elasticsearch.http.response.document.exists.ExistsResponse;
+import com.github.obourgain.elasticsearch.http.response.search.explain.ExplainResponse;
+import com.github.obourgain.elasticsearch.http.response.document.get.GetResponse;
+import com.github.obourgain.elasticsearch.http.response.document.index.IndexResponse;
+import com.github.obourgain.elasticsearch.http.response.search.percolate.PercolateResponse;
+import com.github.obourgain.elasticsearch.http.response.search.search.SearchResponse;
+import com.github.obourgain.elasticsearch.http.response.document.termvectors.TermVectorResponse;
+import com.github.obourgain.elasticsearch.http.response.document.update.UpdateResponse;
 import com.github.obourgain.elasticsearch.http.url.RoundRobinUrlProviderStrategy;
 import com.github.obourgain.elasticsearch.http.url.UrlProviderStrategy;
 import com.google.common.collect.ImmutableMap;
@@ -68,7 +64,7 @@ public class HttpClient {
     private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
 
     private static final int DEFAULT_MAX_RETRIES = 0;
-    private static final int DEFAULT_TIMEOUT_MILLIS = 30 * 1000;
+    private static final int DEFAULT_TIMEOUT_MILLIS = 30 * 1000 * 1000;
 
     public AsyncHttpClient asyncHttpClient;
 
@@ -90,6 +86,7 @@ public class HttpClient {
     PercolateActionHandler percolateActionHandler = new PercolateActionHandler(this);
     MoreLikeThisActionHandler moreLikeThisActionHandler = new MoreLikeThisActionHandler(this);
     ClearScrollActionHandler clearScrollActionHandler = new ClearScrollActionHandler(this);
+    BulkActionHandler bulkActionHandler = new BulkActionHandler(this);
 
     public HttpClient(Collection<String> hosts) {
         this.urlProviderStrategy = new RoundRobinUrlProviderStrategy(hosts);
@@ -260,6 +257,16 @@ public class HttpClient {
     public Future<ClearScrollResponse> clearScroll(ClearScrollRequest request) {
         PlainActionFuture<ClearScrollResponse> future = PlainActionFuture.newFuture();
         clearScroll(request, future);
+        return future;
+    }
+
+    public void bulk(BulkRequest request, ActionListener<BulkResponse> listener) {
+        bulkActionHandler.execute(request, listener);
+    }
+
+    public Future<BulkResponse> bulk(BulkRequest request) {
+        PlainActionFuture<BulkResponse> future = PlainActionFuture.newFuture();
+        bulk(request, future);
         return future;
     }
 

@@ -1392,7 +1392,6 @@ public class ResponseWrapper<Req> {
     }
 
     public BulkResponse toBulkResponse() {
-        assert request != null;
         long took = getAsNumber(entityWrapper, "took").longValue();
         // TODO test errors
         boolean errors = getAs(entityWrapper, "errors", Boolean.class);
@@ -1453,7 +1452,8 @@ public class ResponseWrapper<Req> {
         } else {
             // we must also set it to created if 'setCreate(true)' was called
             ActionRequest actionRequest = ((BulkRequest) request).requests().get(idx);
-            boolean isACreate = findIfRealOpTypeIsCreate(actionRequest);
+//            boolean isACreate = findIfRealOpTypeIsCreate(actionRequest);
+            boolean isACreate = false;
             if (isACreate) {
                 opType = "create";
             }

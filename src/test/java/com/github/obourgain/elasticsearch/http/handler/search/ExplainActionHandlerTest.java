@@ -9,14 +9,12 @@ import org.elasticsearch.action.support.QuerySourceBuilder;
 import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryParsingException;
 import org.elasticsearch.search.lookup.SourceLookup;
-import org.elasticsearch.transport.RemoteTransportException;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
 import com.github.obourgain.elasticsearch.http.response.ElasticsearchHttpException;
 import com.github.obourgain.elasticsearch.http.response.entity.Explanation;
-import com.github.obourgain.elasticsearch.http.response.explain.ExplainResponse;
+import com.github.obourgain.elasticsearch.http.response.search.explain.ExplainResponse;
 
 public class ExplainActionHandlerTest extends AbstractTest {
 

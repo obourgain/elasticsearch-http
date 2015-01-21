@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
-import com.github.obourgain.elasticsearch.http.response.percolate.PercolateResponse;
+import com.github.obourgain.elasticsearch.http.response.search.percolate.PercolateResponse;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 

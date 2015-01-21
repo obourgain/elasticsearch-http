@@ -11,7 +11,7 @@ import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.search.lookup.SourceLookup;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
-import com.github.obourgain.elasticsearch.http.response.exists.ExistsResponse;
+import com.github.obourgain.elasticsearch.http.response.document.exists.ExistsResponse;
 
 public class ExistsActionHandlerTest extends AbstractTest {
 
