@@ -3,11 +3,15 @@ package com.github.obourgain.elasticsearch.http.handler.document;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
 import com.ning.http.client.Body;
 
 public class BulkBody implements Body {
 
     private BulkActionMarshaller marshaller;
+
+    // after a line have been written, before writing the next
+    @VisibleForTesting protected boolean writeEndOfLine;
 
     @VisibleForTesting protected byte[] current;
     @VisibleForTesting protected int currentPosition;
@@ -25,6 +29,10 @@ public class BulkBody implements Body {
             position = currentPosition;
             current = null;
             currentPosition = 0;
+        } else if(writeEndOfLine) {
+            writeEndOfLine = false;
+            source = "\n".getBytes(Charsets.US_ASCII);
+            position = 0;
         } else {
             byte[] next = marshaller.next();
             if(next == null) {
@@ -42,9 +50,11 @@ public class BulkBody implements Body {
         for (int i = position; i < endPosition; i++) {
             target.put(source[i]);
         }
-        if (position != source.length) {
+        if (endPosition != source.length) {
             current = source;
             currentPosition = endPosition;
+        } else {
+            writeEndOfLine = true;
         }
 
         return toWrite;

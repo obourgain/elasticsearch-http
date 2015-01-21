@@ -64,7 +64,7 @@ public class HttpClient {
     private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
 
     private static final int DEFAULT_MAX_RETRIES = 0;
-    private static final int DEFAULT_TIMEOUT_MILLIS = 30 * 1000;
+    private static final int DEFAULT_TIMEOUT_MILLIS = 30 * 1000 * 1000;
 
     public AsyncHttpClient asyncHttpClient;
 

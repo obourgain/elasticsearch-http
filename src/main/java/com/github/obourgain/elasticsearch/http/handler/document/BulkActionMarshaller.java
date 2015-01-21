@@ -133,7 +133,6 @@ public class BulkActionMarshaller {
         } else if (updateRequest.routing() != null) {
             builder.field("_parent", updateRequest.routing());
         }
-        builder.bytes().array();
         return builder.string();
     }
 

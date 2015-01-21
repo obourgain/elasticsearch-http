@@ -5,10 +5,12 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.Mockito.verify;
 import java.nio.ByteBuffer;
+import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import com.carrotsearch.ant.tasks.junit4.dependencies.com.google.common.base.Charsets;
 
 public class BulkBodyTest {
 
@@ -93,5 +95,31 @@ public class BulkBodyTest {
         assertThat(buffer.remaining()).isEqualTo(0);
         assertThat(bulkBody.current).isSameAs(bytes);
         assertThat(bulkBody.currentPosition).isEqualTo(32);
+    }
+
+    @Test
+    public void should_write_end_of_line_if_source_is_finish() throws Exception {
+        byte[] bytes = new byte[1024];
+        bytes[1023] = 42;
+        BulkActionMarshaller marshaller = mock(BulkActionMarshaller.class);
+        given(marshaller.next()).willReturn(bytes);
+        BulkBody bulkBody = new BulkBody(marshaller);
+
+        ByteBuffer buffer = ByteBuffer.allocate(2048);
+        bulkBody.read(buffer);
+
+        Assertions.assertThat(bulkBody.writeEndOfLine).isTrue();
+
+        buffer.rewind();
+        long read = bulkBody.read(buffer);
+
+        assertThat(read).isEqualTo(1);
+        buffer.rewind();
+        assertThat(buffer.get()).isEqualTo("\n".getBytes(Charsets.US_ASCII)[0]);
+    }
+
+    @Test
+    public void test_end_of_line_length() {
+        assertThat("\n".getBytes(Charsets.US_ASCII).length).isEqualTo(1);
     }
 }
