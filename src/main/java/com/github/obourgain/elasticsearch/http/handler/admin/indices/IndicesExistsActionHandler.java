@@ -4,12 +4,14 @@ import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsAction;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.hppc.IntSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.response.ValidStatusCodes;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.exists.IndicesExistsResponse;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
@@ -45,6 +47,11 @@ public class IndicesExistsActionHandler {
                         @Override
                         protected IndicesExistsResponse convert(Response response) {
                             return IndicesExistsResponse.parse(response);
+                        }
+
+                        @Override
+                        protected IntSet non200ValidStatuses() {
+                            return ValidStatusCodes._404;
                         }
                     });
         } catch (Exception e) {

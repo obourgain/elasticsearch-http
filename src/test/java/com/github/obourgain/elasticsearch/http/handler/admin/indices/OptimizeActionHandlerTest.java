@@ -20,10 +20,7 @@ public class OptimizeActionHandlerTest extends AbstractTest {
     @Test
     public void should_fail_when_index_does_not_exists() throws ExecutionException, InterruptedException {
         OptimizeResponse response = httpClient.admin().indices().optimize(new OptimizeRequest("foo")).get();
-
-        NumShards actualNumShards = getNumShards(THE_INDEX);
-        Assertions.assertThat(response.getShards().getFailed()).isEqualTo(actualNumShards.totalNumShards);
-        Assertions.assertThat(response.getShards().getSuccessful()).isEqualTo(0);
+        Assertions.assertThat(response.getError()).contains("IndexMissingException");
     }
 
 }

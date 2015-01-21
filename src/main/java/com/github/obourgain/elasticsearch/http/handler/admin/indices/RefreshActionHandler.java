@@ -3,12 +3,14 @@ package com.github.obourgain.elasticsearch.http.handler.admin.indices;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.refresh.RefreshAction;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.common.hppc.IntSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.response.ValidStatusCodes;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.refresh.RefreshResponse;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
@@ -42,15 +44,15 @@ public class RefreshActionHandler {
             HttpRequestUtils.addIndicesOptions(httpRequest, request);
             httpRequest.addQueryParam("force", String.valueOf(request.force()));
             httpRequest.execute(new ListenerAsyncCompletionHandler<RefreshResponse>(listener) {
-                // TODO 404
-//                {
-//                    "error": "IndexMissingException[[twitter22] missing]",
-//                        "status": 404
-//                }
                         @Override
                         protected RefreshResponse convert(Response response) {
                             return RefreshResponse.parse(response);
                         }
+
+                @Override
+                protected IntSet non200ValidStatuses() {
+                    return ValidStatusCodes._404;
+                }
                     });
         } catch (Exception e) {
             listener.onFailure(e);

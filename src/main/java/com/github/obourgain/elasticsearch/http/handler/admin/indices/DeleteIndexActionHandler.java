@@ -1,10 +1,12 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices;
 
+import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexAction;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequestAccessor;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.hppc.IntSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
@@ -45,18 +47,22 @@ public class DeleteIndexActionHandler {
             AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareDelete(httpClient.getUrl() + "/" + Strings.arrayToCommaDelimitedString(indices));
 
             if(request.timeout() != null) {
-                httpRequest.addQueryParam("timeout", request.timeout().format());
+                httpRequest.addQueryParam("timeout", request.timeout().toString());
             }
             if(request.masterNodeTimeout() != null) {
-                httpRequest.addQueryParam("master_timeout", request.timeout().format());
+                httpRequest.addQueryParam("master_timeout", request.timeout().toString());
             }
 
-            // TODO indices options
             HttpRequestUtils.addIndicesOptions(httpRequest, request);
             httpRequest.execute(new ListenerAsyncCompletionHandler<DeleteIndexResponse>(listener) {
                 @Override
                 protected DeleteIndexResponse convert(Response response) {
                     return DeleteIndexResponse.parse(response);
+                }
+
+                @Override
+                protected IntSet non200ValidStatuses() {
+                    return _404;
                 }
             });
         } catch (Exception e) {

@@ -19,10 +19,7 @@ public class FlushActionHandlerTest extends AbstractTest {
     @Test
     public void should_fail_when_index_does_not_exists() throws Exception {
         FlushResponse response = httpClient.admin().indices().flush(new FlushRequest("foo")).get();
-
-        NumShards actualNumShards = getNumShards(THE_INDEX);
-        Assertions.assertThat(response.getShards().getFailed()).isEqualTo(actualNumShards.totalNumShards);
-        Assertions.assertThat(response.getShards().getSuccessful()).isEqualTo(0);
+        Assertions.assertThat(response.getError()).contains("IndexMissingException");
     }
 
 }

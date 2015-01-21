@@ -20,7 +20,6 @@ public class IndicesExistsResponse {
     }
 
     protected static IndicesExistsResponse doParse(byte[] body, int status) {
-        // TODO merge and handle correctly status
         switch (status) {
             case 200:
                 return new IndicesExistsResponse(true);
