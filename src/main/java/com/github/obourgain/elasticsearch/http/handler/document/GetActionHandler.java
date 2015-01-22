@@ -2,6 +2,7 @@ package com.github.obourgain.elasticsearch.http.handler.document;
 
 import static com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils.addIndicesOptions;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.get.GetAction;
 import org.elasticsearch.action.get.GetRequest;
@@ -17,6 +18,7 @@ import com.github.obourgain.elasticsearch.http.response.document.get.GetResponse
 import com.google.common.base.Charsets;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
+import io.reactivex.netty.RxNetty;
 
 /**
  * @author olivier bourgain
@@ -79,14 +81,18 @@ public class GetActionHandler {
                 httpRequest.addQueryParam("realtime", String.valueOf(request.realtime()));
             }
 
-            httpRequest
-                    .setBody(request.toString())
-                    .execute(new ListenerAsyncCompletionHandler<GetResponse>(listener) {
-                        @Override
-                        protected GetResponse convert(Response response) {
-                            return GetResponseParser.parse(response);
-                        }
-                    });
+            RxNetty.createHttpGet(url)
+                    .flatMap(GetResponseParser::parse)
+                    .toBlocking().forEach(System.out::println);
+
+//            httpRequest
+//                    .setBody(request.toString())
+//                    .execute(new ListenerAsyncCompletionHandler<GetResponse>(listener) {
+//                        @Override
+//                        protected GetResponse convert(Response response) {
+//                            return GetResponseParser.parse(response);
+//                        }
+//                    });
         } catch (Exception e) {
             listener.onFailure(e);
         }
