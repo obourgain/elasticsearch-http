@@ -19,7 +19,6 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.search.warmer.IndexWarmersMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
@@ -63,7 +62,7 @@ public class PutIndexTemplateActionHandler implements ActionHandler<PutIndexTemp
             AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePut(httpClient.getUrl() + "/_template/" + request.name());
 
             // TODO inject, and this is quite dirty
-            ObjectMapper objectMapper = new ObjectMapper();
+//            ObjectMapper objectMapper = new ObjectMapper();
 
             // TODO no way to nest XContentBuilders :'(
             XContentBuilder xContentBuilder = XContentFactory.jsonBuilder().startObject().field("template", request.template());
@@ -71,8 +70,8 @@ public class PutIndexTemplateActionHandler implements ActionHandler<PutIndexTemp
                 xContentBuilder.field("mappings");
             }
             for (Map.Entry<String,String> entry : mappings.entrySet()) {
-                Map mapping = objectMapper.readValue(entry.getValue(), Map.class);
-                xContentBuilder.map(mapping);
+//                Map mapping = objectMapper.readValue(entry.getValue(), Map.class);
+//                xContentBuilder.map(mapping);
             }
             xContentBuilder.endObject();
             if(!aliases.isEmpty()) {

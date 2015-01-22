@@ -16,7 +16,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
@@ -61,8 +60,8 @@ public class CreateIndexActionHandler {
 
             AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePut(httpClient.getUrl() + "/" + index);
 
-            // TODO inject, and this is quite dirty
-            ObjectMapper objectMapper = new ObjectMapper();
+//            // TODO inject, and this is quite dirty
+//            ObjectMapper objectMapper = new ObjectMapper();
 
             XContentBuilder jsonBuilder = XContentFactory.jsonBuilder().startObject();
             if (!settings.getAsMap().isEmpty()) {
@@ -71,11 +70,11 @@ public class CreateIndexActionHandler {
 
             if (!mappings.isEmpty()) {
                 jsonBuilder.field("mappings");
-                for (Map.Entry<String, String> entry : mappings.entrySet()) {
-                    Map mapping = objectMapper.readValue(entry.getValue(), Map.class);
-                    // TODO maybe type is not always mandatory as key, depending on the content of the map
-                    jsonBuilder.map(Collections.<String, Object>singletonMap(entry.getKey(), mapping));
-                }
+//                for (Map.Entry<String, String> entry : mappings.entrySet()) {
+//                    Map mapping = objectMapper.readValue(entry.getValue(), Map.class);
+//                    // TODO maybe type is not always mandatory as key, depending on the content of the map
+//                    jsonBuilder.map(Collections.<String, Object>singletonMap(entry.getKey(), mapping));
+//                }
             }
 
             if (!aliases.isEmpty()) {

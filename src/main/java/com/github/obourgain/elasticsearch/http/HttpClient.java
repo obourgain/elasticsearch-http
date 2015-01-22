@@ -55,6 +55,8 @@ import com.github.obourgain.elasticsearch.http.url.UrlProviderStrategy;
 import com.google.common.collect.ImmutableMap;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.RxNetty;
 
 /**
  * @author olivier bourgain
@@ -67,6 +69,9 @@ public class HttpClient {
     private static final int DEFAULT_TIMEOUT_MILLIS = 30 * 1000 * 1000;
 
     public AsyncHttpClient asyncHttpClient;
+
+    public io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> client = RxNetty.createHttpClient("localhost", 9501);
+
 
     private int maxRetries = DEFAULT_MAX_RETRIES;
     private int timeOut = DEFAULT_TIMEOUT_MILLIS;
@@ -119,6 +124,7 @@ public class HttpClient {
     }
 
     public void close() {
+        client.shutdown();
         asyncHttpClient.close();
     }
 

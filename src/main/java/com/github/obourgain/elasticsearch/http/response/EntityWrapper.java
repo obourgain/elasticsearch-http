@@ -1,15 +1,10 @@
 package com.github.obourgain.elasticsearch.http.response;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author olivier bourgain
@@ -17,7 +12,7 @@ import java.util.Set;
 public class EntityWrapper implements Map<String, Object> {
 
     private static final Logger logger = LoggerFactory.getLogger(EntityWrapper.class);
-    private static final ObjectMapper mapper = new ObjectMapper();
+//    private static final ObjectMapper mapper = new ObjectMapper();
 
     private String entityAsString;
     private Map<String, Object> entityAsMap;
@@ -27,16 +22,16 @@ public class EntityWrapper implements Map<String, Object> {
     }
 
     private Map<String, Object> jsonToMap() {
-        if (entityAsMap == null) {
-            try {
-                entityAsMap = mapper.readValue(entityAsString, new TypeReference<HashMap<String, Object>>() {
-                });
-                logger.trace("deserialized {}", entityAsMap);
-            } catch (IOException e) {
-                logger.info("Unable to deserialize {}", entityAsString);
-                throw new RuntimeException(e);
-            }
-        }
+//        if (entityAsMap == null) {
+//            try {
+//                entityAsMap = mapper.readValue(entityAsString, new TypeReference<HashMap<String, Object>>() {
+//                });
+//                logger.trace("deserialized {}", entityAsMap);
+//            } catch (IOException e) {
+//                logger.info("Unable to deserialize {}", entityAsString);
+//                throw new RuntimeException(e);
+//            }
+//        }
         return entityAsMap;
     }
 

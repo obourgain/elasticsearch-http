@@ -120,6 +120,7 @@ import org.elasticsearch.index.engine.VersionConflictEngineException;
 import org.elasticsearch.index.get.GetField;
 import org.elasticsearch.index.get.GetResult;
 import org.elasticsearch.index.mapper.MapperParsingException;
+import org.elasticsearch.index.mapper.object.ObjectMapper;
 import org.elasticsearch.index.shard.ShardId;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.elasticsearch.indices.IndexClosedException;
@@ -142,7 +143,6 @@ import org.elasticsearch.search.warmer.IndexWarmersMetaData;
 import org.elasticsearch.transport.RemoteTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
@@ -983,13 +983,14 @@ public class ResponseWrapper<Req> {
     }
 
     private String mapToString(Map map) {
-        // TODO use streaming parser instead?
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.writeValueAsString(map);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+//        // TODO use streaming parser instead?
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        try {
+//            return objectMapper.writeValueAsString(map);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+        throw new RuntimeException();
     }
 
     private CompressedString toCompressedString(String string) {
