@@ -71,12 +71,6 @@
             <version>${randomizedtesting.version}</version>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>com.carrotsearch.randomizedtesting</groupId>-->
-        <!--<artifactId>randomizedtesting-junit4</artifactId>-->
-        <!--<version>${randomizedtesting.version}</version>-->
-        <!--<scope>test</scope>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-test-framework</artifactId>
@@ -154,6 +148,11 @@
             <artifactId>netty-buffer</artifactId>
             <version>4.0.21.Final</version>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+            <version>4.0.21.Final</version>
+        </dependency>
 
         <dependency>
             <groupId>io.reactivex</groupId>
@@ -169,8 +168,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
         </plugins>
