@@ -60,7 +60,7 @@ public class IndexActionHandlerTest extends AbstractTest {
                 .type(THE_TYPE)
                 .id(THE_ID)
                 .opType(IndexRequest.OpType.CREATE)
-                .source(source.array());
+                .source(source.toBytes());
         transportClient.index(request);
 
         try {
@@ -78,7 +78,7 @@ public class IndexActionHandlerTest extends AbstractTest {
         BytesReference source = source().bytes();
         IndexRequest request = Requests.indexRequest().index(THE_INDEX)
                 .type(THE_TYPE)
-                .source(source.array())
+                .source(source.toBytes())
                 .refresh(true);
         Map<String, Object> expected = SourceLookup.sourceAsMap(source);
 

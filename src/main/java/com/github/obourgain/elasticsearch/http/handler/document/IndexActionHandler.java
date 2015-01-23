@@ -6,16 +6,20 @@ import org.elasticsearch.action.index.IndexAction;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.support.replication.ShardReplicationOperationRequest;
 import org.elasticsearch.common.lucene.uid.Versions;
-import org.elasticsearch.common.xcontent.XContentHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.document.index.IndexResponse;
 import com.github.obourgain.elasticsearch.http.response.document.index.IndexResponseParser;
 import com.google.common.base.Charsets;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -37,85 +41,75 @@ public class IndexActionHandler {
     public void execute(IndexRequest request, final ActionListener<IndexResponse> listener) {
         logger.debug("index request {}", request);
         try {
-            String url = httpClient.getUrl() + "/" + request.index() + "/" + request.type();
-            AsyncHttpClient.BoundRequestBuilder httpRequest;
-            if(request.id() == null || request.id().length() == 0) {
-                httpRequest = httpClient.asyncHttpClient.preparePost(url);
+            String method;
+            RequestUriBuilder uriBuilder;
+            if (request.id() == null || request.id().length() == 0) {
+                method = "POST";
+                uriBuilder = new RequestUriBuilder(request.index(), request.type());
             } else {
-                // encode to handle the case where the id got a space
-                httpRequest = httpClient.asyncHttpClient.preparePut(url + "/" + URLEncoder.encode(request.id(), Charsets.UTF_8.displayName()));
+                method = "PUT";
+                uriBuilder = new RequestUriBuilder(request.index(), request.type(), URLEncoder.encode(request.id(), Charsets.UTF_8.displayName()));
             }
-            if(request.version() != Versions.MATCH_ANY) {
-                httpRequest.addQueryParam("version", String.valueOf(request.version()));
+
+            if (request.version() != Versions.MATCH_ANY) {
+                uriBuilder.addQueryParameter("version", String.valueOf(request.version()));
             }
-            switch (request.versionType().name()) {
-                case "EXTERNAL":
-                case "EXTERNAL_GTE":
-                case "EXTERNAL_GT":
-                case "FORCE":
-                    httpRequest.addQueryParam("version_type", request.versionType().name().toLowerCase());
+            switch (request.versionType()) {
+                case EXTERNAL:
+                case EXTERNAL_GTE:
+                case FORCE:
+                    uriBuilder.addQueryParameter("version_type", request.versionType().name().toLowerCase());
                     break;
-                case "INTERNAL":
+                case INTERNAL:
                     // noop
                     break;
                 default:
                     throw new IllegalStateException("version_type " + request.versionType() + " is not supported");
             }
-            if(request.opType() == IndexRequest.OpType.CREATE) {
-                httpRequest.addQueryParam("op_type", "create");
+            if (request.opType() == IndexRequest.OpType.CREATE) {
+                uriBuilder.addQueryParameter("op_type", "create");
             }
-            if(request.routing() != null) {
-                httpRequest.addQueryParam("routing", request.routing());
+            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
+            uriBuilder.addQueryParameterIfNotNull("parent", request.parent());
+            uriBuilder.addQueryParameterIfNotNull("timestamp", request.timestamp());
+            if (request.ttl() != -1) {
+                uriBuilder.addQueryParameter("ttl", String.valueOf(request.ttl()));
             }
-            if(request.parent() != null) {
-                httpRequest.addQueryParam("parent", request.parent());
+            uriBuilder.addConsistency(request);
+
+            if (request.refresh()) {
+                uriBuilder.addQueryParameter("refresh", true);
             }
-            if(request.timestamp() != null) {
-                httpRequest.addQueryParam("timestamp", request.timestamp());
-            }
-            if(request.ttl() != -1) {
-                httpRequest.addQueryParam("ttl", String.valueOf(request.ttl()));
-            }
-            switch (request.consistencyLevel()) {
-                case DEFAULT:
-                    // noop
-                    break;
-                case ALL:
-                case QUORUM:
-                case ONE:
-                    httpRequest.addQueryParam("consistency", request.consistencyLevel().name().toLowerCase());
-                    break;
-                default:
-                    throw new IllegalStateException("consistency  " + request.consistencyLevel() + " is not supported");
-            }
-            switch (request.replicationType()) {
-                case DEFAULT:
-                    // noop
-                    break;
-                case SYNC:
-                case ASYNC:
-                    httpRequest.addQueryParam("replication", request.replicationType().name().toLowerCase());
-                    break;
-                default:
-                    throw new IllegalStateException("replication  " + request.replicationType() + " is not supported");
-            }
-            if(request.refresh()) {
-                httpRequest.addQueryParam("refresh", String.valueOf(true));
-            }
-            if(request.timeout() != ShardReplicationOperationRequest.DEFAULT_TIMEOUT) {
-                httpRequest.addQueryParam("timeout", request.timeout().toString());
+            if (request.timeout() != ShardReplicationOperationRequest.DEFAULT_TIMEOUT) {
+                uriBuilder.addQueryParameter("timeout", request.timeout().toString());
             }
 
-            String requestBody = XContentHelper.convertToJson(request.source(), false);
-
-            httpRequest
-                    .setBody(requestBody)
-                    .execute(new ListenerAsyncCompletionHandler<IndexResponse>(listener) {
+            HttpClientRequest<ByteBuf> httpClientRequest;
+            if(method.equals("POST")) {
+                httpClientRequest = HttpClientRequest.createPost(uriBuilder.toString());
+            } else {
+                httpClientRequest = HttpClientRequest.createPut(uriBuilder.toString());
+            }
+            httpClient.client.submit(httpClientRequest.withContent(request.source().toBytes()))
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
                         @Override
-                        protected IndexResponse convert(Response response) {
-                            return IndexResponseParser.parse(response);
+                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response1) {
+                            return ErrorHandler.checkError(response1);
                         }
-                    });
+                    })
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<IndexResponse>>() {
+                        @Override
+                        public Observable<IndexResponse> call(HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<IndexResponse>>() {
+                                @Override
+                                public Observable<IndexResponse> call(ByteBuf byteBuf) {
+                                    return IndexResponseParser.parse(byteBuf);
+                                }
+                            });
+                        }
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
         } catch (Exception e) {
             listener.onFailure(e);
         }

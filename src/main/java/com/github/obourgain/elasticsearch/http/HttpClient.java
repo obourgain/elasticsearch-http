@@ -3,7 +3,6 @@ package com.github.obourgain.elasticsearch.http;
 import java.util.Collection;
 import java.util.concurrent.Future;
 import org.elasticsearch.action.ActionListener;
-import org.elasticsearch.action.GenericAction;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.count.CountRequest;
@@ -23,7 +22,6 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.admin.HttpAdminClient;
-import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.BulkActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.DeleteActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.DeleteByQueryActionHandler;
@@ -52,7 +50,6 @@ import com.github.obourgain.elasticsearch.http.response.search.percolate.Percola
 import com.github.obourgain.elasticsearch.http.response.search.search.SearchResponse;
 import com.github.obourgain.elasticsearch.http.url.RoundRobinUrlProviderStrategy;
 import com.github.obourgain.elasticsearch.http.url.UrlProviderStrategy;
-import com.google.common.collect.ImmutableMap;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import io.netty.buffer.ByteBuf;
@@ -70,7 +67,6 @@ public class HttpClient {
 
     public AsyncHttpClient asyncHttpClient;
 
-//    public io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> client = RxNetty.createHttpClient("localhost", 9200);
     public io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> client;
 
     private int maxRetries = DEFAULT_MAX_RETRIES;
@@ -105,7 +101,6 @@ public class HttpClient {
 
         asyncHttpClient = new AsyncHttpClient(config);
 
-        ImmutableMap.Builder<GenericAction, ActionHandler> tempActionHandlers = ImmutableMap.builder();
         // client
         // searchShard
         // search template

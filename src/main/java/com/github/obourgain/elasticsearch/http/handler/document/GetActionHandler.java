@@ -14,8 +14,14 @@ import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
 import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.document.get.GetResponse;
 import com.github.obourgain.elasticsearch.http.response.document.get.GetResponseParser;
+import com.github.obourgain.elasticsearch.http.response.document.index.IndexResponse;
+import com.github.obourgain.elasticsearch.http.response.document.index.IndexResponseParser;
 import com.google.common.base.Charsets;
+import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -63,22 +69,33 @@ public class GetActionHandler {
             if (request.fields() != null) {
                 uriBuilder.addQueryParameterArrayAsCommaDelimited("fields", request.fields());
             }
-            if (request.routing() != null) {
-                uriBuilder.addQueryParameter("routing", request.routing());
-            }
-            if (request.preference() != null) {
-                uriBuilder.addQueryParameter("preference", request.preference());
-            }
+            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
+            uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
             if (request.refresh()) {
                 uriBuilder.addQueryParameter("refresh", request.refresh());
             }
             if (request.realtime()) {
                 uriBuilder.addQueryParameter("realtime", request.realtime());
             }
-             httpClient.client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
-                    .flatMap(ErrorHandler::checkError)
-                    .flatMap(response -> response.getContent().flatMap(GetResponseParser::parse))
-                     .single()
+            httpClient.client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
+                        @Override
+                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response1) {
+                            return ErrorHandler.checkError(response1);
+                        }
+                    })
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<GetResponse>>() {
+                        @Override
+                        public Observable<GetResponse> call(HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<GetResponse>>() {
+                                @Override
+                                public Observable<GetResponse> call(ByteBuf byteBuf) {
+                                    return GetResponseParser.parse(byteBuf);
+                                }
+                            });
+                        }
+                    })
+                    .single()
                     .subscribe(new ListenerCompleterObserver<>(listener));
 
         } catch (Exception e) {
