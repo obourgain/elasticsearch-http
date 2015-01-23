@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.parser.FieldsParser;
 import com.github.obourgain.elasticsearch.http.response.parser.SourceParser;
-import com.google.common.base.Charsets;
 import com.ning.http.client.Response;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;
@@ -137,4 +136,11 @@ public class GetResponseParser {
         });
         return map.single();
     }
+
+    public static Observable<GetResponse> parse(ByteBuf content) {
+        return Observable.just(doParse(new ByteBufBytesReference(content)));
+    }
+//    public static GetResponse parse(ByteBuf content) {
+//        return doParse(new ByteBufBytesReference(content));
+//    }
 }

@@ -38,18 +38,18 @@ import com.github.obourgain.elasticsearch.http.handler.search.ExistsActionHandle
 import com.github.obourgain.elasticsearch.http.handler.search.ExplainActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.PercolateActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.SearchActionHandler;
-import com.github.obourgain.elasticsearch.http.response.search.clearscroll.ClearScrollResponse;
-import com.github.obourgain.elasticsearch.http.response.search.count.CountResponse;
 import com.github.obourgain.elasticsearch.http.response.document.delete.DeleteResponse;
 import com.github.obourgain.elasticsearch.http.response.document.deleteByQuery.DeleteByQueryResponse;
 import com.github.obourgain.elasticsearch.http.response.document.exists.ExistsResponse;
-import com.github.obourgain.elasticsearch.http.response.search.explain.ExplainResponse;
 import com.github.obourgain.elasticsearch.http.response.document.get.GetResponse;
 import com.github.obourgain.elasticsearch.http.response.document.index.IndexResponse;
-import com.github.obourgain.elasticsearch.http.response.search.percolate.PercolateResponse;
-import com.github.obourgain.elasticsearch.http.response.search.search.SearchResponse;
 import com.github.obourgain.elasticsearch.http.response.document.termvectors.TermVectorResponse;
 import com.github.obourgain.elasticsearch.http.response.document.update.UpdateResponse;
+import com.github.obourgain.elasticsearch.http.response.search.clearscroll.ClearScrollResponse;
+import com.github.obourgain.elasticsearch.http.response.search.count.CountResponse;
+import com.github.obourgain.elasticsearch.http.response.search.explain.ExplainResponse;
+import com.github.obourgain.elasticsearch.http.response.search.percolate.PercolateResponse;
+import com.github.obourgain.elasticsearch.http.response.search.search.SearchResponse;
 import com.github.obourgain.elasticsearch.http.url.RoundRobinUrlProviderStrategy;
 import com.github.obourgain.elasticsearch.http.url.UrlProviderStrategy;
 import com.google.common.collect.ImmutableMap;
@@ -70,8 +70,8 @@ public class HttpClient {
 
     public AsyncHttpClient asyncHttpClient;
 
-    public io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> client = RxNetty.createHttpClient("localhost", 9501);
-
+//    public io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> client = RxNetty.createHttpClient("localhost", 9200);
+    public io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> client;
 
     private int maxRetries = DEFAULT_MAX_RETRIES;
     private int timeOut = DEFAULT_TIMEOUT_MILLIS;
@@ -121,6 +121,7 @@ public class HttpClient {
 
         // indices admin
         this.httpAdminClient = new HttpAdminClient(this);
+        client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder("localhost", 9501).build();
     }
 
     public void close() {

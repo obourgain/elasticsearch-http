@@ -19,10 +19,12 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.test.ElasticsearchIntegrationTest;
+import org.elasticsearch.test.ElasticsearchThreadFilter;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import com.carrotsearch.randomizedtesting.annotations.ThreadLeakFilters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
@@ -30,6 +32,7 @@ import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 /**
  * @author olivier bourgain
  */
+@ThreadLeakFilters(defaultFilters = true, filters = {ElasticsearchThreadFilter.class, RxNettyThreadFilter.class})
 @ElasticsearchIntegrationTest.ClusterScope(transportClientRatio = 1, numClientNodes = 1, numDataNodes = 1, scope = ElasticsearchIntegrationTest.Scope.GLOBAL)
 public abstract class AbstractTest extends ElasticsearchIntegrationTest {
 

@@ -1,5 +1,7 @@
 package com.github.obourgain.elasticsearch.http.request;
 
+import org.elasticsearch.action.IndicesRequest;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.common.Strings;
 
 public class RequestUriBuilder {
@@ -55,6 +57,16 @@ public class RequestUriBuilder {
         builder.append("=");
         builder.append(value);
         return this;
+    }
+
+    public void addIndicesOptions(IndicesRequest request) {
+        IndicesOptions indicesOptions = request.indicesOptions();
+        addQueryParameter("ignore_unavailable", indicesOptions.ignoreUnavailable());
+        addQueryParameter("allow_no_indices", indicesOptions.allowNoIndices());
+
+        // TODO how are those set ?
+        indicesOptions.allowAliasesToMultipleIndices();
+        indicesOptions.forbidClosedIndices();
     }
 
     public RequestUriBuilder addQueryParameter(String name, String ... values) {
