@@ -1,0 +1,9 @@
+{
+  "update" : {
+    "_index" : "index1",
+    "_type" : "type1",
+    "_id" : "1",
+    "status" : 404,
+    "error" : "DocumentMissingException[[index1][-1] [type1][1]: document missing]"
+  }
+}

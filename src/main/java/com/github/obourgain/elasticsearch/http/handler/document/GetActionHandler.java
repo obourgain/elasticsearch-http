@@ -78,12 +78,7 @@ public class GetActionHandler {
                 uriBuilder.addQueryParameter("realtime", request.realtime());
             }
             httpClient.client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
-                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
-                        @Override
-                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response1) {
-                            return ErrorHandler.checkError(response1);
-                        }
-                    })
+                    .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<GetResponse>>() {
                         @Override
                         public Observable<GetResponse> call(HttpClientResponse<ByteBuf> response) {

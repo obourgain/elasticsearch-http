@@ -2,6 +2,7 @@ package com.github.obourgain.elasticsearch.http.response.document.termvectors;
 
 import static com.github.obourgain.elasticsearch.http.TestFilesUtils.readFromClasspath;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.elasticsearch.common.bytes.BytesArray;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.response.entity.TermVector;
 import com.github.obourgain.elasticsearch.http.response.entity.TermVectorTest;
@@ -12,7 +13,7 @@ public class TermVectorResponseParserTest {
     public void should_parse_response() throws Exception {
         String json = readFromClasspath("json/termvector/termvector_response.json");
 
-        TermVectorResponse response = TermVectorResponseParser.doParse(json.getBytes());
+        TermVectorResponse response = TermVectorResponseParser.doParse(new BytesArray(json));
 
         assertTermVectorResponse(response);
     }

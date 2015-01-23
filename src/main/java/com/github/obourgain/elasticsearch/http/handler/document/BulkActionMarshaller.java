@@ -1,10 +1,9 @@
 package com.github.obourgain.elasticsearch.http.handler.document;
 
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.List;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.WriteConsistencyLevel;
-import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.support.replication.ReplicationType;
@@ -15,65 +14,42 @@ import org.elasticsearch.common.lucene.uid.Versions;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.VersionType;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
+import rx.Observable;
+import rx.functions.Func1;
 
 public class BulkActionMarshaller {
 
-    @VisibleForTesting protected final Iterator<ActionRequest> requests;
-    @VisibleForTesting protected byte[] nextRequestBody = null;
+    public static final byte[] LINE_BREAK = "\n".getBytes(Charsets.US_ASCII);
 
-    public BulkActionMarshaller(BulkRequest request) {
-        this.requests = request.requests().iterator();
+    public static Observable<byte[]> write(List<ActionRequest> actions) {
+        return Observable.from(actions)
+                .flatMap(new Func1<ActionRequest, Observable<byte[]>>() {
+                    @Override
+                    public Observable<byte[]> call(ActionRequest actionRequest) {
+                        try {
+                            if (actionRequest instanceof IndexRequest) {
+                                IndexRequest indexRequest = (IndexRequest) actionRequest;
+                                return Observable.just(buildIndexCommand(indexRequest).getBytes(Charsets.UTF_8), LINE_BREAK, indexRequest.source().toBytes(), LINE_BREAK);
+
+                            } else if (actionRequest instanceof DeleteRequest) {
+                                DeleteRequest deleteRequest = (DeleteRequest) actionRequest;
+                                return Observable.just(buildDeleteCommand(deleteRequest).getBytes(Charsets.UTF_8), LINE_BREAK);
+
+                            } else if (actionRequest instanceof UpdateRequest) {
+                                UpdateRequest updateRequest = (UpdateRequest) actionRequest;
+                                return Observable.just(buildUpdateCommand(updateRequest).getBytes(Charsets.UTF_8), LINE_BREAK, UpdateHelper.buildRequestBody(updateRequest).getBytes(Charsets.UTF_8), LINE_BREAK);
+                            } else {
+                                throw new IllegalArgumentException("action type " + actionRequest.getClass().getName() + " not supported");
+                            }
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
     }
 
-    public BulkActionMarshaller(Iterator<ActionRequest> requests) {
-        this.requests = requests;
-    }
-
-    @Nullable
-    public byte[] next() {
-        if(nextRequestBody != null) {
-            byte[] toReturn = nextRequestBody;
-            nextRequestBody = null;
-            return toReturn;
-        }
-        return requests.hasNext() ? marshall(requests.next()) : null;
-    }
-
-    private byte[] marshall(ActionRequest actionRequest) {
-        try {
-            return doMarshall(actionRequest);
-        } catch (IOException e) {
-            throw new RuntimeException("unable to marshall " + actionRequest, e);
-        }
-    }
-
-    @VisibleForTesting
-    protected byte[] doMarshall(ActionRequest actionRequest) throws IOException {
-        String command;
-        if (actionRequest instanceof IndexRequest) {
-            IndexRequest indexRequest = (IndexRequest) actionRequest;
-            command = buildIndexCommand(indexRequest);
-            nextRequestBody = indexRequest.source().toBytes();
-
-        } else if (actionRequest instanceof DeleteRequest) {
-            DeleteRequest deleteRequest = (DeleteRequest) actionRequest;
-            command = buildDeleteCommand(deleteRequest);
-
-        } else if (actionRequest instanceof UpdateRequest) {
-            UpdateRequest updateRequest = (UpdateRequest) actionRequest;
-            command = buildUpdateCommand(updateRequest);
-
-            String requestBody = UpdateHelper.buildRequestBody(updateRequest);
-            nextRequestBody = requestBody.getBytes(Charsets.UTF_8);
-        } else {
-            throw new IllegalArgumentException("action type " + actionRequest.getClass().getName() + " not supported");
-        }
-        return command.getBytes(Charsets.UTF_8);
-    }
-
-    private String buildIndexCommand(IndexRequest indexRequest) throws IOException {
+    private static String buildIndexCommand(IndexRequest indexRequest) throws IOException {
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
         addCommonOptions(builder, "index", indexRequest.index(), indexRequest.type(), indexRequest.id(),
                 indexRequest.version(), indexRequest.versionType(), indexRequest.routing(),
@@ -99,7 +75,7 @@ public class BulkActionMarshaller {
         return builder.string();
     }
 
-    private String buildDeleteCommand(DeleteRequest deleteRequest) throws IOException {
+    private static String buildDeleteCommand(DeleteRequest deleteRequest) throws IOException {
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
         addCommonOptions(builder, "delete", deleteRequest.index(), deleteRequest.type(), deleteRequest.id(),
                 deleteRequest.version(), deleteRequest.versionType(), deleteRequest.routing(),
@@ -107,7 +83,8 @@ public class BulkActionMarshaller {
         return builder.string();
     }
 
-    private String buildUpdateCommand(UpdateRequest updateRequest) throws IOException {
+
+    private static String buildUpdateCommand(UpdateRequest updateRequest) throws IOException {
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
         addCommonOptions(builder, "update", updateRequest.index(), updateRequest.type(), updateRequest.id(),
                 updateRequest.version(), updateRequest.versionType(), updateRequest.routing(),
@@ -136,13 +113,12 @@ public class BulkActionMarshaller {
         return builder.string();
     }
 
-
-    private void addCommonOptions(XContentBuilder builder, String command, String index, String type, String id,
-                                  @Nullable long version, VersionType versionType, // may be Versions.MATCH_ANY and null
-                                  @Nullable String routing,
-                                  @Nullable WriteConsistencyLevel consistencyLevel,
-                                  boolean refresh,
-                                  @Nullable ReplicationType replicationType
+    private static void addCommonOptions(XContentBuilder builder, String command, String index, String type, String id,
+                                         @Nullable long version, VersionType versionType, // may be Versions.MATCH_ANY and null
+                                         @Nullable String routing,
+                                         @Nullable WriteConsistencyLevel consistencyLevel,
+                                         boolean refresh,
+                                         @Nullable ReplicationType replicationType
 
     ) throws IOException {
         builder.startObject(command)

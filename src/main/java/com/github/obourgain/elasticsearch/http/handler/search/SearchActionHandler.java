@@ -1,6 +1,6 @@
 package com.github.obourgain.elasticsearch.http.handler.search;
 
-import static com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils.indicesOrAll;
+import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.indicesOrAll;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequest;
@@ -8,11 +8,15 @@ import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.search.search.SearchResponse;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -36,61 +40,48 @@ public class SearchActionHandler {
         try {
             // TODO http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search.html#stats-groups
             // TODO all options org.elasticsearch.rest.action.search.RestSearchAction.RestSearchAction()
-            StringBuilder url = new StringBuilder(httpClient.getUrl()).append("/");
 
-            String indices = indicesOrAll(request);
-            url.append(indices);
-
+            RequestUriBuilder uriBuilder;
             if (request.types() != null && request.types().length > 0) {
-                url.append("/").append(Strings.arrayToCommaDelimitedString(request.types()));
+                uriBuilder = new RequestUriBuilder(indicesOrAll(request), Strings.arrayToCommaDelimitedString(request.types()));
+            } else {
+                uriBuilder = new RequestUriBuilder(indicesOrAll(request));
             }
-            url.append("/_search");
+            uriBuilder.addEndpoint("_search");
 
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareGet(url.toString());
+            // for search requests, this can be a String[] but the SearchRequests does the conversion to comma delimited string
+            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
+            uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
+            uriBuilder.addQueryParameterIfNotNull("query_cache", request.queryCache());
 
-            if (request.routing() != null) {
-                // for search requests, this can be a String[] but the SearchRequests does the conversion to comma delimited string
-                httpRequest.addQueryParam("routing", request.routing());
-            }
-            if (request.preference() != null) {
-                httpRequest.addQueryParam("preference", request.preference());
-            }
-            if (request.queryCache() != null) {
-                httpRequest.addQueryParam("query_cache", String.valueOf(request.queryCache()));
-            }
-
-            switch (request.searchType()) {
-                case COUNT:
-                case QUERY_AND_FETCH:
-                case QUERY_THEN_FETCH:
-                case DFS_QUERY_AND_FETCH:
-                case DFS_QUERY_THEN_FETCH:
-                case SCAN:
-                    httpRequest.addQueryParam("search_type", request.searchType().name().toLowerCase());
-                    break;
-                default:
-                    throw new IllegalStateException("search_type " + request.searchType() + " is not supported");
-            }
+            uriBuilder.addSearchType(request.searchType());
 
             if (request.scroll() != null) {
-                httpRequest.addQueryParam("scroll", request.scroll().keepAlive().toString());
+                uriBuilder.addQueryParameter("scroll", request.scroll().keepAlive().toString());
             }
 
-            HttpRequestUtils.addIndicesOptions(httpRequest, request);
+            uriBuilder.addIndicesOptions(request);
 
-            if(request.source() != null) {
-                httpRequest.setBody(request.source().toBytes());
+            HttpClientRequest<ByteBuf> get = HttpClientRequest.createGet(uriBuilder.toString());
+            if (request.source() != null) {
+                get.withContent(request.source().toBytes());
             }
-            // TODO how to use extrasource ?
-//            XContentHelper.convertToJson(request.extraSource(), false);
 
-            httpRequest
-                    .execute(new ListenerAsyncCompletionHandler<SearchResponse>(listener) {
+            httpClient.client.submit(get)
+                    .flatMap(ErrorHandler.AS_FUNC)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<SearchResponse>>() {
                         @Override
-                        protected SearchResponse convert(Response response) {
-                            return SearchResponse.parse(response);
+                        public Observable<SearchResponse> call(HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<SearchResponse>>() {
+                                @Override
+                                public Observable<SearchResponse> call(ByteBuf byteBuf) {
+                                    return SearchResponse.parse(byteBuf);
+                                }
+                            });
                         }
-                    });
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
         } catch (Exception e) {
             listener.onFailure(e);
         }

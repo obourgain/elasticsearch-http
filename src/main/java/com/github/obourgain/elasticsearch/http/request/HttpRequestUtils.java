@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.handler;
+package com.github.obourgain.elasticsearch.http.request;
 
 import org.elasticsearch.action.IndicesRequest;
 import org.elasticsearch.action.support.IndicesOptions;

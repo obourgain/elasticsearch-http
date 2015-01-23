@@ -1,0 +1,38 @@
+{
+  "took" : 7,
+  "errors" : true,
+  "items" : [ {
+    "index" : {
+      "_index" : "test",
+      "_type" : "type1",
+      "_id" : "1",
+      "_version" : 3,
+      "status" : 200
+    }
+  }, {
+    "delete" : {
+      "_index" : "test",
+      "_type" : "type1",
+      "_id" : "2",
+      "_version" : 3,
+      "status" : 404,
+      "found" : false
+    }
+  }, {
+    "create" : {
+      "_index" : "test",
+      "_type" : "type1",
+      "_id" : "3",
+      "status" : 409,
+      "error" : "DocumentAlreadyExistsException[[test][4] [type1][3]: document already exists]"
+    }
+  }, {
+    "update" : {
+      "_index" : "index1",
+      "_type" : "type1",
+      "_id" : "1",
+      "status" : 404,
+      "error" : "DocumentMissingException[[index1][-1] [type1][1]: document missing]"
+    }
+  } ]
+}

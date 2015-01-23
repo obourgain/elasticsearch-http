@@ -54,18 +54,8 @@ public class IndexActionHandler {
             if (request.version() != Versions.MATCH_ANY) {
                 uriBuilder.addQueryParameter("version", String.valueOf(request.version()));
             }
-            switch (request.versionType()) {
-                case EXTERNAL:
-                case EXTERNAL_GTE:
-                case FORCE:
-                    uriBuilder.addQueryParameter("version_type", request.versionType().name().toLowerCase());
-                    break;
-                case INTERNAL:
-                    // noop
-                    break;
-                default:
-                    throw new IllegalStateException("version_type " + request.versionType() + " is not supported");
-            }
+            uriBuilder.addVersionType(request.versionType());
+
             if (request.opType() == IndexRequest.OpType.CREATE) {
                 uriBuilder.addQueryParameter("op_type", "create");
             }
@@ -75,7 +65,8 @@ public class IndexActionHandler {
             if (request.ttl() != -1) {
                 uriBuilder.addQueryParameter("ttl", String.valueOf(request.ttl()));
             }
-            uriBuilder.addConsistency(request);
+            uriBuilder.addConsistencyLevel(request.consistencyLevel());
+            uriBuilder.addReplicationType(request.replicationType());
 
             if (request.refresh()) {
                 uriBuilder.addQueryParameter("refresh", true);
@@ -91,12 +82,7 @@ public class IndexActionHandler {
                 httpClientRequest = HttpClientRequest.createPut(uriBuilder.toString());
             }
             httpClient.client.submit(httpClientRequest.withContent(request.source().toBytes()))
-                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
-                        @Override
-                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response1) {
-                            return ErrorHandler.checkError(response1);
-                        }
-                    })
+                    .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<IndexResponse>>() {
                         @Override
                         public Observable<IndexResponse> call(HttpClientResponse<ByteBuf> response) {

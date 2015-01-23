@@ -3,12 +3,15 @@ package com.github.obourgain.elasticsearch.http.response.search.search;
 import java.io.IOException;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
+import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.Hits;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
 import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.experimental.Builder;
+import rx.Observable;
 
 @Builder
 @Getter
@@ -21,11 +24,21 @@ public class SearchResponse {
     private boolean timedOut;
     private boolean terminatedEarly;
 
+    public static Observable<SearchResponse> parse(ByteBuf byteBuf) {
+        return Observable.just(doParse(new ByteBufBytesReference(byteBuf)));
+    }
 
     public static SearchResponse parse(Response response) {
+        return doParse(response);
+    }
+
+    protected static SearchResponse doParse(Response response) {
+        return null;
+    }
+
+    protected static SearchResponse doParse(ByteBufBytesReference bytes) {
         try {
-            byte[] body = response.getResponseBodyAsBytes();
-            XContentParser parser = XContentHelper.createParser(body, 0, body.length);
+            XContentParser parser = XContentHelper.createParser(bytes);
 
             SearchResponse.SearchResponseBuilder builder = SearchResponse.builder();
             XContentParser.Token token;
@@ -45,7 +58,7 @@ public class SearchResponse {
                     } else {
                         throw new IllegalStateException("unknown field " + currentFieldName);
                     }
-                } else if(token == XContentParser.Token.START_OBJECT) {
+                } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_shards".equals(currentFieldName)) {
                         builder.shards(ShardParser.parseInner(parser));
                     } else if ("hits".equals(currentFieldName)) {

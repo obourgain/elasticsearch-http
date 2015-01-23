@@ -1,22 +1,25 @@
 package com.github.obourgain.elasticsearch.http.handler.document;
 
-import static com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils.addIndicesOptions;
-import static com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils.indicesOrAll;
+import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.indicesOrAll;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryAction;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequest;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestAccessor;
 import org.elasticsearch.action.support.replication.ShardReplicationOperationRequest;
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.xcontent.XContentHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.document.deleteByQuery.DeleteByQueryResponse;
 import com.github.obourgain.elasticsearch.http.response.document.deleteByQuery.DeleteByQueryResponseParser;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -38,61 +41,45 @@ public class DeleteByQueryActionHandler {
     public void execute(DeleteByQueryRequest request, final ActionListener<DeleteByQueryResponse> listener) {
         logger.debug("delete by query request {}", request);
         try {
-            StringBuilder url = new StringBuilder(httpClient.getUrl()).append("/");
-
             String indices = indicesOrAll(request);
-            url.append(indices);
 
-            String[] types = DeleteByQueryRequestAccessor.types(request);
-            if (types != null && types.length != 0) {
-                url.append("/").append(Strings.arrayToCommaDelimitedString(types));
+            RequestUriBuilder uriBuilder;
+            String[] requestTypes = DeleteByQueryRequestAccessor.types(request);
+            if (requestTypes != null && requestTypes.length != 0) {
+                uriBuilder = new RequestUriBuilder(indices, Strings.arrayToCommaDelimitedString(requestTypes));
+            } else {
+                uriBuilder = new RequestUriBuilder(indices);
             }
-            url.append("/_query");
+            uriBuilder.addEndpoint("_query");
 
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareDelete(url.toString());
-            addIndicesOptions(httpRequest, request);
+            uriBuilder.addIndicesOptions(request);
 
-            if (request.routing() != null) {
-                // for search requests, this can be a String[] but the SearchRequests does the conversion to comma delimited string
-                httpRequest.addQueryParam("routing", request.routing());
-            }
+            // for search requests, this can be a String[] but the SearchRequests does the conversion to comma delimited string
+            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
 
-            switch (request.consistencyLevel()) {
-                case DEFAULT:
-                    // noop
-                    break;
-                case ALL:
-                case QUORUM:
-                case ONE:
-                    httpRequest.addQueryParam("consistency", request.consistencyLevel().name().toLowerCase());
-                    break;
-                default:
-                    throw new IllegalStateException("consistency  " + request.consistencyLevel() + " is not supported");
-            }
-            switch (request.replicationType()) {
-                case DEFAULT:
-                    // noop
-                    break;
-                case SYNC:
-                case ASYNC:
-                    httpRequest.addQueryParam("replication", request.replicationType().name().toLowerCase());
-                    break;
-                default:
-                    throw new IllegalStateException("replication  " + request.replicationType() + " is not supported");
-            }
+            uriBuilder.addConsistencyLevel(request.consistencyLevel());
+            uriBuilder.addReplicationType(request.replicationType());
+            
             if(request.timeout() != ShardReplicationOperationRequest.DEFAULT_TIMEOUT) {
-                httpRequest.addQueryParam("timeout", request.timeout().toString());
+                uriBuilder.addQueryParameter("timeout", request.timeout().toString());
             }
 
-            String data = XContentHelper.convertToJson(DeleteByQueryRequestAccessor.getSource(request), false);
-            httpRequest
-                    .setBody(data)
-                    .execute(new ListenerAsyncCompletionHandler<DeleteByQueryResponse>(listener) {
+            httpClient.client.submit(HttpClientRequest.createDelete(uriBuilder.toString())
+            .withContent(DeleteByQueryRequestAccessor.getSource(request).toBytes()))
+                    .flatMap(ErrorHandler.AS_FUNC)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<DeleteByQueryResponse>>() {
                         @Override
-                        protected DeleteByQueryResponse convert(Response response) {
-                            return DeleteByQueryResponseParser.parse(response);
+                        public Observable<DeleteByQueryResponse> call(HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<DeleteByQueryResponse>>() {
+                                @Override
+                                public Observable<DeleteByQueryResponse> call(ByteBuf byteBuf) {
+                                    return DeleteByQueryResponseParser.parse(byteBuf);
+                                }
+                            });
                         }
-                    });
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
         } catch (Exception e) {
             listener.onFailure(e);
         }

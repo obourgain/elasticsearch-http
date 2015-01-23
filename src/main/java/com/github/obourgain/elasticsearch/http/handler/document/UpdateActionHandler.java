@@ -6,17 +6,21 @@ import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.support.replication.ShardReplicationOperationRequest;
 import org.elasticsearch.action.update.UpdateAction;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.lucene.uid.Versions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.document.update.UpdateResponse;
 import com.github.obourgain.elasticsearch.http.response.document.update.UpdateResponseParser;
 import com.google.common.base.Charsets;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -39,84 +43,52 @@ public class UpdateActionHandler {
         // TODO scripted_upsert
         logger.debug("update request {}", request);
         try {
-            String url = httpClient.getUrl() + "/" + request.index() + "/" + request.type();
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePost(url + "/" + URLEncoder.encode(request.id(), Charsets.UTF_8.displayName()) + "/_update");
+            RequestUriBuilder uriBuilder = new RequestUriBuilder(request.index(), request.type(), URLEncoder.encode(request.id(), Charsets.UTF_8.displayName())).addEndpoint("_update");
 
-            buildRequest(request, httpRequest);
 
-            httpRequest.setBody(UpdateHelper.buildRequestBody(request));
-            httpRequest.execute(new ListenerAsyncCompletionHandler<UpdateResponse>(listener) {
-                @Override
-                protected UpdateResponse convert(Response response) {
-                    return UpdateResponseParser.parse(response);
-                }
-            });
+            buildRequest(request, uriBuilder);
+            
+            httpClient.client.submit(
+                    HttpClientRequest.createPost(uriBuilder.toString())
+                            .withContent(UpdateHelper.buildRequestBody(request)))
+                    .flatMap(ErrorHandler.AS_FUNC)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<UpdateResponse>>() {
+                        @Override
+                        public Observable<UpdateResponse> call(final HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<UpdateResponse>>() {
+                                @Override
+                                public Observable<UpdateResponse> call(ByteBuf byteBuf) {
+                                    return UpdateResponseParser.parse(byteBuf, response.getStatus().code());
+                                }
+                            });
+                        }
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
         } catch (Exception e) {
             listener.onFailure(e);
         }
     }
 
-    public static void buildRequest(UpdateRequest request, final AsyncHttpClient.BoundRequestBuilder httpRequest) throws IOException {
+    public static void buildRequest(UpdateRequest request, final RequestUriBuilder uriBuilder) throws IOException {
         if (request.version() != Versions.MATCH_ANY) {
-            httpRequest.addQueryParam("version", String.valueOf(request.version()));
+            uriBuilder.addQueryParameter("version", request.version());
         }
-        // do not use the enum's values because then this would depend on a specific version of ES and not allow a client with
-        // an upper version of elasticsearch
-        switch (request.versionType().name()) {
-            case "EXTERNAL":
-            case "EXTERNAL_GTE":
-            case "EXTERNAL_GT":
-            case "FORCE":
-                httpRequest.addQueryParam("version_type", request.versionType().name().toLowerCase());
-                break;
-            case "INTERNAL":
-                // noop
-                break;
-            default:
-                throw new IllegalStateException("version_type " + request.versionType() + " is not supported");
-        }
-        if (request.scriptLang() != null) {
-            httpRequest.addQueryParam("lang", request.scriptLang());
-        }
-        if (request.routing() != null) {
-            httpRequest.addQueryParam("routing", request.routing());
-        }
+        uriBuilder.addVersionType(request.versionType());
+        uriBuilder.addQueryParameterIfNotNull("lang", request.scriptLang());
+        uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
 
-        switch (request.consistencyLevel()) {
-            case DEFAULT:
-                // noop
-                break;
-            case ALL:
-            case QUORUM:
-            case ONE:
-                httpRequest.addQueryParam("consistency", request.consistencyLevel().name().toLowerCase());
-                break;
-            default:
-                throw new IllegalStateException("consistency  " + request.consistencyLevel() + " is not supported");
-        }
-        switch (request.replicationType()) {
-            case DEFAULT:
-                // noop
-                break;
-            case SYNC:
-            case ASYNC:
-                httpRequest.addQueryParam("replication", request.replicationType().name().toLowerCase());
-                break;
-            default:
-                throw new IllegalStateException("replication  " + request.replicationType() + " is not supported");
-        }
-        if (request.fields() != null) {
-            httpRequest.addQueryParam("fields", Strings.arrayToCommaDelimitedString(request.fields()));
-        }
+        uriBuilder.addConsistencyLevel(request.consistencyLevel());
+        uriBuilder.addReplicationType(request.replicationType());
+
+        uriBuilder.addQueryParameterArrayAsCommaDelimitedIfNotNullNorEmpty("fields", request.fields());
         if (request.refresh()) {
-            httpRequest.addQueryParam("refresh", String.valueOf(true));
+            uriBuilder.addQueryParameter("refresh", true);
         }
         if (request.timeout() != ShardReplicationOperationRequest.DEFAULT_TIMEOUT) {
-            httpRequest.addQueryParam("timeout", request.timeout().toString());
+            uriBuilder.addQueryParameter("timeout", request.timeout().toString());
         }
-        if (request.retryOnConflict() != 0) {
-            httpRequest.addQueryParam("retry_on_conflict", String.valueOf(request.retryOnConflict()));
-        }
+        uriBuilder.addQueryParameterIfNotZero("retry_on_conflict", request.retryOnConflict());
     }
 
 }

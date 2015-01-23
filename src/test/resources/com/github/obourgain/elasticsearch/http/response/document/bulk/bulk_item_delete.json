@@ -1,0 +1,10 @@
+{
+  "delete" : {
+    "_index" : "test",
+    "_type" : "type1",
+    "_id" : "2",
+    "_version" : 3,
+    "status" : 404,
+    "found" : false
+  }
+}

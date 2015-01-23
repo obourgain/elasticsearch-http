@@ -14,14 +14,8 @@ import rx.functions.Func1;
 
 public class GetResponseParser {
 
-    public static Observable<GetResponse> parse(HttpClientResponse<ByteBuf> response) {
-        rx.Observable<GetResponse> map = response.getContent().map(new Func1<ByteBuf, GetResponse>() {
-            @Override
-            public GetResponse call(ByteBuf b) {
-                return doParse(new ByteBufBytesReference(b));
-            }
-        });
-        return map.single();
+    public static Observable<GetResponse> parse(ByteBuf content) {
+        return Observable.just(doParse(new ByteBufBytesReference(content)));
     }
 
     private static GetResponse doParse(BytesReference bytesReference) {
@@ -68,9 +62,5 @@ public class GetResponseParser {
         } catch(IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static Observable<GetResponse> parse(ByteBuf content) {
-        return Observable.just(doParse(new ByteBufBytesReference(content)));
     }
 }

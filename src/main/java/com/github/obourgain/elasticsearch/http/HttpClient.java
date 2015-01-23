@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.concurrent.Future;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.count.CountRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequest;
@@ -36,6 +35,7 @@ import com.github.obourgain.elasticsearch.http.handler.search.ExistsActionHandle
 import com.github.obourgain.elasticsearch.http.handler.search.ExplainActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.PercolateActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.SearchActionHandler;
+import com.github.obourgain.elasticsearch.http.response.document.bulk.BulkResponse;
 import com.github.obourgain.elasticsearch.http.response.document.delete.DeleteResponse;
 import com.github.obourgain.elasticsearch.http.response.document.deleteByQuery.DeleteByQueryResponse;
 import com.github.obourgain.elasticsearch.http.response.document.exists.ExistsResponse;

@@ -1,0 +1,9 @@
+{
+  "create" : {
+    "_index" : "test",
+    "_type" : "type1",
+    "_id" : "3",
+    "status" : 409,
+    "error" : "DocumentAlreadyExistsException[[test][4] [type1][3]: document already exists]"
+  }
+}

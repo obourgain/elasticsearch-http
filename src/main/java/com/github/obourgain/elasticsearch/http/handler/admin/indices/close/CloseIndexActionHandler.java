@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
 import com.github.obourgain.elasticsearch.http.response.ValidStatusCodes;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.close.CloseIndexResponse;
 import com.ning.http.client.AsyncHttpClient;

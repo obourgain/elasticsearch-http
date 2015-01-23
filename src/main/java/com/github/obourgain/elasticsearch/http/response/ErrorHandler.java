@@ -14,6 +14,13 @@ public class ErrorHandler {
 
     public static final IntSet EMPTY = IntOpenHashSet.newInstance();
 
+    public static Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>> AS_FUNC = new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
+        @Override
+        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
+            return ErrorHandler.checkError(response);
+        }
+    };
+
     public static void checkError(Response response, IntSet non200ValidStatuses) {
         int statusCode = response.getStatusCode();
         if (statusCode > 300 && !non200ValidStatuses.contains(statusCode)) {

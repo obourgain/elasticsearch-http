@@ -1,5 +1,7 @@
 package com.github.obourgain.elasticsearch.http.handler.document;
 
+import static com.github.obourgain.elasticsearch.http.ObservableAsserts.assertHasSize;
+import static com.github.obourgain.elasticsearch.http.ObservableAsserts.takeNth;
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,6 +10,7 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.junit.Test;
+import rx.Observable;
 
 public class BulkActionMarshallerTest {
 
@@ -19,21 +22,21 @@ public class BulkActionMarshallerTest {
         request.index("the_index");
         request.type("the_type");
         request.id("the_id");
-        BulkActionMarshaller marshaller = new BulkActionMarshaller(Collections.<ActionRequest>singleton(request).iterator());
+        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
 
-        byte[] action = marshaller.next();
-        assertThat(action).isNotNull();
-        String actionAsString = new String(action);
-        assertThat(actionAsString).isEqualTo("{\"index\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"op_type\":\"index\"}}");
+        assertHasSize(observable, 4);
 
-        assertThat(marshaller.nextRequestBody).isNotNull();
+        byte[] bytes = takeNth(observable, 0);
+        assertThat(new String(bytes)).isEqualTo("{\"index\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"op_type\":\"index\"}}");
 
-        byte[] body = marshaller.next();
-        assertThat(body).isNotNull();
-        assertThat(new String(body)).isEqualTo("{\"foo\":\"bar\"}");
-        assertThat(marshaller.nextRequestBody).isNull();
+        bytes = takeNth(observable, 1);
+        assertThat(new String(bytes)).isEqualTo("\n");
 
-        assertThat(marshaller.requests.hasNext()).isFalse();
+        bytes = takeNth(observable, 2);
+        assertThat(new String(bytes)).isEqualTo("{\"foo\":\"bar\"}");
+
+        bytes = takeNth(observable, 3);
+        assertThat(new String(bytes)).isEqualTo("\n");
     }
 
     @Test
@@ -42,18 +45,15 @@ public class BulkActionMarshallerTest {
         request.index("the_index");
         request.type("the_type");
         request.id("the_id");
-        BulkActionMarshaller marshaller = new BulkActionMarshaller(Collections.<ActionRequest>singleton(request).iterator());
+        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        assertHasSize(observable, 2);
 
-        byte[] action = marshaller.next();
-        assertThat(action).isNotNull();
-        String actionAsString = new String(action);
+        byte[] bytes = takeNth(observable, 0);
+        String actionAsString = new String(bytes);
         assertThat(actionAsString).isEqualTo("{\"delete\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\"}}");
 
-        assertThat(marshaller.nextRequestBody).isNull();
-        assertThat(marshaller.requests.hasNext()).isFalse();
-
-        byte[] body = marshaller.next();
-        assertThat(body).isNull();
+        bytes = takeNth(observable, 1);
+        assertThat(new String(bytes)).isEqualTo("\n");
     }
 
     @Test
@@ -63,19 +63,17 @@ public class BulkActionMarshallerTest {
         request.type("the_type");
         request.id("the_id");
         request.doc("foo", "bar");
-        BulkActionMarshaller marshaller = new BulkActionMarshaller(Collections.<ActionRequest>singleton(request).iterator());
+        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        assertHasSize(observable, 4);
 
-        byte[] action = marshaller.next();
-        assertThat(action).isNotNull();
-        String actionAsString = new String(action);
-        assertThat(actionAsString).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
-
-        assertThat(marshaller.nextRequestBody).isNotNull();
-
-        byte[] body = marshaller.next();
-        assertThat(body).isNotNull();
-        assertThat(new String(body)).isEqualTo("{\"doc\":{\"foo\":\"bar\"}}");
-        assertThat(marshaller.nextRequestBody).isNull();
+        byte[] bytes = takeNth(observable, 0);
+        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
+        bytes = takeNth(observable, 1);
+        assertThat(new String(bytes)).isEqualTo("\n");
+        bytes = takeNth(observable, 2);
+        assertThat(new String(bytes)).isEqualTo("{\"doc\":{\"foo\":\"bar\"}}");
+        bytes = takeNth(observable, 3);
+        assertThat(new String(bytes)).isEqualTo("\n");
     }
 
     @Test
@@ -85,19 +83,20 @@ public class BulkActionMarshallerTest {
         request.type("the_type");
         request.id("the_id");
         request.upsert("bar", "baz");
-        BulkActionMarshaller marshaller = new BulkActionMarshaller(Collections.<ActionRequest>singleton(request).iterator());
+        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        assertHasSize(observable, 4);
 
-        byte[] action = marshaller.next();
-        assertThat(action).isNotNull();
-        String actionAsString = new String(action);
-        assertThat(actionAsString).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
+        byte[] bytes = takeNth(observable, 0);
+        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
 
-        assertThat(marshaller.nextRequestBody).isNotNull();
+        bytes = takeNth(observable, 1);
+        assertThat(new String(bytes)).isEqualTo("\n");
 
-        byte[] body = marshaller.next();
-        assertThat(body).isNotNull();
-        assertThat(new String(body)).isEqualTo("{\"upsert\":{\"bar\":\"baz\"}}");
-        assertThat(marshaller.nextRequestBody).isNull();
+        bytes = takeNth(observable, 2);
+        assertThat(new String(bytes)).isEqualTo("{\"upsert\":{\"bar\":\"baz\"}}");
+
+        bytes = takeNth(observable, 3);
+        assertThat(new String(bytes)).isEqualTo("\n");
     }
 
     @Test
@@ -108,19 +107,20 @@ public class BulkActionMarshallerTest {
         request.id("the_id");
         request.doc("bar", "baz");
         request.docAsUpsert(true);
-        BulkActionMarshaller marshaller = new BulkActionMarshaller(Collections.<ActionRequest>singleton(request).iterator());
+        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        assertHasSize(observable, 4);
 
-        byte[] action = marshaller.next();
-        assertThat(action).isNotNull();
-        String actionAsString = new String(action);
-        assertThat(actionAsString).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
+        byte[] bytes = takeNth(observable, 0);
+        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
 
-        assertThat(marshaller.nextRequestBody).isNotNull();
+        bytes = takeNth(observable, 1);
+        assertThat(new String(bytes)).isEqualTo("\n");
 
-        byte[] body = marshaller.next();
-        assertThat(body).isNotNull();
-        assertThat(new String(body)).isEqualTo("{\"doc_as_upsert\":true,\"doc\":{\"bar\":\"baz\"}}");
-        assertThat(marshaller.nextRequestBody).isNull();
+        bytes = takeNth(observable, 2);
+        assertThat(new String(bytes)).isEqualTo("{\"doc_as_upsert\":true,\"doc\":{\"bar\":\"baz\"}}");
+
+        bytes = takeNth(observable, 3);
+        assertThat(new String(bytes)).isEqualTo("\n");
     }
 
     @Test
@@ -130,19 +130,20 @@ public class BulkActionMarshallerTest {
         request.type("the_type");
         request.id("the_id");
         request.script("the_script");
-        BulkActionMarshaller marshaller = new BulkActionMarshaller(Collections.<ActionRequest>singleton(request).iterator());
+        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        assertHasSize(observable, 4);
 
-        byte[] action = marshaller.next();
-        assertThat(action).isNotNull();
-        String actionAsString = new String(action);
-        assertThat(actionAsString).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
+        byte[] bytes = takeNth(observable, 0);
+        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
 
-        assertThat(marshaller.nextRequestBody).isNotNull();
+        bytes = takeNth(observable, 1);
+        assertThat(new String(bytes)).isEqualTo("\n");
 
-        byte[] body = marshaller.next();
-        assertThat(body).isNotNull();
-        assertThat(new String(body)).isEqualTo("{\"script\":\"the_script\"}");
-        assertThat(marshaller.nextRequestBody).isNull();
+        bytes = takeNth(observable, 2);
+        assertThat(new String(bytes)).isEqualTo("{\"script\":\"the_script\"}");
+
+        bytes = takeNth(observable, 3);
+        assertThat(new String(bytes)).isEqualTo("\n");
     }
 
     @Test
@@ -153,19 +154,20 @@ public class BulkActionMarshallerTest {
         request.id("the_id");
         request.script("the_script");
         request.upsert("bar", "baz");
-        BulkActionMarshaller marshaller = new BulkActionMarshaller(Collections.<ActionRequest>singleton(request).iterator());
+        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        assertHasSize(observable, 4);
 
-        byte[] action = marshaller.next();
-        assertThat(action).isNotNull();
-        String actionAsString = new String(action);
-        assertThat(actionAsString).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
+        byte[] bytes = takeNth(observable, 0);
+        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
 
-        assertThat(marshaller.nextRequestBody).isNotNull();
+        bytes = takeNth(observable, 1);
+        assertThat(new String(bytes)).isEqualTo("\n");
 
-        byte[] body = marshaller.next();
-        assertThat(body).isNotNull();
-        assertThat(new String(body)).isEqualTo("{\"upsert\":{\"bar\":\"baz\"},\"script\":\"the_script\"}");
-        assertThat(marshaller.nextRequestBody).isNull();
+        bytes = takeNth(observable, 2);
+        assertThat(new String(bytes)).isEqualTo("{\"upsert\":{\"bar\":\"baz\"},\"script\":\"the_script\"}");
+
+        bytes = takeNth(observable, 3);
+        assertThat(new String(bytes)).isEqualTo("\n");
     }
 
     @Test
@@ -188,42 +190,35 @@ public class BulkActionMarshallerTest {
         index.type("the_type");
         index.id("the_id");
 
-        BulkActionMarshaller marshaller = new BulkActionMarshaller(Arrays.asList(new ActionRequest[]{update, delete, index}).iterator());
+        Observable<byte[]> observable = BulkActionMarshaller.write(Arrays.<ActionRequest>asList(update, delete, index));
+        assertHasSize(observable, 10);
 
         // update request
-        byte[] action = marshaller.next();
-        assertThat(action).isNotNull();
-        assertThat(new String(action)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
-        assertThat(marshaller.nextRequestBody).isNotNull();
-
-        // update body
-        byte[] body = marshaller.next();
-        assertThat(body).isNotNull();
-        assertThat(new String(body)).isEqualTo("{\"upsert\":{\"bar\":\"baz\"},\"script\":\"the_script\"}");
-        assertThat(marshaller.nextRequestBody).isNull();
+        byte[] bytes = takeNth(observable, 0);
+        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
+        bytes = takeNth(observable, 1);
+        assertThat(new String(bytes)).isEqualTo("\n");
+        bytes = takeNth(observable, 2);
+        assertThat(new String(bytes)).isEqualTo("{\"upsert\":{\"bar\":\"baz\"},\"script\":\"the_script\"}");
+        bytes = takeNth(observable, 3);
+        assertThat(new String(bytes)).isEqualTo("\n");
 
         // delete request
-        action = marshaller.next();
-        assertThat(action).isNotNull();
-        assertThat(new String(action)).isEqualTo("{\"delete\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\"}}");
-        assertThat(marshaller.nextRequestBody).isNull();
+        bytes = takeNth(observable, 4);
+        assertThat(new String(bytes)).isEqualTo("{\"delete\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\"}}");
+        bytes = takeNth(observable, 5);
+        assertThat(new String(bytes)).isEqualTo("\n");
 
         // index request
-        action = marshaller.next();
-        assertThat(action).isNotNull();
-        assertThat(new String(action)).isEqualTo("{\"index\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"op_type\":\"index\"}}");
-        assertThat(marshaller.nextRequestBody).isNotNull();
-
-        // index body
-        body = marshaller.next();
-        assertThat(body).isNotNull();
-        assertThat(new String(body)).isEqualTo("{\"foo\":\"bar\"}");
-        assertThat(marshaller.nextRequestBody).isNull();
-
-        assertThat(marshaller.next()).isNull();
+        bytes = takeNth(observable, 6);
+        assertThat(new String(bytes)).isEqualTo("{\"index\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"op_type\":\"index\"}}");
+        bytes = takeNth(observable, 7);
+        assertThat(new String(bytes)).isEqualTo("\n");
+        bytes = takeNth(observable, 8);
+        assertThat(bytes).isNotNull();
+        assertThat(new String(bytes)).isEqualTo("{\"foo\":\"bar\"}");
+        bytes = takeNth(observable, 9);
+        assertThat(new String(bytes)).isEqualTo("\n");
     }
 
-    public BulkActionMarshallerTest() {
-        super();
-    }
 }

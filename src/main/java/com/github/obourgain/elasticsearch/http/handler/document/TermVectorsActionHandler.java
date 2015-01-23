@@ -1,17 +1,23 @@
 package com.github.obourgain.elasticsearch.http.handler.document;
 
+import java.net.URLEncoder;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.termvector.TermVectorAction;
 import org.elasticsearch.action.termvector.TermVectorRequest;
-import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.document.termvectors.TermVectorResponse;
 import com.github.obourgain.elasticsearch.http.response.document.termvectors.TermVectorResponseParser;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import com.google.common.base.Charsets;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -33,32 +39,36 @@ public class TermVectorsActionHandler {
     public void execute(TermVectorRequest request, final ActionListener<TermVectorResponse> listener) {
         logger.debug("term vector request {}", request);
         try {
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareGet(httpClient.getUrl() + "/" + request.index() + "/" + request.type() + "/" + request.id() + "/_termvector");
+            RequestUriBuilder uriBuilder = new RequestUriBuilder(request.index(), request.type(), URLEncoder.encode(request.id(), Charsets.UTF_8.displayName()))
+                    .addEndpoint("_termvector");
 
             // TODO test
-            if(request.routing() != null) {
-                httpRequest.addQueryParam("routing", request.routing());
-            }
-            if(request.preference() != null) {
-                httpRequest.addQueryParam("preference", request.preference());
-            }
+            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
+            uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
 
-            if(request.selectedFields() != null) {
-                httpRequest.addQueryParam("fields", Strings.collectionToCommaDelimitedString(request.selectedFields()));
-            }
+            uriBuilder.addQueryParameterCollectionAsCommaDelimitedIfNotNullNorEmpty("fields", request.selectedFields());
 
-            httpRequest.addQueryParam("offsets", String.valueOf(request.offsets()));
-            httpRequest.addQueryParam("positions", String.valueOf(request.positions()));
-            httpRequest.addQueryParam("payloads", String.valueOf(request.payloads()));
-            httpRequest.addQueryParam("term_statistics", String.valueOf(request.termStatistics()));
-            httpRequest.addQueryParam("field_statistics", String.valueOf(request.fieldStatistics()));
+            uriBuilder.addQueryParameter("offsets", request.offsets());
+            uriBuilder.addQueryParameter("positions", request.positions());
+            uriBuilder.addQueryParameter("payloads", request.payloads());
+            uriBuilder.addQueryParameter("term_statistics", request.termStatistics());
+            uriBuilder.addQueryParameter("field_statistics", request.fieldStatistics());
 
-            httpRequest.execute(new ListenerAsyncCompletionHandler<TermVectorResponse>(listener) {
-                @Override
-                protected TermVectorResponse convert(Response response) {
-                    return TermVectorResponseParser.parse(response);
-                }
-            });
+            httpClient.client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
+                    .flatMap(ErrorHandler.AS_FUNC)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<TermVectorResponse>>() {
+                        @Override
+                        public Observable<TermVectorResponse> call(HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<TermVectorResponse>>() {
+                                @Override
+                                public Observable<TermVectorResponse> call(ByteBuf byteBuf) {
+                                    return TermVectorResponseParser.parse(byteBuf);
+                                }
+                            });
+                        }
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
         } catch (Exception e) {
             listener.onFailure(e);
         }

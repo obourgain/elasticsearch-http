@@ -1,7 +1,7 @@
 package com.github.obourgain.elasticsearch.http.handler.search;
 
-import static com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils.addIndicesOptions;
-import static com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils.indicesOrAll;
+import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.addIndicesOptions;
+import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.indicesOrAll;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.exists.ExistsAction;
 import org.elasticsearch.action.exists.ExistsRequest;

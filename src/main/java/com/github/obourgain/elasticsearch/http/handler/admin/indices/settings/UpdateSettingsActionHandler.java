@@ -16,7 +16,7 @@ import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
-import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
 import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
 import com.ning.http.client.AsyncHttpClient;
 

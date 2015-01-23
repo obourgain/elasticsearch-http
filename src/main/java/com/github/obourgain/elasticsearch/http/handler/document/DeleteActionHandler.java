@@ -8,12 +8,17 @@ import org.elasticsearch.action.support.replication.ShardReplicationOperationReq
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.document.delete.DeleteResponse;
 import com.github.obourgain.elasticsearch.http.response.document.delete.DeleteResponseParser;
 import com.google.common.base.Charsets;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -35,67 +40,37 @@ public class DeleteActionHandler {
     public void execute(final DeleteRequest request, final ActionListener<DeleteResponse> listener) {
         logger.debug("delete request " + request);
         try {
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareDelete(httpClient.getUrl() + "/" + request.index() + "/" + request.type() + "/" + URLEncoder.encode(request.id(), Charsets.UTF_8.displayName()));
+            RequestUriBuilder uriBuilder = new RequestUriBuilder(request.index(), request.type(), URLEncoder.encode(request.id(), Charsets.UTF_8.displayName()));
 
-            if(request.version() != 0) {
-                httpRequest.addQueryParam("version", String.valueOf(request.version()));
-            }
-            if(request.routing() != null) {
-                httpRequest.addQueryParam("routing", request.routing());
-            }
+            uriBuilder.addQueryParameterIfNotZero("version", request.version());
+            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
 
-            switch (request.versionType().name()) {
-                case "EXTERNAL":
-                case "EXTERNAL_GTE":
-                case "EXTERNAL_GT":
-                case "FORCE":
-                    httpRequest.addQueryParam("version_type", request.versionType().name().toLowerCase());
-                    break;
-                case "INTERNAL":
-                    // noop
-                    break;
-                default:
-                    throw new IllegalStateException("version_type " + request.versionType() + " is not supported");
+            uriBuilder.addVersionType(request.versionType());
+            uriBuilder.addConsistencyLevel(request.consistencyLevel());
+            uriBuilder.addReplicationType(request.replicationType());
+
+            if (request.refresh()) {
+                uriBuilder.addQueryParameter("refresh", true);
+            }
+            if (request.timeout() != ShardReplicationOperationRequest.DEFAULT_TIMEOUT) {
+                uriBuilder.addQueryParameter("timeout", request.timeout().toString());
             }
 
-            switch (request.consistencyLevel()) {
-                case DEFAULT:
-                    // noop
-                    break;
-                case ALL:
-                case QUORUM:
-                case ONE:
-                    httpRequest.addQueryParam("consistency", request.consistencyLevel().name().toLowerCase());
-                    break;
-                default:
-                    throw new IllegalStateException("consistency  " + request.consistencyLevel() + " is not supported");
-            }
-            switch (request.replicationType()) {
-                case DEFAULT:
-                    // noop
-                    break;
-                case SYNC:
-                case ASYNC:
-                    httpRequest.addQueryParam("replication", request.replicationType().name().toLowerCase());
-                    break;
-                default:
-                    throw new IllegalStateException("replication  " + request.replicationType() + " is not supported");
-            }
-
-            if(request.refresh()) {
-                httpRequest.addQueryParam("refresh", String.valueOf(true));
-            }
-            if(request.timeout() != ShardReplicationOperationRequest.DEFAULT_TIMEOUT) {
-                httpRequest.addQueryParam("timeout", request.timeout().toString());
-            }
-
-            httpRequest
-                    .execute(new ListenerAsyncCompletionHandler<DeleteResponse>(listener) {
+            httpClient.client.submit(HttpClientRequest.createDelete(uriBuilder.toString()))
+                    .flatMap(ErrorHandler.AS_FUNC)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<DeleteResponse>>() {
                         @Override
-                        protected DeleteResponse convert(Response response) {
-                            return DeleteResponseParser.parse(response);
+                        public Observable<DeleteResponse> call(HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<DeleteResponse>>() {
+                                @Override
+                                public Observable<DeleteResponse> call(ByteBuf byteBuf) {
+                                    return DeleteResponseParser.parse(byteBuf);
+                                }
+                            });
                         }
-                    });
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
         } catch (Exception e) {
             listener.onFailure(e);
         }

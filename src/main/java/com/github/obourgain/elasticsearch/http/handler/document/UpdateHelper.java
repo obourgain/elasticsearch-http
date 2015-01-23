@@ -13,6 +13,7 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 public class UpdateHelper {
 
     public static String buildRequestBody(UpdateRequest request) throws IOException {
+        // TODO make it more efficient than returning a String ?
         // if/else should not close the object
         XContentBuilder requestBody = XContentFactory.jsonBuilder().startObject();
         boolean writeDoc = false;

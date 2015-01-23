@@ -1,6 +1,6 @@
 package com.github.obourgain.elasticsearch.http.handler.search;
 
-import static com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils.indicesOrAll;
+import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.indicesOrAll;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.count.CountAction;
 import org.elasticsearch.action.count.CountRequest;
@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.handler.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
 import com.github.obourgain.elasticsearch.http.response.search.count.CountResponse;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
