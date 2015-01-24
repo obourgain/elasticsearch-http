@@ -45,7 +45,7 @@ public class UpdateSettingsActionHandler implements ActionHandler<UpdateSettings
         try {
             // TODO this pattern is repeated a lot, better extract it
             String indices = Strings.arrayToCommaDelimitedString(UpdateSettingsRequestAccessor.indices(request));
-            if(!indices.isEmpty()) {
+            if (!indices.isEmpty()) {
                 indices = "/" + indices;
             }
 

@@ -2,14 +2,14 @@ package com.github.obourgain.elasticsearch.http.handler.search;
 
 import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.addIndicesOptions;
 import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.indicesOrAll;
+import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
+import java.util.Set;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.exists.ExistsAction;
 import org.elasticsearch.action.exists.ExistsRequest;
 import org.elasticsearch.action.exists.ExistsRequestAccessor;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.bytes.BytesReference;
-import org.elasticsearch.common.hppc.IntOpenHashSet;
-import org.elasticsearch.common.hppc.IntSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
@@ -24,10 +24,6 @@ import com.ning.http.client.Response;
 public class ExistsActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ExistsActionHandler.class);
-    public static final IntOpenHashSet NON_200_VALID_STATUSES = new IntOpenHashSet();
-    static {
-        NON_200_VALID_STATUSES.add(404);
-    }
 
     private final HttpClient httpClient;
 
@@ -72,7 +68,7 @@ public class ExistsActionHandler {
 
             // TODO avoid doing to map conversion just to get one field
             BytesReference source = ExistsRequestAccessor.source(request);
-            if(source != null) {
+            if (source != null) {
                 httpRequest.setBody(source.toBytes());
             }
 
@@ -85,8 +81,8 @@ public class ExistsActionHandler {
                         }
 
                         @Override
-                        protected IntSet non200ValidStatuses() {
-                            return NON_200_VALID_STATUSES;
+                        protected Set<Integer> non200ValidStatuses() {
+                            return _404;
                         }
                     });
         } catch (Exception e) {

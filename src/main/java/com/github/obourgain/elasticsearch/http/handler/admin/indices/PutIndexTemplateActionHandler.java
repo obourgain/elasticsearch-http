@@ -66,19 +66,19 @@ public class PutIndexTemplateActionHandler implements ActionHandler<PutIndexTemp
 
             // TODO no way to nest XContentBuilders :'(
             XContentBuilder xContentBuilder = XContentFactory.jsonBuilder().startObject().field("template", request.template());
-            if(!mappings.isEmpty()) {
+            if (!mappings.isEmpty()) {
                 xContentBuilder.field("mappings");
             }
-            for (Map.Entry<String,String> entry : mappings.entrySet()) {
+            for (Map.Entry<String, String> entry : mappings.entrySet()) {
 //                Map mapping = objectMapper.readValue(entry.getValue(), Map.class);
 //                xContentBuilder.map(mapping);
             }
             xContentBuilder.endObject();
-            if(!aliases.isEmpty()) {
+            if (!aliases.isEmpty()) {
                 xContentBuilder.field("aliases", aliases);
             }
 
-            if(!customs.isEmpty()) {
+            if (!customs.isEmpty()) {
                 List<IndexMetaData.Custom> warmers = new ArrayList<>();
                 for (Map.Entry<String, IndexMetaData.Custom> entry : customs.entrySet()) {
                     IndexMetaData.Custom value = entry.getValue();
@@ -90,7 +90,7 @@ public class PutIndexTemplateActionHandler implements ActionHandler<PutIndexTemp
                             logger.warn("custom type {} is not supported, please report the issue", value.type());
                     }
                 }
-                if(!warmers.isEmpty()) {
+                if (!warmers.isEmpty()) {
                     xContentBuilder.field("warmers", warmers);
                 }
             }

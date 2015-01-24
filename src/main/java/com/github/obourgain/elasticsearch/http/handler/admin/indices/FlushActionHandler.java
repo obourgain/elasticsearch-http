@@ -1,16 +1,16 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices;
 
+import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
+import java.util.Set;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.flush.FlushAction;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
-import org.elasticsearch.common.hppc.IntSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
-import com.github.obourgain.elasticsearch.http.response.ValidStatusCodes;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.flush.FlushResponse;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
@@ -45,11 +45,6 @@ public class FlushActionHandler {
             httpRequest.addQueryParam("force", String.valueOf(request.force()));
             httpRequest.addQueryParam("full", String.valueOf(request.full()));
             httpRequest.addQueryParam("wait_if_ongoing", String.valueOf(request.waitIfOngoing()));
-            // TODO 404
-//                {
-//                    "error": "IndexMissingException[[twitter22] missing]",
-//                        "status": 404
-//                }
             httpRequest
                     .execute(new ListenerAsyncCompletionHandler<FlushResponse>(listener) {
                         @Override
@@ -58,8 +53,8 @@ public class FlushActionHandler {
                         }
 
                         @Override
-                        protected IntSet non200ValidStatuses() {
-                            return ValidStatusCodes._404;
+                        protected Set<Integer> non200ValidStatuses() {
+                            return _404;
                         }
                     });
         } catch (Exception e) {

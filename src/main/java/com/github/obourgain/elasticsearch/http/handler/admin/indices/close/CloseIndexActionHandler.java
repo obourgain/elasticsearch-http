@@ -1,18 +1,18 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices.close;
 
+import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
+import java.util.Set;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.close.CloseIndexAction;
 import org.elasticsearch.action.admin.indices.close.CloseIndexRequest;
 import org.elasticsearch.action.admin.indices.close.CloseIndexRequestAccessor;
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.hppc.IntSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
-import com.github.obourgain.elasticsearch.http.response.ValidStatusCodes;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.close.CloseIndexResponse;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
@@ -54,8 +54,8 @@ public class CloseIndexActionHandler {
                         }
 
                         @Override
-                        protected IntSet non200ValidStatuses() {
-                            return ValidStatusCodes._404;
+                        protected Set<Integer> non200ValidStatuses() {
+                            return _404;
                         }
                     });
         } catch (Exception e) {

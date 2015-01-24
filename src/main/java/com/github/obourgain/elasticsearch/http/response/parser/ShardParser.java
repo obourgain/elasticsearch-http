@@ -1,10 +1,8 @@
 package com.github.obourgain.elasticsearch.http.response.parser;
 
 import java.io.IOException;
-import java.util.Map;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
-import com.google.common.base.Preconditions;
 
 public class ShardParser {
 

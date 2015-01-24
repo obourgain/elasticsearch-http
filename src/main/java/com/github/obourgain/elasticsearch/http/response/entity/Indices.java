@@ -22,7 +22,7 @@ public class Indices implements Iterable<Index> {
     }
 
     public static Indices fromMap(Map<String, Shards> map) {
-        List<Index> indices= new ArrayList<>();
+        List<Index> indices = new ArrayList<>();
         for (Map.Entry<String, Shards> entry : map.entrySet()) {
             indices.add(new Index(entry.getKey(), entry.getValue()));
         }

@@ -1,8 +1,7 @@
 package org.elasticsearch.action.admin.indices.template.get;
 
-import org.elasticsearch.cluster.metadata.IndexTemplateMetaData;
-
 import java.util.List;
+import org.elasticsearch.cluster.metadata.IndexTemplateMetaData;
 
 /**
  * @author olivier bourgain

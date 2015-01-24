@@ -17,7 +17,7 @@ public class IndicesParser {
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
                 if (token == XContentParser.Token.FIELD_NAME) {
                     currentFieldName = parser.currentName();
-                } else if(token == XContentParser.Token.START_OBJECT) {
+                } else if (token == XContentParser.Token.START_OBJECT) {
                     Shards shards = ShardParser.parse(parser);
                     result.put(currentFieldName, shards);
                 }

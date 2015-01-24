@@ -76,7 +76,7 @@ public class IndexActionHandler {
             }
 
             HttpClientRequest<ByteBuf> httpClientRequest;
-            if(method.equals("POST")) {
+            if (method.equals("POST")) {
                 httpClientRequest = HttpClientRequest.createPost(uriBuilder.toString());
             } else {
                 httpClientRequest = HttpClientRequest.createPut(uriBuilder.toString());

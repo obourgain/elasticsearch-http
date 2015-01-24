@@ -36,7 +36,7 @@ public class CountResponse {
                     } else {
                         throw new IllegalStateException("unknown field " + currentFieldName);
                     }
-                } else if(token == XContentParser.Token.START_OBJECT) {
+                } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_shards".equals(currentFieldName)) {
                         builder.shards(ShardParser.parseInner(parser));
                     }

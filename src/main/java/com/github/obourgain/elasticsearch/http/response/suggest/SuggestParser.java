@@ -95,7 +95,7 @@ public class SuggestParser {
                         if (subAggs != null) {
                             throw new IllegalStateException("Found two sub aggregation definitions under [" + aggregationName + "]");
                         }
-                        subAggs = parseAggregators(parser, level+1);
+                        subAggs = parseAggregators(parser, level + 1);
                         break;
                     default:
                         aggregationType = fieldName;

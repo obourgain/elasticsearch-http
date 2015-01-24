@@ -8,9 +8,7 @@ import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.parser.FieldsParser;
 import com.github.obourgain.elasticsearch.http.response.parser.SourceParser;
 import io.netty.buffer.ByteBuf;
-import io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import rx.Observable;
-import rx.functions.Func1;
 
 public class GetResponseParser {
 
@@ -59,7 +57,7 @@ public class GetResponseParser {
                 }
             }
             return builder.build();
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

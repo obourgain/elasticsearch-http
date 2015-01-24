@@ -95,13 +95,13 @@ public class IndicesAliasesActionHandler implements ActionHandler<IndicesAliases
 
         builder.startObject();
         builder.startObject(type.name().toLowerCase());
-        if(alias != null) {
+        if (alias != null) {
             builder.field("alias", alias);
         }
-        if(index != null) {
+        if (index != null) {
             builder.field("index", index);
         }
-        if(filter != null) {
+        if (filter != null) {
             builder.startObject("filter");
             builder.field(filter);
             builder.endObject();
@@ -115,10 +115,10 @@ public class IndicesAliasesActionHandler implements ActionHandler<IndicesAliases
 //                }
 //            }
         }
-        if(searchRouting!= null) {
+        if (searchRouting != null) {
             builder.field("search_routing", searchRouting);
         }
-        if(indexRouting != null) {
+        if (indexRouting != null) {
             builder.field("index_routing", indexRouting);
         }
         builder.endObject();
@@ -131,13 +131,13 @@ public class IndicesAliasesActionHandler implements ActionHandler<IndicesAliases
         String searchRouting = actions.aliasAction().searchRouting();
         AliasAction.Type type = actions.aliasAction().actionType();
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        if(alias != null) {
+        if (alias != null) {
             builder.put("alias", alias);
         }
-        if(index != null) {
+        if (index != null) {
             builder.put("index", index);
         }
-        if(filter != null) {
+        if (filter != null) {
             XContentType xContentType = XContentFactory.xContentType(filter);
             if (xContentType != null) {
                 try {
@@ -150,10 +150,10 @@ public class IndicesAliasesActionHandler implements ActionHandler<IndicesAliases
                 builder.put("filter", filter);
             }
         }
-        if(searchRouting!= null) {
+        if (searchRouting != null) {
             builder.put("search_routing", searchRouting);
         }
-        if(indexRouting != null) {
+        if (indexRouting != null) {
             builder.put("index_routing", indexRouting);
         }
         return Collections.singletonMap(type.name().toLowerCase(), builder.build());

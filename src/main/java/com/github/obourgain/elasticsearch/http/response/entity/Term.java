@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.elasticsearch.common.xcontent.XContentParser;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import lombok.Getter;
 import lombok.experimental.Builder;
 
@@ -30,15 +29,15 @@ public class Term {
                 if (token == XContentParser.Token.FIELD_NAME) {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
-                    if("doc_freq".equals(currentFieldName)) {
+                    if ("doc_freq".equals(currentFieldName)) {
                         builder.docFreq(parser.intValue());
-                    } else if("term_freq".equals(currentFieldName)) {
+                    } else if ("term_freq".equals(currentFieldName)) {
                         builder.termFreq(parser.intValue());
-                    } else if("ttf".equals(currentFieldName)) {
+                    } else if ("ttf".equals(currentFieldName)) {
                         builder.totalTermFreq(parser.intValue());
                     }
-                } else if(token == XContentParser.Token.START_ARRAY) {
-                    if("tokens".equals(currentFieldName)) {
+                } else if (token == XContentParser.Token.START_ARRAY) {
+                    if ("tokens".equals(currentFieldName)) {
                         List<Token> parsedTokens = Token.parseList(parser);
                         builder.tokens(parsedTokens);
                     }

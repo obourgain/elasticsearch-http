@@ -40,7 +40,7 @@ public class GetAliasesActionHandler implements ActionHandler<GetAliasesRequest,
         try {
             String indices = HttpRequestUtils.indicesOrAll(request);
             String aliases = Strings.arrayToCommaDelimitedString(request.aliases());
-            if(!aliases.isEmpty()) {
+            if (!aliases.isEmpty()) {
                 aliases = "/" + aliases;
             }
 

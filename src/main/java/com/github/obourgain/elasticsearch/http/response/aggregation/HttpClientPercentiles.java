@@ -1,6 +1,6 @@
 package com.github.obourgain.elasticsearch.http.response.aggregation;
 
-import static java.lang.Double.*;
+import static java.lang.Double.parseDouble;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
@@ -114,9 +114,9 @@ public class HttpClientPercentiles extends InternalNumericMetricsAggregation.Mul
      * We may have doubles or Strings in the response map, this methods is an adapter to always have doubles.
      */
     private double toDouble(Object input) {
-        if(input instanceof String) {
+        if (input instanceof String) {
             return parseDouble((String) input);
-        } else if(input instanceof Number) {
+        } else if (input instanceof Number) {
             return ((Number) input).doubleValue();
         } else {
             throw new IllegalStateException("expected a String or Number, got " + input.getClass());

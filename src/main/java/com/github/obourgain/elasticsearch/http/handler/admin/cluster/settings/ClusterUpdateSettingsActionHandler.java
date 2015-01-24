@@ -49,11 +49,11 @@ public class ClusterUpdateSettingsActionHandler implements ActionHandler<Cluster
             Settings persistentSettings = ClusterUpdateSettingsRequestAccessor.persistentSettings(request);
 
             XContentBuilder xContentBuilder = XContentFactory.jsonBuilder().startObject();
-            if(transientSettings != ImmutableSettings.Builder.EMPTY_SETTINGS) {
+            if (transientSettings != ImmutableSettings.Builder.EMPTY_SETTINGS) {
                 // TODO waiting for https://github.com/elasticsearch/elasticsearch/pull/7212 to be merged and use a cleaner API
                 xContentBuilder.field("transient").map((Map) transientSettings.getAsMap());
             }
-            if(persistentSettings != ImmutableSettings.Builder.EMPTY_SETTINGS) {
+            if (persistentSettings != ImmutableSettings.Builder.EMPTY_SETTINGS) {
                 xContentBuilder.field("persistent").map((Map) persistentSettings.getAsMap());
             }
             xContentBuilder.endObject();

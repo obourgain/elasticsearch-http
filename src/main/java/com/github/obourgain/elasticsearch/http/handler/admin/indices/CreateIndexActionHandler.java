@@ -124,11 +124,11 @@ public class CreateIndexActionHandler {
             httpRequest.setBody(body);
 
             httpRequest.execute(new ListenerAsyncCompletionHandler<CreateIndexResponse>(listener) {
-                        @Override
-                        protected CreateIndexResponse convert(Response response) {
-                            return CreateIndexResponse.parse(response);
-                        }
-                    });
+                @Override
+                protected CreateIndexResponse convert(Response response) {
+                    return CreateIndexResponse.parse(response);
+                }
+            });
         } catch (Exception e) {
             listener.onFailure(e);
         }

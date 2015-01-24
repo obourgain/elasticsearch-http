@@ -41,7 +41,7 @@ public class ClusterHealthActionHandler implements ActionHandler<ClusterHealthRe
             StringBuilder url = new StringBuilder();
             url.append(httpClient.getUrl());
             url.append("/_cluster/health");
-            if(request.indices().length != 0) {
+            if (request.indices().length != 0) {
                 url.append("/").append(Strings.arrayToCommaDelimitedString(request.indices()));
             }
 
@@ -50,13 +50,13 @@ public class ClusterHealthActionHandler implements ActionHandler<ClusterHealthRe
             // TODO level ? http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/cluster-health.html#request-params
             httpRequest.addQueryParam("level", "shards");
 
-            if(request.waitForStatus() != null) {
+            if (request.waitForStatus() != null) {
                 httpRequest.addQueryParam("wait_for_status", request.waitForStatus().name().toLowerCase());
             }
-            if(request.waitForRelocatingShards() != -1) {
+            if (request.waitForRelocatingShards() != -1) {
                 httpRequest.addQueryParam("wait_for_relocating_shards", String.valueOf(request.waitForRelocatingShards()));
             }
-            if(!request.waitForNodes().equals("")) {
+            if (!request.waitForNodes().equals("")) {
                 httpRequest.addQueryParam("wait_for_nodes", request.waitForNodes());
             }
             httpRequest.addQueryParam("timeout", request.timeout().toString());

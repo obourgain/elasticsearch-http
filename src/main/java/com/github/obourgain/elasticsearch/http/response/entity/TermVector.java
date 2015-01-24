@@ -29,12 +29,12 @@ public class TermVector {
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
                 if (token == XContentParser.Token.FIELD_NAME) {
                     currentFieldName = parser.currentName();
-                } else if(token == XContentParser.Token.START_OBJECT) {
-                    if("field_statistics".equals(currentFieldName)) {
+                } else if (token == XContentParser.Token.START_OBJECT) {
+                    if ("field_statistics".equals(currentFieldName)) {
                         parser.nextToken();
                         Map<String, Object> map = parser.map();
                         builder.fieldStatistics(FieldStatistics.fromMap(map));
-                    } else if("terms".equals(currentFieldName)) {
+                    } else if ("terms".equals(currentFieldName)) {
                         List<Term> terms = Term.parseTerms(parser);
                         builder.terms(terms);
                     }

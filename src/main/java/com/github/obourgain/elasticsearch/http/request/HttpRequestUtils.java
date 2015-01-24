@@ -9,7 +9,7 @@ public class HttpRequestUtils {
 
     public static String indicesOrAll(IndicesRequest request) {
         String[] indices = request.indices();
-        if(indices == null || indices.length == 0) {
+        if (indices == null || indices.length == 0) {
             return "_all";
         }
         return Strings.arrayToCommaDelimitedString(indices);
@@ -20,10 +20,10 @@ public class HttpRequestUtils {
         addBooleanParam(httpRequest, "ignore_unavailable", indicesOptions.ignoreUnavailable());
         addBooleanParam(httpRequest, "allow_no_indices", indicesOptions.allowNoIndices());
 
-        if(indicesOptions.expandWildcardsOpen()) {
+        if (indicesOptions.expandWildcardsOpen()) {
             httpRequest.addQueryParam("expand_wildcards", "open");
         }
-        if(indicesOptions.expandWildcardsClosed()) {
+        if (indicesOptions.expandWildcardsClosed()) {
             httpRequest.addQueryParam("expand_wildcards", "closed");
         }
         // TODO how are those set ?

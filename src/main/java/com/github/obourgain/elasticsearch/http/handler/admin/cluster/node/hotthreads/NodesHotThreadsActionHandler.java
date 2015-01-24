@@ -56,7 +56,7 @@ public class NodesHotThreadsActionHandler implements ActionHandler<NodesHotThrea
             StringBuilder url = new StringBuilder();
             url.append(httpClient.getUrl());
             url.append("/_nodes/");
-            if(request.nodesIds().length != 0) {
+            if (request.nodesIds().length != 0) {
                 url.append(Strings.arrayToCommaDelimitedString(request.nodesIds()));
                 url.append("/");
             }

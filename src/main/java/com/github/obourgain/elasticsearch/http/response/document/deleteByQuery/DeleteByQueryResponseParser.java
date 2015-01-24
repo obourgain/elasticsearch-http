@@ -36,7 +36,7 @@ public class DeleteByQueryResponseParser {
                 }
             }
             return builder.build();
-        }catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

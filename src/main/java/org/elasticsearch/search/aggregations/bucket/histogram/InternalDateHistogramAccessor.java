@@ -26,7 +26,7 @@ public class InternalDateHistogramAccessor {
             // TODO this should be able to handle different date formats
             String keyAsString = (String) bucketAsMap.get("key_as_string");
             long key = ((Number) bucketAsMap.get("key")).longValue();
-            long docCount = ((Number)bucketAsMap.get("doc_count")).longValue();
+            long docCount = ((Number) bucketAsMap.get("doc_count")).longValue();
             List<InternalAggregation> subAggregationsAsList = new ArrayList<>();
             for (Map.Entry<String, AggregationMetaInfos> child : aggregationMetaInfos.getChildren().entrySet()) {
                 Map<String, Object> childAsMap = (Map<String, Object>) bucketAsMap.get(child.getValue().getName());

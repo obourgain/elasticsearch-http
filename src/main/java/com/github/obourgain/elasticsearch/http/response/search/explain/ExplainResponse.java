@@ -48,7 +48,7 @@ public class ExplainResponse {
                 } else {
                     throw new IllegalStateException("unknown field " + currentFieldName);
                 }
-            } else if(token == XContentParser.Token.START_OBJECT) {
+            } else if (token == XContentParser.Token.START_OBJECT) {
                 if ("explanation".equals(currentFieldName)) {
                     builder.explanation(Explanation.parseExplanation(parser));
                 }

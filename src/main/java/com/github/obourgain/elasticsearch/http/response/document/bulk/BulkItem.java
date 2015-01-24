@@ -35,21 +35,21 @@ public class BulkItem {
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
                 if (token == XContentParser.Token.FIELD_NAME) {
                     currentFieldName = parser.currentName();
-                } else if(token.isValue()) {
-                    if("_index".equals(currentFieldName)) {
+                } else if (token.isValue()) {
+                    if ("_index".equals(currentFieldName)) {
                         builder.index(parser.text());
-                    } else if("_type".equals(currentFieldName)) {
+                    } else if ("_type".equals(currentFieldName)) {
                         builder.type(parser.text());
-                    } else if("_id".equals(currentFieldName)) {
+                    } else if ("_id".equals(currentFieldName)) {
                         builder.id(parser.text());
-                    } else if("_version".equals(currentFieldName)) {
+                    } else if ("_version".equals(currentFieldName)) {
                         builder.version(parser.longValue());
-                    } else if("status".equals(currentFieldName)) {
+                    } else if ("status".equals(currentFieldName)) {
                         builder.status(parser.intValue());
-                    } else if("error".equals(currentFieldName)) {
+                    } else if ("error".equals(currentFieldName)) {
                         builder.error(parser.text());
                         builder.failed(true);
-                    } else if("found".equals(currentFieldName)) {
+                    } else if ("found".equals(currentFieldName)) {
                         builder.found(parser.booleanValue());
                     }
                 }

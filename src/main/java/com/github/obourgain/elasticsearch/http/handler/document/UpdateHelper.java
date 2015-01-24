@@ -40,13 +40,13 @@ public class UpdateHelper {
             addScriptParams(request, requestBody);
         }
 
-        if(writeDoc) {
+        if (writeDoc) {
             Map<String, Object> docAsMap = XContentHelper.convertToMap(request.doc().source(), false).v2();
             requestBody.field("doc", docAsMap);
         }
 
-        if(request.detectNoop()) {
-           requestBody.field("detect_noop", String.valueOf(request.detectNoop()));
+        if (request.detectNoop()) {
+            requestBody.field("detect_noop", String.valueOf(request.detectNoop()));
         }
         return requestBody.endObject().string();
     }

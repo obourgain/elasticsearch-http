@@ -77,7 +77,7 @@ public class MoreLikeThisActionHandler {
             if (request.searchSize() != 0) {
                 uriBuilder.addQueryParameter("search_size", String.valueOf(request.searchSize()));
             }
-            if(request.searchScroll() != null) {
+            if (request.searchScroll() != null) {
                 uriBuilder.addQueryParameterIfNotNull("search_scroll", request.searchScroll().keepAlive().toString());
             }
             if (request.searchFrom() != 0) {

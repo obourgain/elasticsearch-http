@@ -43,7 +43,7 @@ public class GetMappingsActionHandler implements ActionHandler<GetMappingsReques
 
             String indices = HttpRequestUtils.indicesOrAll(request);
             String types = Strings.arrayToCommaDelimitedString(request.types());
-            if(!types.isEmpty()) {
+            if (!types.isEmpty()) {
                 types = "/" + types;
             }
 

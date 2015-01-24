@@ -38,7 +38,7 @@ public class SearchScrollActionHandler implements ActionHandler<SearchScrollRequ
             // TODO test
             AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareGet(httpClient.getUrl() + "/_search/scroll");
 
-            if(request.scroll() != null) {
+            if (request.scroll() != null) {
                 httpRequest.addQueryParam("scroll", String.valueOf(request.scroll().keepAlive().toString()));
             }
             httpRequest.addQueryParam("scroll_id", request.scrollId());

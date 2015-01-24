@@ -58,8 +58,8 @@ public class Hit {
             // TODO _explanation
         }
 
-    return builder.build();
-}
+        return builder.build();
+    }
 
     public static List<Hit> parseHitArray(XContentParser parser) {
         assert parser.currentToken() == XContentParser.Token.START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();

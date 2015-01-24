@@ -1,12 +1,10 @@
 package com.github.obourgain.elasticsearch.http.response;
 
-import org.elasticsearch.common.hppc.IntOpenHashSet;
+import java.util.Collections;
+import java.util.Set;
 
 public class ValidStatusCodes {
 
-    public static IntOpenHashSet _404 = new IntOpenHashSet();
-    static {
-        _404.add(404);
-    }
+    public static Set<Integer> _404 = Collections.singleton(404);
 
 }

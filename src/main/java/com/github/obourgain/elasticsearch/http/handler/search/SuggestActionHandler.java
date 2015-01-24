@@ -63,7 +63,7 @@ public class SuggestActionHandler implements ActionHandler<SuggestRequest, Sugge
             HttpRequestUtils.addIndicesOptions(httpRequest, request);
 
             BytesReference source = SuggestRequestAccessor.getSource(request);
-            if(source != null) {
+            if (source != null) {
                 Tuple<XContentType, Map<String, Object>> queryAsMap = XContentHelper.convertToMap(source, false);
                 Object version = queryAsMap.v2().get("version");
                 if (version != null) {

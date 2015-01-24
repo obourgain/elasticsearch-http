@@ -38,7 +38,7 @@ public class ClusterStatsActionHandler implements ActionHandler<ClusterStatsRequ
         logger.debug("cluster stats request {}", request);
         try {
             String indices = Strings.arrayToCommaDelimitedString(request.nodesIds());
-            if(!indices.isEmpty()) {
+            if (!indices.isEmpty()) {
                 indices = "/nodes/" + indices;
             }
 
@@ -46,11 +46,11 @@ public class ClusterStatsActionHandler implements ActionHandler<ClusterStatsRequ
             AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareGet(httpClient.getUrl() + "/_cluster/stats" + indices);
 
             httpRequest.execute(new ListenerAsyncCompletionHandler<ClusterStatsResponse>(listener) {
-                        @Override
-                        protected ClusterStatsResponse convert(ResponseWrapper responseWrapper) {
-                            return responseWrapper.toClusterStatsResponse();
-                        }
-                    });
+                @Override
+                protected ClusterStatsResponse convert(ResponseWrapper responseWrapper) {
+                    return responseWrapper.toClusterStatsResponse();
+                }
+            });
         } catch (Exception e) {
             listener.onFailure(e);
         }

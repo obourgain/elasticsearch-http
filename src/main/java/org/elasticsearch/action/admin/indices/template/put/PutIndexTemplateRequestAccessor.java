@@ -1,11 +1,10 @@
 package org.elasticsearch.action.admin.indices.template.put;
 
+import java.util.Map;
+import java.util.Set;
 import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
-
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author olivier bourgain

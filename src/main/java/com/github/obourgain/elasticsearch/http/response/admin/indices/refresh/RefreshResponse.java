@@ -32,7 +32,7 @@ public class RefreshResponse {
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
                 if (token == XContentParser.Token.FIELD_NAME) {
                     currentFieldName = parser.currentName();
-                } else if(token == XContentParser.Token.START_OBJECT) {
+                } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_shards".equals(currentFieldName)) {
                         return new RefreshResponse(ShardParser.parseInner(parser));
                     }

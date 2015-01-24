@@ -6,7 +6,6 @@ import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.action.support.replication.ReplicationType;
-import org.elasticsearch.action.support.replication.ShardReplicationOperationRequest;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.index.VersionType;
 
@@ -46,7 +45,7 @@ public class RequestUriBuilder {
         return this;
     }
 
-    public RequestUriBuilder addQueryParameterArrayAsCommaDelimited(String name, String ... values) {
+    public RequestUriBuilder addQueryParameterArrayAsCommaDelimited(String name, String... values) {
         addQueryStringSeparator();
         builder.append(name);
         builder.append("=");
@@ -54,8 +53,8 @@ public class RequestUriBuilder {
         return this;
     }
 
-    public RequestUriBuilder addQueryParameterArrayAsCommaDelimitedIfNotNullNorEmpty(String name, String ... values) {
-        if(values != null && values.length != 0) {
+    public RequestUriBuilder addQueryParameterArrayAsCommaDelimitedIfNotNullNorEmpty(String name, String... values) {
+        if (values != null && values.length != 0) {
             addQueryStringSeparator();
             builder.append(name);
             builder.append("=");
@@ -65,7 +64,7 @@ public class RequestUriBuilder {
     }
 
     public RequestUriBuilder addQueryParameterCollectionAsCommaDelimitedIfNotNullNorEmpty(String name, Collection<String> values) {
-        if(values != null && values.size() != 0) {
+        if (values != null && values.size() != 0) {
             addQueryStringSeparator();
             builder.append(name);
             builder.append("=");
@@ -91,7 +90,7 @@ public class RequestUriBuilder {
     }
 
     public RequestUriBuilder addQueryParameterIfNotMinusOne(String name, long value) {
-        if(value != -1) {
+        if (value != -1) {
             addQueryStringSeparator();
             builder.append(name);
             builder.append("=");
@@ -101,7 +100,7 @@ public class RequestUriBuilder {
     }
 
     public RequestUriBuilder addQueryParameterIfNotZero(String name, long value) {
-        if(value != 0) {
+        if (value != 0) {
             addQueryStringSeparator();
             builder.append(name);
             builder.append("=");
@@ -111,14 +110,14 @@ public class RequestUriBuilder {
     }
 
     public RequestUriBuilder addQueryParameterIfNotNull(String name, String value) {
-        if(value != null) {
+        if (value != null) {
             addQueryParameter(name, value);
         }
         return this;
     }
 
     public RequestUriBuilder addQueryParameterIfNotNull(String name, Boolean value) {
-        if(value != null) {
+        if (value != null) {
             addQueryParameter(name, value);
         }
         return this;
@@ -139,7 +138,7 @@ public class RequestUriBuilder {
         }
         return this;
     }
-    
+
     public RequestUriBuilder addVersionType(VersionType versionType) {
         switch (versionType) {
             case EXTERNAL:
@@ -167,7 +166,8 @@ public class RequestUriBuilder {
                 addQueryParameter("consistency", consistencyLevel.name().toLowerCase());
                 break;
             default:
-                throw new IllegalStateException("consistency  " + consistencyLevel + " is not supported");        }
+                throw new IllegalStateException("consistency  " + consistencyLevel + " is not supported");
+        }
         return this;
     }
 
@@ -196,7 +196,7 @@ public class RequestUriBuilder {
         indicesOptions.forbidClosedIndices();
     }
 
-    public RequestUriBuilder addQueryParameter(String name, String ... values) {
+    public RequestUriBuilder addQueryParameter(String name, String... values) {
         addQueryStringSeparator();
         for (String value : values) {
             builder.append(name);
@@ -211,7 +211,7 @@ public class RequestUriBuilder {
     }
 
     private void addQueryStringSeparator() {
-        if(addedQueryParamSeparator) {
+        if (addedQueryParamSeparator) {
             builder.append("&");
         } else {
             builder.append("?");

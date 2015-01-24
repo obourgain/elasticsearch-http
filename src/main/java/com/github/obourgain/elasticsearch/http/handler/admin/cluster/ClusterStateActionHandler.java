@@ -42,21 +42,21 @@ public class ClusterStateActionHandler implements ActionHandler<ClusterStateRequ
         try {
 
             List<String> metricsAsList = new ArrayList<>();
-            if(request.blocks()) {
+            if (request.blocks()) {
                 metricsAsList.add("blocks");
             }
-            if(request.routingTable()) {
+            if (request.routingTable()) {
                 metricsAsList.add("routing_table");
             }
-            if(request.nodes()) {
+            if (request.nodes()) {
                 metricsAsList.add("nodes");
             }
-            if(request.metaData()) {
+            if (request.metaData()) {
                 metricsAsList.add("metadata");
             }
 
             String metrics;
-            if(metricsAsList.isEmpty()) {
+            if (metricsAsList.isEmpty()) {
                 metrics = "_all";
             } else {
                 // TODO version and master_node are not in the request, so add them by default

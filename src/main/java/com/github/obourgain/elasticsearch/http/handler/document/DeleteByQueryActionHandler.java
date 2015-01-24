@@ -59,13 +59,13 @@ public class DeleteByQueryActionHandler {
 
             uriBuilder.addConsistencyLevel(request.consistencyLevel());
             uriBuilder.addReplicationType(request.replicationType());
-            
-            if(request.timeout() != ShardReplicationOperationRequest.DEFAULT_TIMEOUT) {
+
+            if (request.timeout() != ShardReplicationOperationRequest.DEFAULT_TIMEOUT) {
                 uriBuilder.addQueryParameter("timeout", request.timeout().toString());
             }
 
             httpClient.client.submit(HttpClientRequest.createDelete(uriBuilder.toString())
-            .withContent(DeleteByQueryRequestAccessor.getSource(request).toBytes()))
+                    .withContent(DeleteByQueryRequestAccessor.getSource(request).toBytes()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<DeleteByQueryResponse>>() {
                         @Override

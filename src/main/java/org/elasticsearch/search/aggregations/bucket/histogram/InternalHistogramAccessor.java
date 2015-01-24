@@ -7,7 +7,7 @@ import org.elasticsearch.search.aggregations.support.format.ValueFormatter;
 public class InternalHistogramAccessor {
 
     public static <B extends InternalHistogram.Bucket> InternalHistogram<B> create(String name, List<B> buckets, InternalOrder order, long minDocCount,
-                                               InternalHistogram.EmptyBucketInfo emptyBucketInfo, @Nullable ValueFormatter formatter, boolean keyed) {
+                                                                                   InternalHistogram.EmptyBucketInfo emptyBucketInfo, @Nullable ValueFormatter formatter, boolean keyed) {
         return new InternalHistogram<>(name, buckets, order, minDocCount, emptyBucketInfo, formatter, keyed);
     }
 

@@ -35,20 +35,20 @@ public class ExplainActionHandler {
             String url = httpClient.getUrl() + "/" + request.index() + "/" + request.type() + "/" + request.id() + "/_explain";
             AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareGet(url);
 
-            if(request.fetchSourceContext() != null) {
-                if(request.fetchSourceContext().fetchSource()) {
+            if (request.fetchSourceContext() != null) {
+                if (request.fetchSourceContext().fetchSource()) {
                     httpRequest.addQueryParam("_source", String.valueOf(request.fetchSourceContext().fetchSource()));
                 }
                 // excludes & includes defaults to empty String array
-                if(request.fetchSourceContext().excludes().length > 0) {
+                if (request.fetchSourceContext().excludes().length > 0) {
                     httpRequest.addQueryParam("_source_exclude", Strings.arrayToCommaDelimitedString(request.fetchSourceContext().excludes()));
                 }
-                if(request.fetchSourceContext().includes().length > 0) {
+                if (request.fetchSourceContext().includes().length > 0) {
                     httpRequest.addQueryParam("_source_include", Strings.arrayToCommaDelimitedString(request.fetchSourceContext().excludes()));
                 }
             }
 
-            if(request.fields() != null) {
+            if (request.fields() != null) {
                 httpRequest.addQueryParam("fields", Strings.arrayToCommaDelimitedString(request.fields()));
             }
             if (request.routing() != null) {

@@ -1,11 +1,11 @@
 package com.github.obourgain.elasticsearch.http.handler.search;
 
+import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
+import java.util.Set;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.search.ClearScrollAction;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.hppc.IntOpenHashSet;
-import org.elasticsearch.common.hppc.IntSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
@@ -20,10 +20,6 @@ import com.ning.http.client.Response;
 public class ClearScrollActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(SearchScrollActionHandler.class);
-    public static final IntOpenHashSet NON_2xx_VALID_STATUSES = new IntOpenHashSet();
-    static {
-        NON_2xx_VALID_STATUSES.add(404);
-    }
 
     private final HttpClient httpClient;
 
@@ -49,8 +45,8 @@ public class ClearScrollActionHandler {
                 }
 
                 @Override
-                protected IntSet non200ValidStatuses() {
-                    return NON_2xx_VALID_STATUSES;
+                protected Set<Integer> non200ValidStatuses() {
+                    return _404;
                 }
             });
         } catch (Exception e) {

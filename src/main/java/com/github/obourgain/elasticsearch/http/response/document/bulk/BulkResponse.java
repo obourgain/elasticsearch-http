@@ -40,9 +40,9 @@ public class BulkResponse {
                 if (token == XContentParser.Token.FIELD_NAME) {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
-                    if("took".equals(currentFieldName)) {
+                    if ("took".equals(currentFieldName)) {
                         builder.took(parser.longValue());
-                    } else if("errors".equals(currentFieldName)) {
+                    } else if ("errors".equals(currentFieldName)) {
                         builder.errors(parser.booleanValue());
                     }
                 } else if (token == XContentParser.Token.START_ARRAY) {

@@ -1,11 +1,8 @@
 package com.github.obourgain.elasticsearch.http.concurrent;
 
-import java.util.Objects;
+import java.util.Collections;
+import java.util.Set;
 import org.elasticsearch.action.ActionListener;
-import org.elasticsearch.action.explain.ExplainRequest;
-import org.elasticsearch.action.explain.ExplainResponse;
-import org.elasticsearch.common.hppc.IntOpenHashSet;
-import org.elasticsearch.common.hppc.IntSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
@@ -54,9 +51,7 @@ public abstract class ListenerAsyncCompletionHandler<Resp> extends AsyncCompleti
         throw new RuntimeException("to implement");
     }
 
-    private static final IntSet empty = new IntOpenHashSet();
-
-    protected IntSet non200ValidStatuses() {
-        return empty;
+    protected Set<Integer> non200ValidStatuses() {
+        return Collections.emptySet();
     }
 }

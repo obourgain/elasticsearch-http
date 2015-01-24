@@ -1,10 +1,8 @@
 package org.elasticsearch.action.admin.indices.validate.query;
 
-import org.elasticsearch.action.ShardOperationFailedException;
-import org.elasticsearch.action.count.CountRequest;
-import org.elasticsearch.common.bytes.BytesReference;
-
 import java.util.List;
+import org.elasticsearch.action.ShardOperationFailedException;
+import org.elasticsearch.common.bytes.BytesReference;
 
 /**
  * @author olivier bourgain

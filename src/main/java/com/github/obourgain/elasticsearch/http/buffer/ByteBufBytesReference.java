@@ -44,7 +44,7 @@ public class ByteBufBytesReference implements BytesReference {
 
     @Override
     public void writeTo(OutputStream os) throws IOException {
-        if(buf.hasArray()) {
+        if (buf.hasArray()) {
             os.write(buf.array());
         } else {
             byte[] bytes = new byte[buf.capacity()];
@@ -85,7 +85,7 @@ public class ByteBufBytesReference implements BytesReference {
 
     @Override
     public byte[] array() {
-        if(buf.hasArray()) {
+        if (buf.hasArray()) {
             return buf.array();
         } else {
             byte[] bytes = new byte[buf.capacity()];

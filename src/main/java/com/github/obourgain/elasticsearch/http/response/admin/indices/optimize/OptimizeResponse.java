@@ -46,11 +46,11 @@ public class OptimizeResponse {
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
                 if (token == XContentParser.Token.FIELD_NAME) {
                     currentFieldName = parser.currentName();
-                } else if(token.isValue()) {
+                } else if (token.isValue()) {
                     if ("error".equals(currentFieldName)) {
                         error = parser.text();
                     }
-                } else if(token == XContentParser.Token.START_OBJECT) {
+                } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_shards".equals(currentFieldName)) {
                         return new OptimizeResponse(ShardParser.parseInner(parser), status);
                     }

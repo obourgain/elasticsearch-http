@@ -44,7 +44,7 @@ public class ValidateQueryActionHandler {
 
             AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.getHttpClient().asyncHttpClient.prepareGet(url.toString());
 
-            if(request.explain()) {
+            if (request.explain()) {
                 httpRequest.addQueryParam("explain", "true");
             }
 

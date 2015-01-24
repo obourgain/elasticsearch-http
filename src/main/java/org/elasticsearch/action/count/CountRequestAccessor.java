@@ -1,9 +1,8 @@
 package org.elasticsearch.action.count;
 
+import java.util.List;
 import org.elasticsearch.action.ShardOperationFailedException;
 import org.elasticsearch.common.bytes.BytesReference;
-
-import java.util.List;
 
 /**
  * @author olivier bourgain

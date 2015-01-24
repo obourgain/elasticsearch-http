@@ -120,7 +120,6 @@ import org.elasticsearch.index.engine.VersionConflictEngineException;
 import org.elasticsearch.index.get.GetField;
 import org.elasticsearch.index.get.GetResult;
 import org.elasticsearch.index.mapper.MapperParsingException;
-import org.elasticsearch.index.mapper.object.ObjectMapper;
 import org.elasticsearch.index.shard.ShardId;
 import org.elasticsearch.indices.IndexAlreadyExistsException;
 import org.elasticsearch.indices.IndexClosedException;
@@ -383,7 +382,7 @@ public class ResponseWrapper<Req> {
             }
 
             List<String> matchedQueries = getAs(internalHit, "matched_queries", List.class);
-            if(matchedQueries != null) {
+            if (matchedQueries != null) {
                 internalSearchHit.matchedQueries(Iterables.toArray(matchedQueries, String.class));
             }
 
@@ -411,7 +410,7 @@ public class ResponseWrapper<Req> {
             }
 
             Map<String, Object> explanationAsMap = getAsStringObjectMap(internalHit, "_explanation");
-            if(explanationAsMap != null) {
+            if (explanationAsMap != null) {
                 Explanation explanation = toExplanation(explanationAsMap);
                 internalSearchHit.explanation(explanation);
             }
@@ -428,19 +427,19 @@ public class ResponseWrapper<Req> {
                 internalSearchHit.score(Float.NaN);
             }
             Object sort = internalHit.get("sort");
-            if(sort != null) {
+            if (sort != null) {
                 // dependant on jackson impl here
                 List sortAsList = (List) sort;
                 Object[] sortAsArray = new Object[sortAsList.size()];
                 for (int i1 = 0; i1 < sortAsList.size(); i1++) {
                     Object o = sortAsList.get(i1);
                     // TODO what other kind of data can be returned for sort ?
-                    if(o == null) {
+                    if (o == null) {
                         sortAsArray[i1] = null;
-                    } else if(o instanceof Double ) {
+                    } else if (o instanceof Double) {
                         sortAsArray[i1] = o;
-                    } else if(o instanceof Number) {
-                        sortAsArray[i1] = ((Number)o).longValue();
+                    } else if (o instanceof Number) {
+                        sortAsArray[i1] = ((Number) o).longValue();
                     } else {
                         sortAsArray[i1] = new BytesRef(String.valueOf(o));
                     }
@@ -465,7 +464,7 @@ public class ResponseWrapper<Req> {
         for (Map.Entry<String, Map<String, Object>> entry : aggregationsAsMap.entrySet()) {
             String name = entry.getKey();
             AggregationMetaInfos aggregationMetaInfos = aggs.get(name);
-            if(aggregationMetaInfos == null) {
+            if (aggregationMetaInfos == null) {
                 throw new IllegalStateException("no infos for agg " + name + " found");
             }
 
@@ -504,7 +503,7 @@ public class ResponseWrapper<Req> {
         String description = (String) explanationAsMap.get("description");
         Explanation explanation = new Explanation(value, description);
         List<Map<String, Object>> details = getAs(explanationAsMap, "details", List.class);
-        if(details != null) {
+        if (details != null) {
             for (Map<String, Object> detail : details) {
                 Explanation subExplanation = toExplanation(detail);
                 explanation.addDetail(subExplanation);
@@ -523,7 +522,7 @@ public class ResponseWrapper<Req> {
                 continue;
             }
             Object value = entry.getValue();
-            if(value instanceof Map) {
+            if (value instanceof Map) {
                 Map<String, Object> suggestAsMap = (Map<String, Object>) value;
                 String text = getAsString(suggestAsMap, "text");
                 int offset = getAsNumber(suggestAsMap, "offset").intValue();
@@ -786,9 +785,9 @@ public class ResponseWrapper<Req> {
                     clusterBlocks.add(clusterBlock);
                 }
                 throw new ClusterBlockException(org.elasticsearch.common.collect.ImmutableSet.<ClusterBlock>builder().addAll(clusterBlocks).build());
-            } else if(unwrappedError.startsWith(ExpressionScriptCompilationException.class.getSimpleName())) {
+            } else if (unwrappedError.startsWith(ExpressionScriptCompilationException.class.getSimpleName())) {
                 throw new ExpressionScriptCompilationException(unwrappedError);
-            } else if(unwrappedError.startsWith(AliasesMissingException.class.getSimpleName())) {
+            } else if (unwrappedError.startsWith(AliasesMissingException.class.getSimpleName())) {
                 // AliasesMissingException[aliases [[alias1]] missing];
                 int startAliases = nthIndexOf(unwrappedError, '[', 3) + 1;
                 int endAliases = nthIndexOf(unwrappedError, ']', 1);
@@ -805,11 +804,11 @@ public class ResponseWrapper<Req> {
                 int endSourceObject = loc.indexOf(';');
                 String sourceObject = loc.substring(startSourceObject, endSourceObject);
 
-                int startLine = loc.indexOf("; line: ") + "; line: ".length() ;
+                int startLine = loc.indexOf("; line: ") + "; line: ".length();
                 int endLine = nextIndexOf(loc, ',', startLine);
                 String line = loc.substring(startLine, endLine);
 
-                int startColumn = loc.indexOf(", column: ") + ", column: ".length() ;
+                int startColumn = loc.indexOf(", column: ") + ", column: ".length();
                 int endColumn = nextIndexOf(loc, ']', startColumn);
                 String column = loc.substring(startColumn, endColumn);
 
@@ -819,18 +818,18 @@ public class ResponseWrapper<Req> {
                 } catch (JsonParseException e) {
                     throw new RuntimeException("Unable to rebuild exception for: " + unwrappedError, e);
                 }
-            } else if(error.startsWith(MapperParsingException.class.getSimpleName())) {
+            } else if (error.startsWith(MapperParsingException.class.getSimpleName())) {
                 // MapperParsingException[failed to parse]; nested: ElasticsearchIllegalArgumentException[Weight must be an integer, but was [2.5]];
                 try {
                     error(unwrappedError);
-                } catch(Exception cause) {
+                } catch (Exception cause) {
                     throw new MapperParsingException(error.substring(MapperParsingException.class.getSimpleName().length(), error.indexOf("; nested:".length())));
                 }
-            } else if(unwrappedError.startsWith(ElasticsearchException.class.getSimpleName())) {
+            } else if (unwrappedError.startsWith(ElasticsearchException.class.getSimpleName())) {
                 // ElasticsearchException[Cannot access field token_count from transaction log. You can only get this field after refresh() has been called.]
-                String message = unwrappedError.substring("ElasticsearchException[".length(), unwrappedError.length() -1); // remove trailing ']'
+                String message = unwrappedError.substring("ElasticsearchException[".length(), unwrappedError.length() - 1); // remove trailing ']'
                 throw new ElasticsearchException(message);
-            } else if(unwrappedError.startsWith(DocumentMissingException.class.getSimpleName())) {
+            } else if (unwrappedError.startsWith(DocumentMissingException.class.getSimpleName())) {
                 // DocumentMissingException[[test][2] [type][1]: document missing]
                 // TODO dedup this as it is used to map other exceptions
                 int startIndexName = nthIndexOf(unwrappedError, '[', 2) + 1; // have two '[' at the beginning
@@ -841,7 +840,7 @@ public class ResponseWrapper<Req> {
 
                 String shardIdSubString = unwrappedError.substring(startShard, endShard);
                 ShardId shardId = null;
-                if(!shardIdSubString.equals("_na")) {
+                if (!shardIdSubString.equals("_na")) {
                     int shardIdAsInt = Integer.parseInt(shardIdSubString);
                     shardId = new ShardId(unwrappedError.substring(startIndexName, endIndexName), shardIdAsInt);
                 }
@@ -853,18 +852,18 @@ public class ResponseWrapper<Req> {
                 int endId = nthIndexOf(unwrappedError, ']', 4);
 
                 throw new DocumentMissingException(shardId, unwrappedError.substring(startType, endType), unwrappedError.substring(startId, endId));
-            } else if(unwrappedError.startsWith(IndexClosedException.class.getSimpleName())) {
+            } else if (unwrappedError.startsWith(IndexClosedException.class.getSimpleName())) {
                 int startIndexName = nthIndexOf(unwrappedError, '[', 2) + 1; // have two '[' at the beginning
                 int endIndexName = nthIndexOf(unwrappedError, ']', 1);
                 String index = unwrappedError.substring(startIndexName, endIndexName);
                 throw new IndexClosedException(new Index(index));
-            } else if(unwrappedError.startsWith(InvalidIndexNameException.class.getSimpleName())) {
+            } else if (unwrappedError.startsWith(InvalidIndexNameException.class.getSimpleName())) {
                 int startIndexName = nthIndexOf(unwrappedError, '[', 1) + 1;
                 int endIndexName = nthIndexOf(unwrappedError, ']', 1);
                 String index = unwrappedError.substring(startIndexName, endIndexName);
                 String msg = unwrappedError.substring(endIndexName + 3);// '] ,' => 3 chars
                 throw new InvalidIndexNameException(new Index(index), index, msg);
-            } else if(unwrappedError.startsWith(RoutingMissingException.class.getSimpleName())) {
+            } else if (unwrappedError.startsWith(RoutingMissingException.class.getSimpleName())) {
                 // RoutingMissingException[routing is required for [test]/[type1]/[1]]
                 int startIndexName = nthIndexOf(unwrappedError, '[', 2) + 1;
                 int endIndexName = nthIndexOf(unwrappedError, ']', 1);
@@ -1284,7 +1283,7 @@ public class ResponseWrapper<Req> {
             return -1;
         }
         for (int i = startIndex + 1; i < string.length(); i++) {
-            if(string.charAt(i) == needle) {
+            if (string.charAt(i) == needle) {
                 return i;
             }
         }
@@ -1464,7 +1463,7 @@ public class ResponseWrapper<Req> {
 
     private boolean findIfRealOpTypeIsCreate(ActionRequest actionRequest) {
         // optypes create are written in the response as "index" but the transportclient may have "created"
-        if(actionRequest instanceof IndexRequest) {
+        if (actionRequest instanceof IndexRequest) {
             if (((IndexRequest) actionRequest).opType() == IndexRequest.OpType.CREATE) {
                 return true;
             }
@@ -1509,7 +1508,7 @@ public class ResponseWrapper<Req> {
                 Collection<String> versions = firstNonNull(getAs((Map) nodes, "versions", Collection.class), Collections.emptyList());
                 out.writeVInt(versions.size());
                 for (String v : versions) {
-                    if(v.endsWith("-SNAPSHOT")) { // to be on dev version
+                    if (v.endsWith("-SNAPSHOT")) { // to be on dev version
                         Version.writeVersion(Version.fromString(v.substring(0, v.length() - "-SNAPSHOT".length())), out);
                     } else {
                         Version.writeVersion(Version.fromString(v), out);

@@ -7,7 +7,6 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.TermVector;
-import com.ning.http.client.Response;
 import io.netty.buffer.ByteBuf;
 import rx.Observable;
 

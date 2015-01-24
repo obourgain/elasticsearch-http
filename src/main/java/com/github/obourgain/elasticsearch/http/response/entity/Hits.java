@@ -10,7 +10,7 @@ import lombok.experimental.Builder;
 
 @Getter
 @Builder
-public class Hits implements Iterable<Hit>{
+public class Hits implements Iterable<Hit> {
 
     private long total;
     private List<Hit> hits;

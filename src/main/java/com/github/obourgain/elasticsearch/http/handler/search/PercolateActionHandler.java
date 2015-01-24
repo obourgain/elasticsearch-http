@@ -101,7 +101,7 @@ public class PercolateActionHandler {
                 }
             }
 
-            if(request.source() != null) {
+            if (request.source() != null) {
                 httpRequest.setBody(request.source().toBytes());
             }
             HttpRequestUtils.addIndicesOptions(httpRequest, request);

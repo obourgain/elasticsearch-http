@@ -48,20 +48,20 @@ public class CountActionHandler {
             url.append("/_count");
 
             AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePost(url.toString());
-            if(CountRequestAccessor.getMinScore(request) != CountRequest.DEFAULT_MIN_SCORE) {
+            if (CountRequestAccessor.getMinScore(request) != CountRequest.DEFAULT_MIN_SCORE) {
                 httpRequest.addQueryParam("min_score", String.valueOf(CountRequestAccessor.getMinScore(request)));
             }
-            if(request.preference() != null) {
+            if (request.preference() != null) {
                 httpRequest.addQueryParam("preference", request.preference());
             }
-            if(request.routing() != null) {
+            if (request.routing() != null) {
                 httpRequest.addQueryParam("routing", request.routing());
             }
-            if(request.terminateAfter() != SearchContext.DEFAULT_TERMINATE_AFTER) {
+            if (request.terminateAfter() != SearchContext.DEFAULT_TERMINATE_AFTER) {
                 httpRequest.addQueryParam("terminate_after", String.valueOf(request.terminateAfter()));
             }
             BytesReference source = CountRequestAccessor.getSource(request);
-            if(source != null) {
+            if (source != null) {
                 httpRequest.setBody(source.toBytes());
             }
             HttpRequestUtils.addIndicesOptions(httpRequest, request);

@@ -44,7 +44,7 @@ public class GetSettingsActionHandler implements ActionHandler<GetSettingsReques
             String indices = HttpRequestUtils.indicesOrAll(request);
             String names = Strings.arrayToCommaDelimitedString(request.names());
 
-            if(!names.isEmpty()) {
+            if (!names.isEmpty()) {
                 names = "/" + names;
             }
 
