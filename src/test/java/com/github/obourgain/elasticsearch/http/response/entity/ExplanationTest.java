@@ -11,7 +11,7 @@ public class ExplanationTest {
 
     @Test
     public void should_parse_explanation() throws Exception {
-        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/explain/explanation.json");
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/search/explain/explanation.json");
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
@@ -24,7 +24,7 @@ public class ExplanationTest {
 
     @Test
     public void should_parse_array() throws Exception {
-        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/explain/explanation_array.json");
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/search/explain/explanation_array.json");
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
@@ -50,7 +50,7 @@ public class ExplanationTest {
 
     @Test
     public void should_parse_explanation_with_details() throws Exception {
-        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/explain/explanation_with_details.json");
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/search/explain/explanation_with_details.json");
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 

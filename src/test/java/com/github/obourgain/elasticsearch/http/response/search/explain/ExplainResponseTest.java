@@ -9,7 +9,7 @@ public class ExplainResponseTest {
 
     @Test
     public void should_parse() throws Exception {
-        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/explain/explain_response.json");
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/search/explain/explain_response.json");
 
         ExplainResponse response = ExplainResponse.doParse(json.getBytes());
 
@@ -26,7 +26,7 @@ public class ExplainResponseTest {
 
     @Test
     public void should_parse_non_matched() throws Exception {
-        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/explain/explain_response_not_matched.json");
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/search/explain/explain_response_not_matched.json");
 
         ExplainResponse response = ExplainResponse.doParse(json.getBytes());
 

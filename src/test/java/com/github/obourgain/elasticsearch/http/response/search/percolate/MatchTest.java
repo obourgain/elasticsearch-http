@@ -10,7 +10,7 @@ public class MatchTest {
 
     @Test
     public void should_parse() throws Exception {
-        String json = readFromClasspath("com/github/obourgain/elasticsearch/http/response/percolate/match.json");
+        String json = readFromClasspath("com/github/obourgain/elasticsearch/http/response/search/percolate/match.json");
 
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
@@ -22,7 +22,7 @@ public class MatchTest {
 
     @Test
     public void should_parse_with_score() throws Exception {
-        String json = readFromClasspath("com/github/obourgain/elasticsearch/http/response/percolate/match_with_score.json");
+        String json = readFromClasspath("com/github/obourgain/elasticsearch/http/response/search/percolate/match_with_score.json");
 
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();

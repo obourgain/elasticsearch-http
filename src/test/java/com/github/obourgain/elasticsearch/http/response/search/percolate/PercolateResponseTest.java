@@ -12,7 +12,7 @@ public class PercolateResponseTest {
 
     @Test
     public void should_parse() throws Exception {
-        String json = readFromClasspath("com/github/obourgain/elasticsearch/http/response/percolate/percolate_response.json");
+        String json = readFromClasspath("com/github/obourgain/elasticsearch/http/response/search/percolate/percolate_response.json");
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
