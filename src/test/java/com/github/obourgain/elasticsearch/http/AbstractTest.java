@@ -27,6 +27,7 @@ import org.junit.Before;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakFilters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
+import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 
 /**

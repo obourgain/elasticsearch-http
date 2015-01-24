@@ -9,7 +9,7 @@ import org.elasticsearch.action.support.replication.ShardReplicationOperationReq
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClient;
+import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
 import com.github.obourgain.elasticsearch.http.response.ErrorHandler;

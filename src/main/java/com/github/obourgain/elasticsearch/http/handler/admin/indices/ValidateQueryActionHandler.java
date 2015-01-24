@@ -7,7 +7,7 @@ import org.elasticsearch.action.admin.indices.validate.query.ValidateRequestAcce
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.admin.HttpIndicesAdminClient;
+import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.response.validate.ValidateQueryResponse;
 import com.ning.http.client.AsyncHttpClient;

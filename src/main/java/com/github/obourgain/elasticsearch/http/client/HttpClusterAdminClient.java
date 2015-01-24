@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.admin;
+package com.github.obourgain.elasticsearch.http.client;
 
 import org.elasticsearch.action.Action;
 import org.elasticsearch.action.ActionFuture;
@@ -19,7 +19,6 @@ import org.elasticsearch.client.support.AbstractClusterAdminClient;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.cluster.ClusterHealthActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.cluster.ClusterStateActionHandler;

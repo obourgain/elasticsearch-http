@@ -8,7 +8,7 @@ import org.elasticsearch.common.hppc.IntOpenHashSet;
 import org.elasticsearch.common.hppc.IntSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClient;
+import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
 import com.github.obourgain.elasticsearch.http.response.search.clearscroll.ClearScrollResponse;
 import com.ning.http.client.AsyncHttpClient;

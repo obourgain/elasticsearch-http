@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http;
+package com.github.obourgain.elasticsearch.http.client;
 
 import java.util.Collection;
 import java.util.concurrent.Future;
@@ -20,7 +20,6 @@ import org.elasticsearch.action.termvector.TermVectorRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.admin.HttpAdminClient;
 import com.github.obourgain.elasticsearch.http.handler.document.BulkActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.DeleteActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.DeleteByQueryActionHandler;

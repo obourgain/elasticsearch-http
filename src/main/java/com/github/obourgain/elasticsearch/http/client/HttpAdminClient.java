@@ -1,7 +1,6 @@
-package com.github.obourgain.elasticsearch.http.admin;
+package com.github.obourgain.elasticsearch.http.client;
 
 import org.elasticsearch.client.ClusterAdminClient;
-import com.github.obourgain.elasticsearch.http.HttpClient;
 
 /**
  * @author olivier bourgain

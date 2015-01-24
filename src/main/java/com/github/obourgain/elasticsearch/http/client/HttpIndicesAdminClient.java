@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.admin;
+package com.github.obourgain.elasticsearch.http.client;
 
 import java.util.concurrent.Future;
 import org.elasticsearch.action.ActionListener;
@@ -23,7 +23,6 @@ import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryReques
 import org.elasticsearch.action.support.PlainActionFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.HttpClient;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.CreateIndexActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.DeleteIndexActionHandler;
