@@ -1,19 +1,22 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices;
 
 import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
-import java.util.Set;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.flush.FlushAction;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.flush.FlushResponse;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -35,28 +38,34 @@ public class FlushActionHandler {
     public void execute(FlushRequest request, final ActionListener<FlushResponse> listener) {
         logger.debug("flush request {}", request);
         try {
-            HttpClient httpClient = indicesAdminClient.getHttpClient();
-
             String indices = HttpRequestUtils.indicesOrAll(request);
+            RequestUriBuilder uriBuilder = new RequestUriBuilder(indices).addEndpoint("_flush");
 
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePost(httpClient.getUrl() + "/" + indices + "/_flush");
+            uriBuilder.addIndicesOptions(request);
+            uriBuilder.addQueryParameter("force", request.force());
+            uriBuilder.addQueryParameter("full", request.full());
+            uriBuilder.addQueryParameter("wait_if_ongoing", request.waitIfOngoing());
 
-            HttpRequestUtils.addIndicesOptions(httpRequest, request);
-            httpRequest.addQueryParam("force", String.valueOf(request.force()));
-            httpRequest.addQueryParam("full", String.valueOf(request.full()));
-            httpRequest.addQueryParam("wait_if_ongoing", String.valueOf(request.waitIfOngoing()));
-            httpRequest
-                    .execute(new ListenerAsyncCompletionHandler<FlushResponse>(listener) {
+            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPost(uriBuilder.toString()))
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
                         @Override
-                        protected FlushResponse convert(Response response) {
-                            return FlushResponse.parse(response);
+                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
+                            return ErrorHandler.checkError(response, _404);
                         }
-
+                    })
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<FlushResponse>>() {
                         @Override
-                        protected Set<Integer> non200ValidStatuses() {
-                            return _404;
+                        public Observable<FlushResponse> call(final HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<FlushResponse>>() {
+                                @Override
+                                public Observable<FlushResponse> call(ByteBuf byteBuf) {
+                                    return FlushResponse.parse(byteBuf, response.getStatus().code());
+                                }
+                            });
                         }
-                    });
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
         } catch (Exception e) {
             listener.onFailure(e);
         }

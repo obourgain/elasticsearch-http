@@ -1,0 +1,16 @@
+{
+  "users1": {
+    "aliases": {
+      "alias1": {
+        "filter": {"term": {"key": "value"}},
+        "index_routing": "foo",
+        "search_routing": "foo"
+      },
+      "alias2": {
+        "filter": {"term": {"key": "value2"}},
+        "index_routing": "bar",
+        "search_routing": "bar"
+      }
+    }
+  }
+}

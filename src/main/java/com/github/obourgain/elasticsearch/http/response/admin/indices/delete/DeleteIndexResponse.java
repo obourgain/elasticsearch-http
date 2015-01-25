@@ -1,11 +1,14 @@
 package com.github.obourgain.elasticsearch.http.response.admin.indices.delete;
 
 import java.io.IOException;
+import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
-import com.ning.http.client.Response;
+import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
+import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.experimental.Builder;
+import rx.Observable;
 
 @Getter
 @Builder
@@ -15,18 +18,13 @@ public class DeleteIndexResponse {
     private int status;
     private String error;
 
-    public static DeleteIndexResponse parse(Response response) {
-        try {
-            int status = response.getStatusCode();
-            return doParse(response.getResponseBodyAsBytes(), status);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static Observable<DeleteIndexResponse> parse(ByteBuf content, int status) {
+        return Observable.just(doParse(new ByteBufBytesReference(content), status));
     }
 
-    protected static DeleteIndexResponse doParse(byte[] body, int status) {
+    private static DeleteIndexResponse doParse(BytesReference bytesReference, int status) {
         try {
-            XContentParser parser = XContentHelper.createParser(body, 0, body.length);
+            XContentParser parser = XContentHelper.createParser(bytesReference);
 
             DeleteIndexResponseBuilder builder = builder();
             builder.status(status);
