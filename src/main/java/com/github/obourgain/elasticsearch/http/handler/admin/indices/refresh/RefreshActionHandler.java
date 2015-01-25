@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.handler.admin.indices;
+package com.github.obourgain.elasticsearch.http.handler.admin.indices.refresh;
 
 import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
 import org.elasticsearch.action.ActionListener;
@@ -39,8 +39,6 @@ public class RefreshActionHandler {
     public void execute(RefreshRequest request, final ActionListener<RefreshResponse> listener) {
         logger.debug("refresh request {}", request);
         try {
-            HttpClient httpClient = indicesAdminClient.getHttpClient();
-
             String indices = HttpRequestUtils.indicesOrAll(request);
             RequestUriBuilder uriBuilder = new RequestUriBuilder(indices).addEndpoint("_refresh");
 

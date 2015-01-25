@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.handler.admin.indices;
+package com.github.obourgain.elasticsearch.http.handler.admin.indices.flush;
 
 import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
 import org.elasticsearch.action.ActionListener;

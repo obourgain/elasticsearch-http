@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.handler.admin.indices;
+package com.github.obourgain.elasticsearch.http.handler.admin.indices.refresh;
 
 import static java.lang.Long.MAX_VALUE;
 import java.util.Collections;
