@@ -12,7 +12,6 @@ import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
 import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.close.CloseIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenIndexResponse;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
@@ -37,16 +36,17 @@ public class OpenIndexActionHandler {
     public void execute(OpenIndexRequest request, final ActionListener<OpenIndexResponse> listener) {
         logger.debug("open index request {}", request);
         try {
-            String indices = Strings.arrayToCommaDelimitedString(OpenIndexRequestAccessor.indices(request));
-            if (!indices.isEmpty()) {
-                indices = "/" + indices;
+            RequestUriBuilder uriBuilder;
+            if (OpenIndexRequestAccessor.indices(request).length != 0) {
+                String indices = Strings.arrayToCommaDelimitedString(OpenIndexRequestAccessor.indices(request));
+                uriBuilder = new RequestUriBuilder(indices).addEndpoint("_open");
+            } else {
+                uriBuilder = new RequestUriBuilder().addEndpoint("_open");
             }
 
-            RequestUriBuilder uriBuilder = new RequestUriBuilder(indices).addEndpoint("_open");
-            uriBuilder.addIndicesOptions(request);
-
-            uriBuilder.addQueryParameter("timeout", request.timeout().toString());
-            uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString());
+            uriBuilder.addIndicesOptions(request)
+                    .addQueryParameter("timeout", request.timeout().toString())
+                    .addQueryParameter("master_timeout", request.masterNodeTimeout().toString());
 
             indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPost(uriBuilder.toString()))
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {

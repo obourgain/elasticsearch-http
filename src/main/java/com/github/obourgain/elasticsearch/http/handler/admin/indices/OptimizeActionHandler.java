@@ -1,19 +1,22 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices;
 
 import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
-import java.util.Set;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.optimize.OptimizeAction;
 import org.elasticsearch.action.admin.indices.optimize.OptimizeRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.optimize.OptimizeResponse;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -35,30 +38,38 @@ public class OptimizeActionHandler {
     public void execute(OptimizeRequest request, final ActionListener<OptimizeResponse> listener) {
         logger.debug("optimize request {}", request);
         try {
-            HttpClient httpClient = indicesAdminClient.getHttpClient();
-
             String indices = HttpRequestUtils.indicesOrAll(request);
 
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePost(httpClient.getUrl() + "/" + indices + "/_optimize");
-            HttpRequestUtils.addIndicesOptions(httpRequest, request);
-            httpRequest.addQueryParam("upgrade", String.valueOf(request.upgrade()));
-            httpRequest.addQueryParam("flush", String.valueOf(request.flush()));
-            httpRequest.addQueryParam("max_num_segments", String.valueOf(request.maxNumSegments()));
-            httpRequest.addQueryParam("only_expunge_deletes", String.valueOf(request.onlyExpungeDeletes()));
-            httpRequest.addQueryParam("wait_for_merge", String.valueOf(request.waitForMerge()));
+            RequestUriBuilder uriBuilder = new RequestUriBuilder(indices)
+                    .addEndpoint("_optimize")
+                    .addIndicesOptions(request)
+                    .addQueryParameter("upgrade", request.upgrade())
+                    .addQueryParameter("flush", request.flush())
+                    .addQueryParameter("max_num_segments", request.maxNumSegments())
+                    .addQueryParameter("only_expunge_deletes", request.onlyExpungeDeletes())
+                    .addQueryParameter("wait_for_merge", request.waitForMerge());
 
-            httpRequest
-                    .execute(new ListenerAsyncCompletionHandler<OptimizeResponse>(listener) {
+            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPost(uriBuilder.toString()))
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
                         @Override
-                        protected OptimizeResponse convert(Response response) {
-                            return OptimizeResponse.parse(response);
+                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
+                            return ErrorHandler.checkError(response, _404);
                         }
+                    })
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<OptimizeResponse>>() {
+                        @Override
+                        public Observable<OptimizeResponse> call(final HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<OptimizeResponse>>() {
+                                @Override
+                                public Observable<OptimizeResponse> call(ByteBuf byteBuf) {
+                                    return OptimizeResponse.parse(byteBuf, response.getStatus().code());
+                                }
+                            });
+                        }
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
 
-                        @Override
-                        protected Set<Integer> non200ValidStatuses() {
-                            return _404;
-                        }
-                    });
         } catch (Exception e) {
             listener.onFailure(e);
         }

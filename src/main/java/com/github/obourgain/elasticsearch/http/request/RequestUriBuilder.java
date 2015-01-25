@@ -186,7 +186,7 @@ public class RequestUriBuilder {
         return this;
     }
 
-    public void addIndicesOptions(IndicesRequest request) {
+    public RequestUriBuilder addIndicesOptions(IndicesRequest request) {
         IndicesOptions indicesOptions = request.indicesOptions();
         addQueryParameter("ignore_unavailable", indicesOptions.ignoreUnavailable());
         addQueryParameter("allow_no_indices", indicesOptions.allowNoIndices());
@@ -194,6 +194,7 @@ public class RequestUriBuilder {
         // TODO how are those set ?
         indicesOptions.allowAliasesToMultipleIndices();
         indicesOptions.forbidClosedIndices();
+        return this;
     }
 
     public RequestUriBuilder addQueryParameter(String name, String... values) {

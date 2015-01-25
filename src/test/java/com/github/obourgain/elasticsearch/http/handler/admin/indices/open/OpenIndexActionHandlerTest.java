@@ -7,6 +7,7 @@ import org.elasticsearch.action.admin.indices.open.OpenIndexRequest;
 import org.elasticsearch.action.admin.indices.recovery.RecoveryRequest;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
+import com.github.obourgain.elasticsearch.http.response.ElasticsearchHttpException;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenIndexResponse;
 
 public class OpenIndexActionHandlerTest extends AbstractTest {
@@ -20,5 +21,18 @@ public class OpenIndexActionHandlerTest extends AbstractTest {
         Assertions.assertThat(openIndexResponse.isAcknowledged()).isTrue();
 
         transportClient.admin().indices().recoveries(new RecoveryRequest(THE_INDEX)).actionGet();
+    }
+
+    @Test
+    public void should_fail_when_no_index_specified() throws Exception {
+        CloseIndexResponse closeIndexResponse = transportClient.admin().indices().close(new CloseIndexRequest(THE_INDEX)).actionGet();
+        Assertions.assertThat(closeIndexResponse.isAcknowledged()).isTrue();
+
+        try {
+            httpClient.admin().indices().open(new OpenIndexRequest()).get();
+        } catch (Exception e) {
+            Assertions.assertThat(e).hasMessageContaining("ActionRequestValidationException");
+            Assertions.assertThat(e).hasMessageContaining("index is missing");
+        }
     }
 }

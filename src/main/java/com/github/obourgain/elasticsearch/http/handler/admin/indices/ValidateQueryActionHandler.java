@@ -8,10 +8,15 @@ import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.validate.ValidateQueryResponse;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -34,28 +39,41 @@ public class ValidateQueryActionHandler {
         // TODO test
         logger.debug("validate query request {}", request);
         try {
-            StringBuilder url = new StringBuilder(httpClient.getHttpClient().getUrl()).append("/")
-                    .append(Strings.arrayToCommaDelimitedString(request.indices()));
-
+            RequestUriBuilder uriBuilder;
             if (request.types() != null) {
-                url.append("/").append(Strings.arrayToCommaDelimitedString(request.types()));
+                uriBuilder = new RequestUriBuilder(Strings.arrayToCommaDelimitedString(request.indices()), Strings.arrayToCommaDelimitedString(request.types()));
+            } else {
+                uriBuilder = new RequestUriBuilder(Strings.arrayToCommaDelimitedString(request.indices()));
             }
-            url.append("/_validate/query");
-
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.getHttpClient().asyncHttpClient.prepareGet(url.toString());
+            uriBuilder.addEndpoint("/_validate/query")
+                    .addIndicesOptions(request);
 
             if (request.explain()) {
-                httpRequest.addQueryParam("explain", "true");
+                uriBuilder.addQueryParameter("explain", "true");
             }
 
-            httpRequest
-                    .setBody(ValidateRequestAccessor.getSource(request).toBytes())
-                    .execute(new ListenerAsyncCompletionHandler<ValidateQueryResponse>(listener) {
+            HttpClientRequest<ByteBuf> httpRequest = HttpClientRequest.createPost(uriBuilder.toString());
+
+            if(ValidateRequestAccessor.getSource(request) != null) {
+                httpRequest.withContent(ValidateRequestAccessor.getSource(request).toBytes());
+            }
+
+            httpClient.getHttpClient().client.submit(httpRequest)
+                    .flatMap(ErrorHandler.AS_FUNC)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<ValidateQueryResponse>>() {
                         @Override
-                        protected ValidateQueryResponse convert(Response response) {
-                            return ValidateQueryResponse.parse(response);
+                        public Observable<ValidateQueryResponse> call(HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<ValidateQueryResponse>>() {
+                                @Override
+                                public Observable<ValidateQueryResponse> call(ByteBuf byteBuf) {
+                                    return ValidateQueryResponse.parse(byteBuf);
+                                }
+                            });
                         }
-                    });
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
+
         } catch (Exception e) {
             listener.onFailure(e);
         }

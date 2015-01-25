@@ -1,13 +1,18 @@
 package com.github.obourgain.elasticsearch.http.response.admin.indices.refresh;
 
 import java.io.IOException;
+import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
+import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
+import com.github.obourgain.elasticsearch.http.response.document.get.GetResponse;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
 import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import rx.Observable;
 
 @Getter
 @AllArgsConstructor
@@ -15,17 +20,13 @@ public class RefreshResponse {
 
     private Shards shards;
 
-    public static RefreshResponse parse(Response response) {
-        try {
-            return doParse(response.getResponseBodyAsBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static Observable<RefreshResponse> parse(ByteBuf content) {
+        return Observable.just(doParse(new ByteBufBytesReference(content)));
     }
 
-    protected static RefreshResponse doParse(byte[] body) {
+    private static RefreshResponse doParse(BytesReference bytesReference) {
         try {
-            XContentParser parser = XContentHelper.createParser(body, 0, body.length);
+            XContentParser parser = XContentHelper.createParser(bytesReference);
 
             XContentParser.Token token;
             String currentFieldName = null;

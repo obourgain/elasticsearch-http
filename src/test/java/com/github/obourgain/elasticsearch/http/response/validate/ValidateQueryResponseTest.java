@@ -1,6 +1,7 @@
 package com.github.obourgain.elasticsearch.http.response.validate;
 
 import org.assertj.core.api.Assertions;
+import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.junit.Test;
@@ -14,7 +15,7 @@ public class ValidateQueryResponseTest {
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
-        ValidateQueryResponse response = ValidateQueryResponse.doParse(json.getBytes());
+        ValidateQueryResponse response = ValidateQueryResponse.doParse(new BytesArray(json.getBytes()));
 
         Shards shards = response.getShards();
         Assertions.assertThat(shards.getTotal()).isEqualTo(3);
@@ -30,7 +31,7 @@ public class ValidateQueryResponseTest {
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
-        ValidateQueryResponse response = ValidateQueryResponse.doParse(json.getBytes());
+        ValidateQueryResponse response = ValidateQueryResponse.doParse(new BytesArray(json.getBytes()));
 
         Shards shards = response.getShards();
         Assertions.assertThat(shards.getTotal()).isEqualTo(3);

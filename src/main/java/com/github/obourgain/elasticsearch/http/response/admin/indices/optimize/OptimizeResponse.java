@@ -1,13 +1,16 @@
 package com.github.obourgain.elasticsearch.http.response.admin.indices.optimize;
 
 import java.io.IOException;
+import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
+import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import rx.Observable;
 
 @Getter
 @AllArgsConstructor
@@ -27,17 +30,13 @@ public class OptimizeResponse {
         this.error = error;
     }
 
-    public static OptimizeResponse parse(Response response) {
-        try {
-            return doParse(response.getResponseBodyAsBytes(), response.getStatusCode());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static Observable<OptimizeResponse> parse(ByteBuf content, int status) {
+        return Observable.just(doParse(new ByteBufBytesReference(content), status));
     }
 
-    protected static OptimizeResponse doParse(byte[] body, int status) {
+    private static OptimizeResponse doParse(BytesReference bytesReference, int status) {
         try {
-            XContentParser parser = XContentHelper.createParser(body, 0, body.length);
+            XContentParser parser = XContentHelper.createParser(bytesReference);
 
             String error = null;
 
