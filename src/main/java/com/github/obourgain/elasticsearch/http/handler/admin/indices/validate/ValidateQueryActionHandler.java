@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.handler.admin.indices;
+package com.github.obourgain.elasticsearch.http.handler.admin.indices.validate;
 
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryAction;
