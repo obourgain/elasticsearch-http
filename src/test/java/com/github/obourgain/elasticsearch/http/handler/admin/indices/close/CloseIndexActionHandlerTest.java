@@ -10,7 +10,6 @@ import com.github.obourgain.elasticsearch.http.response.admin.indices.close.Clos
 
 public class CloseIndexActionHandlerTest extends AbstractTest {
 
-
     @Test
     public void should_close_index() throws Exception {
         CloseIndexResponse closeIndexResponse = httpClient.admin().indices().close(new CloseIndexRequest(THE_INDEX)).get();
@@ -23,5 +22,4 @@ public class CloseIndexActionHandlerTest extends AbstractTest {
 
         }
     }
-
 }

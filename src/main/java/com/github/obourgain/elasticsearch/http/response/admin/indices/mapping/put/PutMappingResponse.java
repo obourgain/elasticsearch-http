@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.response.admin.indices.open;
+package com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.put;
 
 import java.io.IOException;
 import org.elasticsearch.common.bytes.BytesReference;
@@ -12,21 +12,21 @@ import rx.Observable;
 
 @Getter
 @Builder
-public class OpenIndexResponse {
+public class PutMappingResponse {
 
     private boolean acknowledged;
     private int status;
     private String error;
 
-    public static Observable<OpenIndexResponse> parse(ByteBuf content, int status) {
+    public static Observable<PutMappingResponse> parse(ByteBuf content, int status) {
         return Observable.just(doParse(new ByteBufBytesReference(content), status));
     }
 
-    private static OpenIndexResponse doParse(BytesReference bytesReference, int status) {
+    private static PutMappingResponse doParse(BytesReference bytesReference, int status) {
         try {
             XContentParser parser = XContentHelper.createParser(bytesReference);
 
-            OpenIndexResponseBuilder builder = builder();
+            PutMappingResponseBuilder builder = builder();
             builder.status(status);
             XContentParser.Token token;
             String currentFieldName = null;

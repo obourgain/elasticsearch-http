@@ -1,7 +1,6 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices.open;
 
 import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
-import java.util.Set;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.open.OpenIndexAction;
 import org.elasticsearch.action.admin.indices.open.OpenIndexRequest;
@@ -9,13 +8,17 @@ import org.elasticsearch.action.admin.indices.open.OpenIndexRequestAccessor;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.close.CloseIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenIndexResponse;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 public class OpenIndexActionHandler {
 
@@ -39,25 +42,32 @@ public class OpenIndexActionHandler {
                 indices = "/" + indices;
             }
 
-            HttpClient httpClient = indicesAdminClient.getHttpClient();
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePost(httpClient.getUrl() + indices + "/_open");
+            RequestUriBuilder uriBuilder = new RequestUriBuilder(indices).addEndpoint("_open");
+            uriBuilder.addIndicesOptions(request);
 
-            httpRequest.addQueryParam("timeout", String.valueOf(request.timeout()));
-            httpRequest.addQueryParam("master_timeout", String.valueOf(request.masterNodeTimeout()));
-            HttpRequestUtils.addIndicesOptions(httpRequest, request);
+            uriBuilder.addQueryParameter("timeout", request.timeout().toString());
+            uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString());
 
-            httpRequest
-                    .execute(new ListenerAsyncCompletionHandler<OpenIndexResponse>(listener) {
+            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPost(uriBuilder.toString()))
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
                         @Override
-                        protected OpenIndexResponse convert(Response response) {
-                            return OpenIndexResponse.parse(response);
+                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
+                            return ErrorHandler.checkError(response, _404);
                         }
-
+                    })
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<OpenIndexResponse>>() {
                         @Override
-                        protected Set<Integer> non200ValidStatuses() {
-                            return _404;
+                        public Observable<OpenIndexResponse> call(final HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<OpenIndexResponse>>() {
+                                @Override
+                                public Observable<OpenIndexResponse> call(ByteBuf byteBuf) {
+                                    return OpenIndexResponse.parse(byteBuf, response.getStatus().code());
+                                }
+                            });
                         }
-                    });
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
         } catch (Exception e) {
             listener.onFailure(e);
         }

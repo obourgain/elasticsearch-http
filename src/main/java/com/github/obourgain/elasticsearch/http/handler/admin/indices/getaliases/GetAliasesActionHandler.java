@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.handler.admin.indices;
+package com.github.obourgain.elasticsearch.http.handler.admin.indices.getaliases;
 
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesAction;

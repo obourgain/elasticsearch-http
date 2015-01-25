@@ -1,7 +1,6 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices.close;
 
 import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
-import java.util.Set;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.close.CloseIndexAction;
 import org.elasticsearch.action.admin.indices.close.CloseIndexRequest;
@@ -9,13 +8,16 @@ import org.elasticsearch.action.admin.indices.close.CloseIndexRequestAccessor;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.close.CloseIndexResponse;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 public class CloseIndexActionHandler {
 
@@ -31,7 +33,7 @@ public class CloseIndexActionHandler {
         return CloseIndexAction.INSTANCE;
     }
 
-    public void execute(CloseIndexRequest request, final ActionListener<CloseIndexResponse> listener) {
+    public void execute(final CloseIndexRequest request, final ActionListener<CloseIndexResponse> listener) {
         logger.debug("close index request {}", request);
         try {
             String indices = Strings.arrayToCommaDelimitedString(CloseIndexRequestAccessor.indices(request));
@@ -39,25 +41,32 @@ public class CloseIndexActionHandler {
                 indices = "/" + indices;
             }
 
-            HttpClient httpClient = indicesAdminClient.getHttpClient();
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePost(httpClient.getUrl() + indices + "/_close");
+            RequestUriBuilder uriBuilder = new RequestUriBuilder(indices).addEndpoint("_close");
+            uriBuilder.addIndicesOptions(request);
 
-            HttpRequestUtils.addIndicesOptions(httpRequest, request);
-            httpRequest.addQueryParam("timeout", String.valueOf(request.timeout()));
-            httpRequest.addQueryParam("master_timeout", String.valueOf(request.masterNodeTimeout()));
+            uriBuilder.addQueryParameter("timeout", request.timeout().toString());
+            uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString());
 
-            httpRequest
-                    .execute(new ListenerAsyncCompletionHandler<CloseIndexResponse>(listener) {
+            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPost(uriBuilder.toString()))
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
                         @Override
-                        protected CloseIndexResponse convert(Response response) {
-                            return CloseIndexResponse.parse(response);
+                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
+                            return ErrorHandler.checkError(response, _404);
                         }
-
+                    })
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<CloseIndexResponse>>() {
                         @Override
-                        protected Set<Integer> non200ValidStatuses() {
-                            return _404;
+                        public Observable<CloseIndexResponse> call(final HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<CloseIndexResponse>>() {
+                                @Override
+                                public Observable<CloseIndexResponse> call(ByteBuf byteBuf) {
+                                    return CloseIndexResponse.parse(byteBuf, response.getStatus().code());
+                                }
+                            });
                         }
-                    });
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
         } catch (Exception e) {
             listener.onFailure(e);
         }
