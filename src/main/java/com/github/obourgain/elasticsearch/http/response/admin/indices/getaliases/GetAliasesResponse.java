@@ -43,11 +43,8 @@ public class GetAliasesResponse {
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != END_OBJECT) {
-                System.out.println(token + " " + parser.text());
                 if (token == XContentParser.Token.FIELD_NAME) {
                     currentFieldName = parser.currentName();
-                } else if (token.isValue()) {
-                    System.out.println(parser.text());
                 } else if (token == START_OBJECT) {
                     if (currentFieldName != null) { // we are at an index metadata start
                         List<AliasMetaData> aliasMetaDatas = parseAliases(parser);
