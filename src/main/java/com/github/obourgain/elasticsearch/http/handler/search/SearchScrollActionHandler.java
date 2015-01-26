@@ -1,22 +1,25 @@
 package com.github.obourgain.elasticsearch.http.handler.search;
 
 import org.elasticsearch.action.ActionListener;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollAction;
 import org.elasticsearch.action.search.SearchScrollRequest;
-import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
-import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
-import com.ning.http.client.AsyncHttpClient;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
+import com.github.obourgain.elasticsearch.http.response.search.search.SearchResponse;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
  */
-public class SearchScrollActionHandler implements ActionHandler<SearchScrollRequest, SearchResponse, SearchScrollRequestBuilder> {
+public class SearchScrollActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(SearchScrollActionHandler.class);
 
@@ -26,34 +29,39 @@ public class SearchScrollActionHandler implements ActionHandler<SearchScrollRequ
         this.httpClient = httpClient;
     }
 
-    @Override
     public SearchScrollAction getAction() {
         return SearchScrollAction.INSTANCE;
     }
 
-    @Override
     public void execute(SearchScrollRequest request, final ActionListener<SearchResponse> listener) {
         logger.debug("Search scroll request {}", request);
         try {
             // TODO test
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareGet(httpClient.getUrl() + "/_search/scroll");
+
+            RequestUriBuilder uriBuilder = new RequestUriBuilder()
+                    .addEndpoint("_search/scroll");
 
             if (request.scroll() != null) {
-                httpRequest.addQueryParam("scroll", String.valueOf(request.scroll().keepAlive().toString()));
+                uriBuilder.addQueryParameter("scroll", request.scroll().keepAlive().toString());
             }
-            httpRequest.addQueryParam("scroll_id", request.scrollId());
+            uriBuilder.addQueryParameter("scroll_id", request.scrollId());
 
-            httpRequest.execute(new ListenerAsyncCompletionHandler<SearchResponse>(listener) {
-                @Override
-                protected SearchResponse convert(ResponseWrapper responseWrapper) {
-                    return responseWrapper.toSearchResponse();
-                }
+            httpClient.client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
+                    .flatMap(ErrorHandler.AS_FUNC)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<SearchResponse>>() {
+                        @Override
+                        public Observable<SearchResponse> call(HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<SearchResponse>>() {
+                                @Override
+                                public Observable<SearchResponse> call(ByteBuf byteBuf) {
+                                    return SearchResponse.parse(byteBuf);
+                                }
+                            });
+                        }
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
 
-                @Override
-                public void onThrowable(Throwable t) {
-                    super.onThrowable(t);
-                }
-            });
         } catch (Exception e) {
             listener.onFailure(e);
         }

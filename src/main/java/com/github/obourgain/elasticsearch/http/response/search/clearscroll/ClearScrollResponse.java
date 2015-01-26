@@ -1,17 +1,18 @@
 package com.github.obourgain.elasticsearch.http.response.search.clearscroll;
 
-import com.ning.http.client.Response;
 import lombok.Getter;
+import rx.Observable;
 
 @Getter
 public class ClearScrollResponse {
 
     private boolean succeeded;
 
-    public static ClearScrollResponse parse(Response response) {
-        int statusCode = response.getStatusCode();
+
+    public static Observable<ClearScrollResponse> parse(int status) {
         ClearScrollResponse result = new ClearScrollResponse();
-        result.succeeded = statusCode == 200;
-        return result;
+        result.succeeded = status == 200;
+        return Observable.just(result);
     }
+
 }
