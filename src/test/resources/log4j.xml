@@ -10,6 +10,13 @@
         </layout>
     </appender>
 
+    <appender name="file" class="org.apache.log4j.FileAppender">
+        <param name="file" value="/tmp/mylogfile.log" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ISO8601} %-5p [%c{1}] - %m%n" />
+        </layout>
+    </appender>
+    
     <logger name="com.ning.http" additivity="false">
         <level value="warn"/>
         <appender-ref ref="CONSOLE" />
@@ -21,8 +28,9 @@
     </logger>
 
     <root>
-        <level value="DEBUG" />
-        <appender-ref ref="CONSOLE" />
+        <level value="info" />
+        <appender-ref ref="file" />
+        <!--<appender-ref ref="CONSOLE" />-->
     </root>
 
 </log4j:configuration>
