@@ -3,6 +3,7 @@ package com.github.obourgain.elasticsearch.http.response.search.percolate;
 import static com.github.obourgain.elasticsearch.http.TestFilesUtils.readFromClasspath;
 import static com.github.obourgain.elasticsearch.http.response.search.percolate.MatchesTest.*;
 import static org.assertj.core.api.Assertions.*;
+import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.junit.Test;
@@ -16,7 +17,7 @@ public class PercolateResponseTest {
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
-        PercolateResponse response = PercolateResponse.doParse(json.getBytes());
+        PercolateResponse response = PercolateResponse.doParse(new BytesArray(json.getBytes()));
 
         Shards shards = response.getShards();
         assertThat(shards.getTotal()).isEqualTo(5);

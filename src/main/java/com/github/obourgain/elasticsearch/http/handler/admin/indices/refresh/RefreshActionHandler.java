@@ -6,7 +6,6 @@ import org.elasticsearch.action.admin.indices.refresh.RefreshAction;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;

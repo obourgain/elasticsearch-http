@@ -89,6 +89,14 @@ public class RequestUriBuilder {
         return this;
     }
 
+    public RequestUriBuilder addQueryParameter(String name, float value) {
+        addQueryStringSeparator();
+        builder.append(name);
+        builder.append("=");
+        builder.append(value);
+        return this;
+    }
+
     public RequestUriBuilder addQueryParameterIfNotMinusOne(String name, long value) {
         if (value != -1) {
             addQueryStringSeparator();

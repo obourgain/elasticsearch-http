@@ -1,6 +1,7 @@
 package com.github.obourgain.elasticsearch.http.handler.search;
 
 import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.indicesOrAll;
+import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.count.CountAction;
 import org.elasticsearch.action.count.CountRequest;
@@ -11,11 +12,15 @@ import org.elasticsearch.search.internal.SearchContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.search.count.CountResponse;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -37,41 +42,54 @@ public class CountActionHandler {
     public void execute(CountRequest request, final ActionListener<CountResponse> listener) {
         logger.debug("count request {}", request);
         try {
-            StringBuilder url = new StringBuilder(httpClient.getUrl()).append("/");
-
             String indices = indicesOrAll(request);
-            url.append(indices);
-
+            RequestUriBuilder uriBuilder;
             if (request.types() != null && request.types().length > 0) {
-                url.append("/").append(Strings.arrayToCommaDelimitedString(request.types()));
+                String types = Strings.arrayToCommaDelimitedString(request.types());
+                uriBuilder = new RequestUriBuilder(indices, types);
+            } else {
+                uriBuilder = new RequestUriBuilder(indices);
             }
-            url.append("/_count");
+            uriBuilder.addEndpoint("_count");
 
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePost(url.toString());
             if (CountRequestAccessor.getMinScore(request) != CountRequest.DEFAULT_MIN_SCORE) {
-                httpRequest.addQueryParam("min_score", String.valueOf(CountRequestAccessor.getMinScore(request)));
+                uriBuilder.addQueryParameter("min_score", CountRequestAccessor.getMinScore(request));
             }
-            if (request.preference() != null) {
-                httpRequest.addQueryParam("preference", request.preference());
-            }
-            if (request.routing() != null) {
-                httpRequest.addQueryParam("routing", request.routing());
-            }
+            uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
+            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
+
             if (request.terminateAfter() != SearchContext.DEFAULT_TERMINATE_AFTER) {
-                httpRequest.addQueryParam("terminate_after", String.valueOf(request.terminateAfter()));
+                uriBuilder.addQueryParameter("terminate_after", request.terminateAfter());
             }
+            uriBuilder.addIndicesOptions(request);
+
+            HttpClientRequest<ByteBuf> httpRequest = HttpClientRequest.createPost(uriBuilder.toString());
             BytesReference source = CountRequestAccessor.getSource(request);
             if (source != null) {
-                httpRequest.setBody(source.toBytes());
+                httpRequest.withContent(source.toBytes());
             }
-            HttpRequestUtils.addIndicesOptions(httpRequest, request);
-            httpRequest
-                    .execute(new ListenerAsyncCompletionHandler<CountResponse>(listener) {
+
+            httpClient.client.submit(httpRequest)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
                         @Override
-                        protected CountResponse convert(Response response) {
-                            return CountResponse.parse(response);
+                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
+                            return ErrorHandler.checkError(response, _404);
                         }
-                    });
+                    })
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<CountResponse>>() {
+                        @Override
+                        public Observable<CountResponse> call(final HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<CountResponse>>() {
+                                @Override
+                                public Observable<CountResponse> call(ByteBuf byteBuf) {
+                                    return CountResponse.parse(byteBuf);
+                                }
+                            });
+                        }
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
+
         } catch (Exception e) {
             listener.onFailure(e);
         }

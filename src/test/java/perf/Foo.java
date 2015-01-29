@@ -16,7 +16,7 @@ import rx.functions.Action1;
 
 public class Foo {
 
-    public static final int ITERATIONS = 100000;
+    public static final int ITERATIONS = 10000;
     static CountDownLatch latch = new CountDownLatch(ITERATIONS);
 
     static AtomicInteger count = new AtomicInteger();
@@ -28,7 +28,7 @@ public class Foo {
 
         HttpClient<ByteBuf, ByteBuf> client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder("localhost", 9200)
 //                .enableWireLogging(LogLevel.DEBUG)
-                .withMaxConnections(100000)
+                .withMaxConnections(100)
 //                .withNoConnectionPooling()
                 .withNoIdleConnectionCleanup()
                 .build();

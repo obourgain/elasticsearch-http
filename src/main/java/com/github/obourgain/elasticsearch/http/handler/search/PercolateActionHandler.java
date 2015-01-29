@@ -4,16 +4,20 @@ import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.percolate.PercolateAction;
 import org.elasticsearch.action.percolate.PercolateRequest;
-import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.lucene.uid.Versions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.search.percolate.PercolateResponse;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -39,79 +43,69 @@ public class PercolateActionHandler {
         // TODO highlight
         // TODO percolate existing doc
         // TODO multi percolate
+        RequestUriBuilder uriBuilder;
+
         GetRequest getRequest = request.getRequest();
         try {
-            StringBuilder url = new StringBuilder(httpClient.getUrl()).append("/");
             if (getRequest != null) {
-                url.append(getRequest.index())
-                        .append("/")
-                        .append(getRequest.type());
                 if (getRequest.id() != null) {
-                    url.append("/").append(getRequest.id());
+                    uriBuilder = new RequestUriBuilder(getRequest.index(), getRequest.type(), getRequest.id());
+                } else {
+                    uriBuilder = new RequestUriBuilder(getRequest.index(), getRequest.type());
                 }
             } else {
-                url.append(HttpRequestUtils.indicesOrAll(request))
-                        .append("/")
-                        .append(request.documentType());
+                uriBuilder = new RequestUriBuilder(HttpRequestUtils.indicesOrAll(request), request.documentType());
             }
 
-
-            url.append("/_percolate");
 
             if (request.onlyCount()) {
-                url.append("/count");
+                uriBuilder.addEndpoint("/_percolate/count");
+            } else {
+                uriBuilder.addEndpoint("/_percolate");
             }
 
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareGet(url.toString());
-
             if (getRequest != null) {
-                if (getRequest.routing() != null) {
-                    httpRequest.addQueryParam("routing", getRequest.routing());
-                }
-                if (getRequest.preference() != null) {
-                    httpRequest.addQueryParam("preference", getRequest.preference());
-                }
+                uriBuilder.addQueryParameterIfNotNull("routing", getRequest.routing());
+                uriBuilder.addQueryParameterIfNotNull("preference", getRequest.preference());
                 if (getRequest.version() != Versions.MATCH_ANY) {
-                    httpRequest.addQueryParam("version", String.valueOf(getRequest.version()));
+                    uriBuilder.addQueryParameter("version", getRequest.version());
                 }
                 // percolating an existing doc
-                if (request.routing() != null) {
-                    httpRequest.addQueryParam("percolate_routing", request.routing());
-                }
-                if (request.preference() != null) {
-                    httpRequest.addQueryParam("percolate_preference", request.preference());
-                }
-                if (request.indices() != null) {
-                    httpRequest.addQueryParam("percolate_index", Strings.arrayToCommaDelimitedString(request.indices()));
-                }
-                if (request.documentType() != null) {
-                    httpRequest.addQueryParam("percolate_type", request.documentType());
-                }
+                uriBuilder.addQueryParameterIfNotNull("percolate_routing", request.routing());
+                uriBuilder.addQueryParameterIfNotNull("percolate_preference", request.preference());
+                uriBuilder.addQueryParameterArrayAsCommaDelimitedIfNotNullNorEmpty("percolate_index", request.indices());
+                uriBuilder.addQueryParameterIfNotNull("percolate_type", request.documentType());
 
             } else {
                 // params does not have the same meaning in percolate_doc and percolate_existing_doc
-                if (request.routing() != null) {
-                    httpRequest.addQueryParam("routing", request.routing());
-                }
-                if (request.preference() != null) {
-                    httpRequest.addQueryParam("preference", request.preference());
-                }
-                if (request.documentType() != null) {
-                    httpRequest.addQueryParam("type", request.documentType());
-                }
+                uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
+                uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
+                uriBuilder.addQueryParameterIfNotNull("type", request.documentType());
             }
+            uriBuilder.addIndicesOptions(request);
+
+            HttpClientRequest<ByteBuf> httpRequest = HttpClientRequest.createGet(uriBuilder.toString());
 
             if (request.source() != null) {
-                httpRequest.setBody(request.source().toBytes());
+                httpRequest.withContent(request.source().toBytes());
             }
-            HttpRequestUtils.addIndicesOptions(httpRequest, request);
 
-            httpRequest.execute(new ListenerAsyncCompletionHandler<PercolateResponse>(listener) {
-                @Override
-                protected PercolateResponse convert(Response response) {
-                    return PercolateResponse.parse(response);
-                }
-            });
+            httpClient.client.submit(httpRequest)
+                    .flatMap(ErrorHandler.AS_FUNC)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<PercolateResponse>>() {
+                        @Override
+                        public Observable<PercolateResponse> call(final HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<PercolateResponse>>() {
+                                @Override
+                                public Observable<PercolateResponse> call(ByteBuf byteBuf) {
+                                    return PercolateResponse.parse(byteBuf);
+                                }
+                            });
+                        }
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
+
         } catch (Exception e) {
             listener.onFailure(e);
         }

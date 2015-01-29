@@ -1,6 +1,7 @@
 package com.github.obourgain.elasticsearch.http.response.search.explain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.elasticsearch.common.bytes.BytesArray;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.TestFilesUtils;
 import com.github.obourgain.elasticsearch.http.response.entity.Explanation;
@@ -11,7 +12,7 @@ public class ExplainResponseTest {
     public void should_parse() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/search/explain/explain_response.json");
 
-        ExplainResponse response = ExplainResponse.doParse(json.getBytes());
+        ExplainResponse response = ExplainResponse.doParse(new BytesArray(json.getBytes()));
 
         assertThat(response.getIndex()).isEqualTo("twitter");
         assertThat(response.getType()).isEqualTo("tweet");
@@ -28,7 +29,7 @@ public class ExplainResponseTest {
     public void should_parse_non_matched() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/search/explain/explain_response_not_matched.json");
 
-        ExplainResponse response = ExplainResponse.doParse(json.getBytes());
+        ExplainResponse response = ExplainResponse.doParse(new BytesArray(json.getBytes()));
 
         assertThat(response.getIndex()).isEqualTo("twitter");
         assertThat(response.getType()).isEqualTo("tweet");

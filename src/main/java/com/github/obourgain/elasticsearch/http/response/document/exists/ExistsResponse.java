@@ -1,11 +1,14 @@
 package com.github.obourgain.elasticsearch.http.response.document.exists;
 
 import java.io.IOException;
+import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
-import com.ning.http.client.Response;
+import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
+import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.experimental.Builder;
+import rx.Observable;
 
 @Builder
 @Getter
@@ -13,10 +16,13 @@ public class ExistsResponse {
 
     private boolean exists;
 
-    public static ExistsResponse parse(Response response) {
+    public static Observable<ExistsResponse> parse(ByteBuf content) {
+        return Observable.just(doParse(new ByteBufBytesReference(content)));
+    }
+
+    private static ExistsResponse doParse(BytesReference bytesReference) {
         try {
-            byte[] body = response.getResponseBodyAsBytes();
-            XContentParser parser = XContentHelper.createParser(body, 0, body.length);
+            XContentParser parser = XContentHelper.createParser(bytesReference);
 
             ExistsResponseBuilder builder = ExistsResponse.builder();
             XContentParser.Token token;

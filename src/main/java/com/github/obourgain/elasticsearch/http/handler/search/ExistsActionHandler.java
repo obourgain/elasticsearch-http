@@ -1,9 +1,7 @@
 package com.github.obourgain.elasticsearch.http.handler.search;
 
-import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.addIndicesOptions;
 import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.indicesOrAll;
 import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
-import java.util.Set;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.exists.ExistsAction;
 import org.elasticsearch.action.exists.ExistsRequest;
@@ -13,10 +11,15 @@ import org.elasticsearch.common.bytes.BytesReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.document.exists.ExistsResponse;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -38,53 +41,48 @@ public class ExistsActionHandler {
     public void execute(ExistsRequest request, final ActionListener<ExistsResponse> listener) {
         logger.debug("Exists request {}", request);
         try {
-            // TODO test
-            StringBuilder url = new StringBuilder(httpClient.getUrl()).append("/");
-
             String indices = indicesOrAll(request);
-            url.append(indices);
-
+            RequestUriBuilder uriBuilder;
             if (request.types() != null && request.types().length > 0) {
-                url.append("/").append(Strings.arrayToCommaDelimitedString(request.types()));
+                String types = Strings.arrayToCommaDelimitedString(request.types());
+                uriBuilder = new RequestUriBuilder(indices, types);
+            } else {
+                uriBuilder = new RequestUriBuilder(indices);
             }
-            url.append("/_search/exists");
+            uriBuilder.addEndpoint("/_search/exists");
 
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareGet(url.toString());
-
-            if (request.routing() != null) {
-                httpRequest.addQueryParam("routing", request.routing());
-            }
-            if (request.preference() != null) {
-                httpRequest.addQueryParam("preference", request.preference());
-            }
+            uriBuilder.addQueryParameter("routing", request.routing());
+            uriBuilder.addQueryParameter("preference", request.preference());
 
             float minScore = ExistsRequestAccessor.minScore(request);
-            httpRequest.addQueryParam("min_score", String.valueOf(minScore));
+            uriBuilder.addQueryParameter("min_score", minScore);
+            uriBuilder.addIndicesOptions(request);
 
-            addIndicesOptions(httpRequest, request);
-
-            // TODO maybe I can use this with the standard ES deserializtion mecanism
-            // request.source().streamInput();
-
-            // TODO avoid doing to map conversion just to get one field
+            HttpClientRequest<ByteBuf> httpRequest = HttpClientRequest.createGet(uriBuilder.toString());
             BytesReference source = ExistsRequestAccessor.source(request);
-            if (source != null) {
-                httpRequest.setBody(source.toBytes());
-            }
+            httpRequest.withContent(source.toBytes());
 
-            // this will make ES return the _version field for each hit, which I need to build the ExistsHits object correctly
-            httpRequest
-                    .execute(new ListenerAsyncCompletionHandler<ExistsResponse>(listener) {
+            httpClient.client.submit(httpRequest)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
                         @Override
-                        protected ExistsResponse convert(Response response) {
-                            return ExistsResponse.parse(response);
+                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
+                            return ErrorHandler.checkError(response, _404);
                         }
+                    })
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<ExistsResponse>>() {
+                        @Override
+                        public Observable<ExistsResponse> call(final HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<ExistsResponse>>() {
+                                @Override
+                                public Observable<ExistsResponse> call(ByteBuf byteBuf) {
+                                    return ExistsResponse.parse(byteBuf);
+                                }
+                            });
+                        }
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
 
-                        @Override
-                        protected Set<Integer> non200ValidStatuses() {
-                            return _404;
-                        }
-                    });
         } catch (Exception e) {
             listener.onFailure(e);
         }

@@ -15,6 +15,8 @@ import org.elasticsearch.action.mlt.MoreLikeThisRequest;
 import org.elasticsearch.action.percolate.PercolateRequest;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.suggest.SuggestRequest;
+import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.action.support.PlainActionFuture;
 import org.elasticsearch.action.termvector.TermVectorRequest;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -34,6 +36,7 @@ import com.github.obourgain.elasticsearch.http.handler.search.ExistsActionHandle
 import com.github.obourgain.elasticsearch.http.handler.search.ExplainActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.PercolateActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.SearchActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.search.SuggestActionHandler;
 import com.github.obourgain.elasticsearch.http.response.document.bulk.BulkResponse;
 import com.github.obourgain.elasticsearch.http.response.document.delete.DeleteResponse;
 import com.github.obourgain.elasticsearch.http.response.document.deleteByQuery.DeleteByQueryResponse;
@@ -87,6 +90,7 @@ public class HttpClient {
     MoreLikeThisActionHandler moreLikeThisActionHandler = new MoreLikeThisActionHandler(this);
     ClearScrollActionHandler clearScrollActionHandler = new ClearScrollActionHandler(this);
     BulkActionHandler bulkActionHandler = new BulkActionHandler(this);
+//    SuggestActionHandler suggestActionHandler = new SuggestActionHandler(this);
 
     public HttpClient(Collection<String> hosts) {
         this.urlProviderStrategy = new RoundRobinUrlProviderStrategy(hosts);
@@ -270,5 +274,15 @@ public class HttpClient {
         bulk(request, future);
         return future;
     }
+
+//    public void suggest(SuggestRequest request, ActionListener<SuggestResponse> listener) {
+//        suggestActionHandler.execute(request, listener);
+//    }
+//
+//    public Future<SuggestResponse> suggest(SuggestRequest request) {
+//        PlainActionFuture<SuggestResponse> future = PlainActionFuture.newFuture();
+//        suggest(request, future);
+//        return future;
+//    }
 
 }

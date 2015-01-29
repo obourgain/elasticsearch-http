@@ -28,8 +28,6 @@ public class PercolateActionHandlerTest extends AbstractTest {
                     .endObject()
                 .endObject();
 
-        String string = query.string();
-
         transportClient.index(Requests.indexRequest(THE_INDEX).type(".percolator").source(query)).actionGet();
 
         refresh();
