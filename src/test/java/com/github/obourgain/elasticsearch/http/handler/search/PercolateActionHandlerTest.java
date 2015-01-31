@@ -11,7 +11,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
-import com.github.obourgain.elasticsearch.http.response.search.percolate.PercolateResponse;
+import com.github.obourgain.elasticsearch.http.handler.search.percolate.PercolateResponse;
 
 public class PercolateActionHandlerTest extends AbstractTest {
 

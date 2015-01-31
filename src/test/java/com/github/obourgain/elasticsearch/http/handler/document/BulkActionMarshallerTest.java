@@ -10,6 +10,7 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.junit.Test;
+import com.github.obourgain.elasticsearch.http.handler.document.bulk.BulkActionMarshaller;
 import rx.Observable;
 
 public class BulkActionMarshallerTest {

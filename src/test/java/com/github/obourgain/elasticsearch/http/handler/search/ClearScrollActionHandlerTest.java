@@ -9,8 +9,8 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
-import com.github.obourgain.elasticsearch.http.response.search.clearscroll.ClearScrollResponse;
-import com.github.obourgain.elasticsearch.http.response.search.search.SearchResponse;
+import com.github.obourgain.elasticsearch.http.handler.search.clearscroll.ClearScrollResponse;
+import com.github.obourgain.elasticsearch.http.handler.search.search.SearchResponse;
 
 public class ClearScrollActionHandlerTest extends AbstractTest {
 

@@ -6,7 +6,6 @@ import org.elasticsearch.action.support.QuerySourceBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
-import com.github.obourgain.elasticsearch.http.response.validate.ValidateQueryResponse;
 
 public class ValidateQueryActionHandlerTest extends AbstractTest {
 

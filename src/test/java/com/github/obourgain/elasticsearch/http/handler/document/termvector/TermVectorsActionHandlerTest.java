@@ -14,8 +14,8 @@ import com.github.obourgain.elasticsearch.http.response.entity.FieldStatistics;
 import com.github.obourgain.elasticsearch.http.response.entity.Term;
 import com.github.obourgain.elasticsearch.http.response.entity.TermVector;
 import com.github.obourgain.elasticsearch.http.response.entity.Token;
-import com.github.obourgain.elasticsearch.http.response.document.termvectors.TermVectorResponse;
-import com.github.obourgain.elasticsearch.http.response.document.termvectors.TermVectorResponseParserTest;
+import com.github.obourgain.elasticsearch.http.handler.document.termvectors.TermVectorResponse;
+import com.github.obourgain.elasticsearch.http.handler.document.termvectors.TermVectorResponseParserTest;
 
 public class TermVectorsActionHandlerTest extends AbstractTest {
 

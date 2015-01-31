@@ -14,7 +14,7 @@ import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
 import com.github.obourgain.elasticsearch.http.response.ElasticsearchHttpException;
 import com.github.obourgain.elasticsearch.http.response.entity.Explanation;
-import com.github.obourgain.elasticsearch.http.response.search.explain.ExplainResponse;
+import com.github.obourgain.elasticsearch.http.handler.search.explain.ExplainResponse;
 
 public class ExplainActionHandlerTest extends AbstractTest {
 
@@ -24,6 +24,7 @@ public class ExplainActionHandlerTest extends AbstractTest {
         Map<String, Object> expected = SourceLookup.sourceAsMap(source);
         index(THE_INDEX, THE_TYPE, THE_ID, expected);
 
+        ensureSearchable(THE_INDEX);
         refresh();
 
         ExplainRequest request = new ExplainRequest(THE_INDEX, THE_TYPE, THE_ID);

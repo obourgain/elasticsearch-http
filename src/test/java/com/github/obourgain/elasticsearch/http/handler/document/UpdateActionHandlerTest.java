@@ -11,7 +11,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
 import com.github.obourgain.elasticsearch.http.response.ElasticsearchHttpException;
-import com.github.obourgain.elasticsearch.http.response.document.update.UpdateResponse;
+import com.github.obourgain.elasticsearch.http.handler.document.update.UpdateResponse;
 
 public class UpdateActionHandlerTest extends AbstractTest {
 

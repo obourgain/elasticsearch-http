@@ -130,7 +130,7 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
 
     public void assertSettingsEquals(Settings expected, Settings actual) {
         for (Map.Entry<String, String> entry : expected.getAsMap().entrySet()) {
-            Assertions.assertThat(expected.get(entry.getKey())).isEqualTo(entry.getValue());
+            Assertions.assertThat(actual.get(entry.getKey())).isEqualTo(entry.getValue());
         }
     }
 

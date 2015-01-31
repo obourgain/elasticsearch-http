@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.junit.Test;
+import com.github.obourgain.elasticsearch.http.handler.search.percolate.Match;
 
 public class MatchTest {
 

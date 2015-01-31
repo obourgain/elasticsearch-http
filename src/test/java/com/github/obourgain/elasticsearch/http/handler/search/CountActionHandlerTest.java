@@ -12,7 +12,7 @@ import org.elasticsearch.search.lookup.SourceLookup;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
 import com.github.obourgain.elasticsearch.http.response.ElasticsearchHttpException;
-import com.github.obourgain.elasticsearch.http.response.search.count.CountResponse;
+import com.github.obourgain.elasticsearch.http.handler.search.count.CountResponse;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 
 public class CountActionHandlerTest extends AbstractTest {

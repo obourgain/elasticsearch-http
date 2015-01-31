@@ -64,8 +64,6 @@ public class DeleteIndexActionHandlerTest extends ElasticsearchIntegrationTest {
 
         DeleteIndexResponse response = httpClient.admin().indices().deleteIndex(Requests.deleteIndexRequest("the_index")).get();
 
-        flushAndRefresh("the_index");
-
         Assertions.assertThat(response.isAcknowledged()).isTrue();
         Assertions.assertThat(response.getError()).isNull();
         Assertions.assertThat(response.getStatus()).isEqualTo(200);
@@ -78,8 +76,6 @@ public class DeleteIndexActionHandlerTest extends ElasticsearchIntegrationTest {
         createIndex("test2");
 
         DeleteIndexResponse response = httpClient.admin().indices().deleteIndex(Requests.deleteIndexRequest("_all")).get();
-
-        flushAndRefresh("test1", "test2");
 
         Assertions.assertThat(response.isAcknowledged()).isTrue();
         Assertions.assertThat(response.getError()).isNull();

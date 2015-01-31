@@ -45,7 +45,7 @@ import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenI
 import com.github.obourgain.elasticsearch.http.response.admin.indices.optimize.OptimizeResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.refresh.RefreshResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.template.put.PutIndexTemplateResponse;
-import com.github.obourgain.elasticsearch.http.response.validate.ValidateQueryResponse;
+import com.github.obourgain.elasticsearch.http.handler.admin.indices.validate.ValidateQueryResponse;
 
 /**
  * @author olivier bourgain

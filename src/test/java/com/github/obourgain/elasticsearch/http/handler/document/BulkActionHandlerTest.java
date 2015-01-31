@@ -7,7 +7,7 @@ import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
-import com.github.obourgain.elasticsearch.http.response.document.bulk.BulkResponse;
+import com.github.obourgain.elasticsearch.http.handler.document.bulk.BulkResponse;
 
 public class BulkActionHandlerTest extends AbstractTest {
 

@@ -11,7 +11,7 @@ import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.search.lookup.SourceLookup;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
-import com.github.obourgain.elasticsearch.http.response.document.exists.ExistsResponse;
+import com.github.obourgain.elasticsearch.http.handler.search.exists.ExistsResponse;
 
 public class ExistsActionHandlerTest extends AbstractTest {
 
@@ -32,6 +32,7 @@ public class ExistsActionHandlerTest extends AbstractTest {
         index(THE_INDEX, THE_TYPE, THE_ID, expected);
 
         refresh();
+        ensureSearchable(THE_INDEX);
 
         ExistsRequest existsRequest = new ExistsRequest(THE_INDEX).types(THE_TYPE).source(new QuerySourceBuilder().setQuery(matchAllQuery()));
         ExistsResponse existsResponse = httpClient.exists(existsRequest).get();
