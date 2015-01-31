@@ -16,12 +16,18 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.create.CreateIndexResponse;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -58,10 +64,10 @@ public class CreateIndexActionHandler {
             TimeValue masterNodeTimeout = CreateIndexRequestAccessor.masterNodeTimeout(request);
             Set<Alias> aliases = CreateIndexRequestAccessor.aliases(request);
 
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePut(httpClient.getUrl() + "/" + index);
+            RequestUriBuilder uriBuilder = new RequestUriBuilder(index);
 
 //            // TODO inject, and this is quite dirty
-//            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = new ObjectMapper();
 
             XContentBuilder jsonBuilder = XContentFactory.jsonBuilder().startObject();
             if (!settings.getAsMap().isEmpty()) {
@@ -70,11 +76,11 @@ public class CreateIndexActionHandler {
 
             if (!mappings.isEmpty()) {
                 jsonBuilder.field("mappings");
-//                for (Map.Entry<String, String> entry : mappings.entrySet()) {
-//                    Map mapping = objectMapper.readValue(entry.getValue(), Map.class);
-//                    // TODO maybe type is not always mandatory as key, depending on the content of the map
-//                    jsonBuilder.map(Collections.<String, Object>singletonMap(entry.getKey(), mapping));
-//                }
+                for (Map.Entry<String, String> entry : mappings.entrySet()) {
+                    Map mapping = objectMapper.readValue(entry.getValue(), Map.class);
+                    // TODO maybe type is not always mandatory as key, depending on the content of the map
+                    jsonBuilder.map(Collections.<String, Object>singletonMap(entry.getKey(), mapping));
+                }
             }
 
             if (!aliases.isEmpty()) {
@@ -114,21 +120,31 @@ public class CreateIndexActionHandler {
                     }
                 }
             }
-
-            httpRequest.addQueryParam("timeout", timeout.toString());
-            httpRequest.addQueryParam("master_timeout", masterNodeTimeout.toString());
-
             jsonBuilder.endObject();
-
             String body = jsonBuilder.string();
-            httpRequest.setBody(body);
 
-            httpRequest.execute(new ListenerAsyncCompletionHandler<CreateIndexResponse>(listener) {
-                @Override
-                protected CreateIndexResponse convert(Response response) {
-                    return CreateIndexResponse.parse(response);
-                }
-            });
+            uriBuilder.addQueryParameter("timeout", timeout.toString());
+            uriBuilder.addQueryParameter("master_timeout", masterNodeTimeout.toString());
+
+            HttpClientRequest<ByteBuf> httpRequest = HttpClientRequest.createPut(uriBuilder.toString())
+                    .withContent(body);
+
+            httpClient.client.submit(httpRequest)
+                    .flatMap(ErrorHandler.AS_FUNC)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<CreateIndexResponse>>() {
+                        @Override
+                        public Observable<CreateIndexResponse> call(final HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<CreateIndexResponse>>() {
+                                @Override
+                                public Observable<CreateIndexResponse> call(ByteBuf byteBuf) {
+                                    return CreateIndexResponse.parse(byteBuf, response.getStatus().code());
+                                }
+                            });
+                        }
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
+
         } catch (Exception e) {
             listener.onFailure(e);
         }

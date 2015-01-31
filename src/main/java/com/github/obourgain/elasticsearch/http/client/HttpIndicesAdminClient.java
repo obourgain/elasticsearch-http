@@ -2,31 +2,23 @@ package com.github.obourgain.elasticsearch.http.client;
 
 import java.util.concurrent.Future;
 import org.elasticsearch.action.ActionListener;
-import org.elasticsearch.action.GenericAction;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesAction;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.close.CloseIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsAction;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.open.OpenIndexRequest;
 import org.elasticsearch.action.admin.indices.optimize.OptimizeRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
-import org.elasticsearch.action.admin.indices.settings.get.GetSettingsAction;
-import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsAction;
-import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesAction;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateAction;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryRequest;
 import org.elasticsearch.action.support.PlainActionFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.CreateIndexActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.GetMappingsActionHandler;
-import com.github.obourgain.elasticsearch.http.handler.admin.indices.GetSettingsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.GetTemplatesActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.IndicesAliasesActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.IndicesExistsActionHandler;
@@ -39,6 +31,7 @@ import com.github.obourgain.elasticsearch.http.handler.admin.indices.mapping.put
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.open.OpenIndexActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.optimize.OptimizeActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.refresh.RefreshActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.admin.indices.settings.GetSettingsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.settings.UpdateSettingsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.validate.ValidateQueryActionHandler;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.close.CloseIndexResponse;
@@ -51,8 +44,8 @@ import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.pu
 import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.optimize.OptimizeResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.refresh.RefreshResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.template.put.PutIndexTemplateResponse;
 import com.github.obourgain.elasticsearch.http.response.validate.ValidateQueryResponse;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * @author olivier bourgain
@@ -62,8 +55,8 @@ public class HttpIndicesAdminClient {
     private static final Logger logger = LoggerFactory.getLogger(HttpIndicesAdminClient.class);
 
     private final HttpClient httpClient;
-
     private ValidateQueryActionHandler validateQueryActionHandler = new ValidateQueryActionHandler(this);
+
     private CreateIndexActionHandler createIndexActionHandler = new CreateIndexActionHandler(this);
     private DeleteIndexActionHandler deleteIndexActionHandler = new DeleteIndexActionHandler(this);
     private IndicesExistsActionHandler indicesExistsActionHandler = new IndicesExistsActionHandler(this);
@@ -72,20 +65,17 @@ public class HttpIndicesAdminClient {
     private OptimizeActionHandler optimizeActionHandler = new OptimizeActionHandler(this);
     private OpenIndexActionHandler openIndexActionHandler = new OpenIndexActionHandler(this);
     private CloseIndexActionHandler closeIndexActionHandler = new CloseIndexActionHandler(this);
+    private PutMappingActionHandler putMappingActionHandler = new PutMappingActionHandler(this);
+    private PutIndexTemplateActionHandler putIndexTemplateActionHandler = new PutIndexTemplateActionHandler(this);
+    private GetTemplatesActionHandler getTemplatesActionHandler = new GetTemplatesActionHandler(this);
+    private UpdateSettingsActionHandler updateSettingsActionHandler = new UpdateSettingsActionHandler(this);
+    private GetSettingsActionHandler getSettingsActionHandler = new GetSettingsActionHandler(this);
+    private GetMappingsActionHandler getMappingsActionHandler = new GetMappingsActionHandler(this);
+    private IndicesAliasesActionHandler indicesAliasesActionHandler = new IndicesAliasesActionHandler(this);
     private GetAliasesActionHandler getAliasesActionHandler = new GetAliasesActionHandler(this);
-    PutMappingActionHandler putMappingActionHandler = new PutMappingActionHandler(this);
 
     public HttpIndicesAdminClient(HttpClient httpClient) {
         this.httpClient = httpClient;
-        ImmutableMap.Builder<GenericAction, ActionHandler> tempActionHandlers = ImmutableMap.builder();
-        tempActionHandlers.put(PutIndexTemplateAction.INSTANCE, new PutIndexTemplateActionHandler(this));
-        tempActionHandlers.put(GetIndexTemplatesAction.INSTANCE, new GetTemplatesActionHandler(this));
-        tempActionHandlers.put(UpdateSettingsAction.INSTANCE, new UpdateSettingsActionHandler(this));
-        tempActionHandlers.put(GetMappingsAction.INSTANCE, new GetMappingsActionHandler(this));
-        tempActionHandlers.put(GetSettingsAction.INSTANCE, new GetSettingsActionHandler(this));
-        tempActionHandlers.put(IndicesAliasesAction.INSTANCE, new IndicesAliasesActionHandler(this));
-//        tempActionHandlers.put(GetAliasesAction.INSTANCE, new GetAliasesActionHandler(this));
-//        tempActionHandlers.put(PutMappingAction.INSTANCE, new PutMappingActionHandler(this));
     }
 
     public HttpClient getHttpClient() {
@@ -119,16 +109,6 @@ public class HttpIndicesAdminClient {
     public Future<DeleteIndexResponse> deleteIndex(DeleteIndexRequest request) {
         PlainActionFuture<DeleteIndexResponse> future = PlainActionFuture.newFuture();
         deleteIndex(request, future);
-        return future;
-    }
-
-    public void indexExists(IndicesExistsRequest request, ActionListener<IndicesExistsResponse> listener) {
-        indicesExistsActionHandler.execute(request, listener);
-    }
-
-    public Future<IndicesExistsResponse> indexExists(IndicesExistsRequest request) {
-        PlainActionFuture<IndicesExistsResponse> future = PlainActionFuture.newFuture();
-        indexExists(request, future);
         return future;
     }
 
@@ -199,6 +179,26 @@ public class HttpIndicesAdminClient {
     public Future<PutMappingResponse> putMapping(PutMappingRequest request) {
         PlainActionFuture<PutMappingResponse> future = PlainActionFuture.newFuture();
         putMapping(request, future);
+        return future;
+    }
+
+    public void putIndexTemplate(PutIndexTemplateRequest request, ActionListener<PutIndexTemplateResponse> listener) {
+        putIndexTemplateActionHandler.execute(request, listener);
+    }
+
+    public Future<PutIndexTemplateResponse> putIndexTemplate(PutIndexTemplateRequest request) {
+        PlainActionFuture<PutIndexTemplateResponse> future = PlainActionFuture.newFuture();
+        putIndexTemplate(request, future);
+        return future;
+    }
+
+    public void indicesExists(IndicesExistsRequest request, ActionListener<IndicesExistsResponse> listener) {
+        indicesExistsActionHandler.execute(request, listener);
+    }
+
+    public Future<IndicesExistsResponse> indicesExists(IndicesExistsRequest request) {
+        PlainActionFuture<IndicesExistsResponse> future = PlainActionFuture.newFuture();
+        indicesExists(request, future);
         return future;
     }
 

@@ -9,8 +9,6 @@ import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateAction;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestAccessor;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
@@ -19,17 +17,22 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.search.warmer.IndexWarmersMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.client.HttpClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
-import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
-import com.ning.http.client.AsyncHttpClient;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.template.put.PutIndexTemplateResponse;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
  */
-public class PutIndexTemplateActionHandler implements ActionHandler<PutIndexTemplateRequest, PutIndexTemplateResponse, PutIndexTemplateRequestBuilder> {
+public class PutIndexTemplateActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(PutIndexTemplateActionHandler.class);
 
@@ -39,13 +42,12 @@ public class PutIndexTemplateActionHandler implements ActionHandler<PutIndexTemp
         this.indicesAdminClient = indicesAdminClient;
     }
 
-    @Override
     public PutIndexTemplateAction getAction() {
         return PutIndexTemplateAction.INSTANCE;
     }
 
-    @Override
     public void execute(PutIndexTemplateRequest request, final ActionListener<PutIndexTemplateResponse> listener) {
+        // TODO test
         logger.debug("put index template request {}", request);
         try {
             String cause = request.cause();
@@ -58,11 +60,10 @@ public class PutIndexTemplateActionHandler implements ActionHandler<PutIndexTemp
             TimeValue timeValue = request.masterNodeTimeout();
             Map<String, String> mappings = PutIndexTemplateRequestAccessor.mappings(request);
 
-            HttpClient httpClient = indicesAdminClient.getHttpClient();
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePut(httpClient.getUrl() + "/_template/" + request.name());
+            RequestUriBuilder uriBuilder = new RequestUriBuilder().addEndpoint("_template/" + request.name());
 
             // TODO inject, and this is quite dirty
-//            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = new ObjectMapper();
 
             // TODO no way to nest XContentBuilders :'(
             XContentBuilder xContentBuilder = XContentFactory.jsonBuilder().startObject().field("template", request.template());
@@ -70,8 +71,8 @@ public class PutIndexTemplateActionHandler implements ActionHandler<PutIndexTemp
                 xContentBuilder.field("mappings");
             }
             for (Map.Entry<String, String> entry : mappings.entrySet()) {
-//                Map mapping = objectMapper.readValue(entry.getValue(), Map.class);
-//                xContentBuilder.map(mapping);
+                Map mapping = objectMapper.readValue(entry.getValue(), Map.class);
+                xContentBuilder.map(mapping);
             }
             xContentBuilder.endObject();
             if (!aliases.isEmpty()) {
@@ -97,19 +98,30 @@ public class PutIndexTemplateActionHandler implements ActionHandler<PutIndexTemp
             String data = xContentBuilder.string();
 
             // TODO make params optional
-            httpRequest
-                    .addQueryParam("order", String.valueOf(order))
-                    .addQueryParam("template", String.valueOf(order))
-                    .addQueryParam("master_timeout", String.valueOf(timeValue))
-                    .addQueryParam("create", String.valueOf(create))
-                    .addQueryParam("cause", cause)
-                    .setBody(data)
-                    .execute(new ListenerAsyncCompletionHandler<PutIndexTemplateResponse>(listener) {
+            uriBuilder
+                    .addQueryParameter("order", order)
+                    .addQueryParameter("template", order)
+                    .addQueryParameter("master_timeout", timeValue.toString())
+                    .addQueryParameter("create", create)
+                    .addQueryParameter("cause", cause);
+
+            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPut(uriBuilder.toString())
+                    .withContent(data))
+                    .flatMap(ErrorHandler.AS_FUNC)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<PutIndexTemplateResponse>>() {
                         @Override
-                        protected PutIndexTemplateResponse convert(ResponseWrapper responseWrapper) {
-                            return responseWrapper.toPutIndexTemplateResponse();
+                        public Observable<PutIndexTemplateResponse> call(final HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<PutIndexTemplateResponse>>() {
+                                @Override
+                                public Observable<PutIndexTemplateResponse> call(ByteBuf byteBuf) {
+                                    return PutIndexTemplateResponse.parse(byteBuf, response.getStatus().code());
+                                }
+                            });
                         }
-                    });
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
+
         } catch (Exception e) {
             listener.onFailure(e);
         }

@@ -149,6 +149,7 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
             if(entry.getValue() instanceof Map) {
                 assertMapContainsValues((Map) entry.getValue(), ((Map) sourceAsMap.get(entry.getKey())));
             }
+
             Assertions.assertThat(actualValue).isEqualTo(entry.getValue());
         }
     }

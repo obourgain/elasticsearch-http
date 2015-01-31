@@ -10,18 +10,21 @@ import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.client.HttpClusterAdminClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
-import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.google.common.base.Joiner;
-import com.ning.http.client.AsyncHttpClient;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
  */
-public class ClusterStateActionHandler implements ActionHandler<ClusterStateRequest, ClusterStateResponse, ClusterStateRequestBuilder> {
+public class ClusterStateActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ClusterStateActionHandler.class);
 
@@ -31,15 +34,14 @@ public class ClusterStateActionHandler implements ActionHandler<ClusterStateRequ
         this.indicesAdminClient = httpClusterAdminClient;
     }
 
-    @Override
     public ClusterStateAction getAction() {
         return ClusterStateAction.INSTANCE;
     }
 
-    @Override
     public void execute(ClusterStateRequest request, final ActionListener<ClusterStateResponse> listener) {
         logger.debug("cluster state request {}", request);
         try {
+            // TODO test
 
             List<String> metricsAsList = new ArrayList<>();
             if (request.blocks()) {
@@ -66,16 +68,26 @@ public class ClusterStateActionHandler implements ActionHandler<ClusterStateRequ
             }
 
             String indices = Strings.arrayToCommaDelimitedString(request.indices());
-            HttpClient httpClient = indicesAdminClient.getHttpClient();
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareGet(httpClient.getUrl() + "/_cluster/state/" + metrics + (indices != null ? "/" + indices : ""));
 
-            httpRequest
-                    .execute(new ListenerAsyncCompletionHandler<ClusterStateResponse>(listener) {
+            String uri = "/_cluster/state/" + metrics + "/" + indices;
+
+            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPut(uri))
+                    .flatMap(ErrorHandler.AS_FUNC)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<ClusterStateResponse>>() {
                         @Override
-                        protected ClusterStateResponse convert(ResponseWrapper responseWrapper) {
-                            return responseWrapper.toClusterStateResponse();
+                        public Observable<ClusterStateResponse> call(HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<ClusterStateResponse>>() {
+                                @Override
+                                public Observable<ClusterStateResponse> call(ByteBuf byteBuf) {
+                                    // TODO
+                                    return null;
+                                }
+                            });
                         }
-                    });
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
+
         } catch (Exception e) {
             listener.onFailure(e);
         }

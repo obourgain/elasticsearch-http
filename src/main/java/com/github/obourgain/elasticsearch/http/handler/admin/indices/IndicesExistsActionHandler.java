@@ -1,20 +1,23 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices;
 
 import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
-import java.util.Set;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsAction;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.exists.IndicesExistsResponse;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.HttpMethod;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
@@ -36,24 +39,27 @@ public class IndicesExistsActionHandler {
     public void execute(IndicesExistsRequest request, final ActionListener<IndicesExistsResponse> listener) {
         logger.debug("indices exists request {}", request);
         try {
-            HttpClient httpClient = indicesAdminClient.getHttpClient();
+            RequestUriBuilder uriBuilder = new RequestUriBuilder(Strings.arrayToCommaDelimitedString(request.indices()));
 
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.prepareHead(httpClient.getUrl() + "/" + Strings.arrayToCommaDelimitedString(request.indices()));
+            uriBuilder.addQueryParameter("local", request.local());
+            uriBuilder.addIndicesOptions(request);
 
-            httpRequest.addQueryParam("local", String.valueOf(request.local()));
-            HttpRequestUtils.addIndicesOptions(httpRequest, request);
-            httpRequest
-                    .execute(new ListenerAsyncCompletionHandler<IndicesExistsResponse>(listener) {
+            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.<ByteBuf>create(HttpMethod.HEAD, uriBuilder.toString()))
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
                         @Override
-                        protected IndicesExistsResponse convert(Response response) {
-                            return IndicesExistsResponse.parse(response);
+                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
+                            return ErrorHandler.checkError(response, _404);
                         }
-
+                    })
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<IndicesExistsResponse>>() {
                         @Override
-                        protected Set<Integer> non200ValidStatuses() {
-                            return _404;
+                        public Observable<IndicesExistsResponse> call(final HttpClientResponse<ByteBuf> response) {
+                            return IndicesExistsResponse.parse(response.getStatus().code());
                         }
-                    });
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
+
         } catch (Exception e) {
             listener.onFailure(e);
         }

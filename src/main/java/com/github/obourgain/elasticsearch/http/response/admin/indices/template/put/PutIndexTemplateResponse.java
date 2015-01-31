@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.response.admin.indices.create;
+package com.github.obourgain.elasticsearch.http.response.admin.indices.template.put;
 
 import java.io.IOException;
 import org.elasticsearch.common.bytes.BytesReference;
@@ -12,21 +12,21 @@ import rx.Observable;
 
 @Getter
 @Builder
-public class CreateIndexResponse {
+public class PutIndexTemplateResponse {
 
     private boolean acknowledged;
     private int status;
     private String error;
 
-    public static Observable<CreateIndexResponse> parse(ByteBuf content, int status) {
+    public static Observable<PutIndexTemplateResponse> parse(ByteBuf content, int status) {
         return Observable.just(doParse(new ByteBufBytesReference(content), status));
     }
 
-    protected static CreateIndexResponse doParse(BytesReference bytesReference, int status) {
+    private static PutIndexTemplateResponse doParse(BytesReference bytesReference, int status) {
         try {
             XContentParser parser = XContentHelper.createParser(bytesReference);
 
-            CreateIndexResponseBuilder builder = builder();
+            PutIndexTemplateResponseBuilder builder = builder();
             builder.status(status);
             XContentParser.Token token;
             String currentFieldName = null;

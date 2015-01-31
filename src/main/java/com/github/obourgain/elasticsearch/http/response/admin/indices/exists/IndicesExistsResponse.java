@@ -1,9 +1,8 @@
 package com.github.obourgain.elasticsearch.http.response.admin.indices.exists;
 
-import java.io.IOException;
-import com.ning.http.client.Response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import rx.Observable;
 
 @Getter
 @AllArgsConstructor
@@ -11,15 +10,11 @@ public class IndicesExistsResponse {
 
     private boolean exists;
 
-    public static IndicesExistsResponse parse(Response response) {
-        try {
-            return doParse(response.getResponseBodyAsBytes(), response.getStatusCode());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static Observable<IndicesExistsResponse> parse(int status) {
+        return Observable.just(doParse(status));
     }
 
-    protected static IndicesExistsResponse doParse(byte[] body, int status) {
+    protected static IndicesExistsResponse doParse(int status) {
         switch (status) {
             case 200:
                 return new IndicesExistsResponse(true);

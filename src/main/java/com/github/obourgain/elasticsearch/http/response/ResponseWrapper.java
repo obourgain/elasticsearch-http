@@ -20,9 +20,7 @@ import org.elasticsearch.ElasticsearchIllegalArgumentException;
 import org.elasticsearch.ElasticsearchIllegalStateException;
 import org.elasticsearch.ElasticsearchParseException;
 import org.elasticsearch.Version;
-import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionRequestValidationException;
-import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.RoutingMissingException;
 import org.elasticsearch.action.UnavailableShardsException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
@@ -39,39 +37,22 @@ import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponseAccessor;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponseAccessor;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasResponseAccessor;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesResponse;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponseAccessor;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponseAccessor;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
-import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsResponse;
-import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsResponseAccessor;
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResponse;
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResponseAccessor;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponseAccessor;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.GetResponseAccessor;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.ClearScrollResponse;
 import org.elasticsearch.action.search.ReduceSearchPhaseException;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.action.suggest.SuggestResponseAccessor;
-import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.cluster.ClusterName;
 import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.block.ClusterBlock;
@@ -130,13 +111,9 @@ import org.elasticsearch.rest.action.admin.indices.alias.delete.AliasesMissingEx
 import org.elasticsearch.script.expression.ExpressionScriptCompilationException;
 import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.SearchShardTarget;
-import org.elasticsearch.search.aggregations.InternalAggregation;
-import org.elasticsearch.search.aggregations.InternalAggregations;
 import org.elasticsearch.search.highlight.HighlightField;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHitField;
-import org.elasticsearch.search.internal.InternalSearchHits;
-import org.elasticsearch.search.internal.InternalSearchResponse;
 import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.warmer.IndexWarmersMetaData;
 import org.elasticsearch.transport.RemoteTransportException;
@@ -151,7 +128,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import com.ning.http.client.Response;
 
 /**
  * @author olivier bourgain
@@ -171,25 +147,25 @@ public class ResponseWrapper<Req> {
     }
 
     private EntityWrapper entityWrapper;
-    private Response response;
+//    private Response response;
     private static final Joiner settingsJoiner = Joiner.on(".");
 
     private Req request;
 
-    public ResponseWrapper(Response response) {
-        this(null, response);
-    }
-
-    public ResponseWrapper(Req request, Response response) {
-        logger.debug("create a response wrapper for {}", response);
-        this.request = request;
-        this.response = response;
-        try {
-            this.entityWrapper = new EntityWrapper(response.getResponseBody());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public ResponseWrapper(Response response) {
+//        this(null, response);
+//    }
+//
+//    public ResponseWrapper(Req request, Response response) {
+//        logger.debug("create a response wrapper for {}", response);
+//        this.request = request;
+//        this.response = response;
+//        try {
+//            this.entityWrapper = new EntityWrapper(response.getResponseBody());
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     protected String getIndex(Map<String, Object> map) {
         return getAsString(map, "_index");
@@ -288,39 +264,6 @@ public class ResponseWrapper<Req> {
     public Map<String, GetField> getFields(Map<String, Object> fieldsAsMap) {
         Map<String, Object> fields = getAsStringObjectMap(fieldsAsMap, "fields");
         return getResultToMapOfGetFields(fields);
-    }
-
-    public SearchResponse toSearchResponse() {
-        Map<String, Object> hits = getAsStringObjectMap(entityWrapper, "hits");
-
-        long totalHits = ((Number) hits.get("total")).longValue();
-
-        // max_score is null when there is no hits
-        Number maxScoreAsNumber = (Number) hits.get("max_score");
-        Float maxScore = maxScoreAsNumber != null ? maxScoreAsNumber.floatValue() : Float.NaN;
-
-        List<Map<String, Object>> internalHitsAsMap = getAsListOfStringObjectMap(hits, "hits");
-
-        InternalSearchHit[] internalSearchHits = processInternalSearchHits(internalHitsAsMap);
-        InternalSearchHits searchHits = new InternalSearchHits(internalSearchHits, totalHits, maxScore);
-
-        InternalAggregations aggregations = buildAggregations(getAsNestedStringToMapMap(entityWrapper, "aggregations"));
-
-        Boolean timedOut = getAs(entityWrapper, "timed_out", Boolean.class);
-
-        // TODO suggest
-        Map<String, Object> suggestAsMap = getAsStringObjectMap(entityWrapper, "suggest");
-        Suggest suggestions = processSuggestions(suggestAsMap);
-
-        InternalSearchResponse internalSearchResponse = new InternalSearchResponse(searchHits, null, aggregations, suggestions, timedOut, getHasTerminatedEarly());
-
-        long took = getAsNumber(entityWrapper, "took").longValue();
-        int totalShards = getTotalShards();
-        int successfulShards = getSuccessfulShards();
-        String scrollId = getAsString(entityWrapper, "_scroll_id");
-
-        ShardSearchFailure[] shardFailures = getShardFailures(entityWrapper);
-        return new SearchResponse(internalSearchResponse, scrollId, totalShards, successfulShards, took, shardFailures);
     }
 
     @Nullable
@@ -451,29 +394,6 @@ public class ResponseWrapper<Req> {
         return internalSearchHits;
     }
 
-    @Nullable
-    private InternalAggregations buildAggregations(Map<String, Map<String, Object>> aggregationsAsMap) {
-        if (aggregationsAsMap == null) {
-            return null;
-        }
-
-        assert request instanceof SearchRequest;
-        Map<String, AggregationMetaInfos> aggs = AggregationParser.parseQuery((SearchRequest) request);
-        List<InternalAggregation> aggregationList = new ArrayList<>();
-
-        for (Map.Entry<String, Map<String, Object>> entry : aggregationsAsMap.entrySet()) {
-            String name = entry.getKey();
-            AggregationMetaInfos aggregationMetaInfos = aggs.get(name);
-            if (aggregationMetaInfos == null) {
-                throw new IllegalStateException("no infos for agg " + name + " found");
-            }
-
-            InternalAggregation aggregation = AggregationResultHandler.buildAggregation(aggregationMetaInfos, entry.getValue());
-            aggregationList.add(aggregation);
-        }
-        return new InternalAggregations(aggregationList);
-    }
-
     public ClearScrollResponse toClearScrollResponse() {
         String error = getAs(entityWrapper, "error", String.class);
         // if the action succeeded, the response is an empty json object, if it has failed, the response is an object with fields error and status
@@ -543,18 +463,6 @@ public class ResponseWrapper<Req> {
         return SuggestResponseAccessor.build(suggest, getTotalShards(), getSuccessfulShards(), getFailedShards(), null);
     }
 
-    @Nullable
-    private Map<String, HighlightField> buildHighlights(Map<String, List<String>> highlightAsMap) {
-        Map<String, HighlightField> highlightFieldMap = null;
-        if (highlightAsMap != null) {
-            highlightFieldMap = new HashMap<>();
-            for (Map.Entry<String, List<String>> entry : highlightAsMap.entrySet()) {
-                highlightFieldMap.put(entry.getKey(), new HighlightField(entry.getKey(), stringCollectionToTextArray(entry.getValue())));
-            }
-        }
-        return highlightFieldMap;
-    }
-
     private GetResult toGetResult(Map<String, Object> metadataMap, Map<String, Object> fieldsMap) {
         // fields and doc metadata may be on a different nesting level, e.g. for update with get
         boolean found = isFound(fieldsMap);
@@ -594,26 +502,6 @@ public class ResponseWrapper<Req> {
             texts[i] = new StringText(strings.get(i));
         }
         return texts;
-    }
-
-    private ShardSearchFailure[] getShardFailures(Map<String, Object> map) {
-        // TODO test
-        List<Map<String, Object>> failuresAsMaps = getAsListOfStringObjectMap(map, "failures");
-        if (failuresAsMaps == null) {
-            return ShardSearchFailure.EMPTY_ARRAY;
-        }
-
-        ShardSearchFailure[] result = new ShardSearchFailure[failuresAsMaps.size()];
-        for (int i = 0; i < failuresAsMaps.size(); i++) {
-            Map<String, Object> failureAsMap = failuresAsMaps.get(i);
-            // TODO nodeId and shardId are not in the json
-            String index = getAs(failureAsMap, "index", String.class);
-            SearchShardTarget searchShardTarget = new SearchShardTarget(null, index, -1);
-            String reason = getAs(failureAsMap, "reason", String.class);
-            ShardSearchFailure shardSearchFailure = new ShardSearchFailure(reason, searchShardTarget);
-            result[i] = shardSearchFailure;
-        }
-        return result;
     }
 
     public void error() {
@@ -899,7 +787,8 @@ public class ResponseWrapper<Req> {
     }
 
     private RestStatus stringToRestStatus() {
-        return RestStatus.valueOf(response.getStatusText().toUpperCase().replaceAll(" ", "_"));
+//        return RestStatus.valueOf(response.getStatusText().toUpperCase().replaceAll(" ", "_"));
+        return null;
     }
 
     private static SearchShardTarget buildSearchShardTarget(String error) {
@@ -915,11 +804,6 @@ public class ResponseWrapper<Req> {
 
         return new SearchShardTarget(nodeId, index, shardId);
 
-    }
-
-    public PutIndexTemplateResponse toPutIndexTemplateResponse() {
-        Boolean acknowledged = getAs(entityWrapper, "acknowledged", Boolean.class);
-        return PutIndexTemplateResponseAccessor.create(acknowledged);
     }
 
     public GetIndexTemplatesResponse toGetIndexTemplatesResponse() {
@@ -1354,11 +1238,6 @@ public class ResponseWrapper<Req> {
         }
     }
 
-    public IndicesAliasesResponse toIndicesAliasesResponse() {
-        boolean acknowledged = getAs(entityWrapper, "acknowledged", Boolean.class);
-        return IndicesAliasResponseAccessor.create(acknowledged);
-    }
-
     public GetAliasesResponse toGetAliasesResponse() {
         if (entityWrapper.isEmpty()) {
             return new GetAliasesResponse(ImmutableOpenMap.<String, List<AliasMetaData>>of());
@@ -1389,86 +1268,6 @@ public class ResponseWrapper<Req> {
     public NodesHotThreadsResponse toNodesHotThreadsResponse() {
         // TODO
         return new NodesHotThreadsResponse(null, null);
-    }
-
-    public BulkResponse toBulkResponse() {
-        long took = getAsNumber(entityWrapper, "took").longValue();
-        // TODO test errors
-        boolean errors = getAs(entityWrapper, "errors", Boolean.class);
-        List<Map<String, Map<String, Object>>> items = getAsListOfNestedStringObjectMaps(entityWrapper, "items");
-        int id = 0;
-        List<BulkItemResponse> responses = new ArrayList<>(items.size());
-        int idx = 0;
-        for (Map<String, Map<String, Object>> item : items) {
-            // only one entry in first level of nesting, the op_type
-            assert item.size() == 1;
-            Map.Entry<String, Map<String, Object>> entry = item.entrySet().iterator().next();
-            String opType = entry.getKey();
-            Map<String, Object> result = entry.getValue();
-            String index = getAsString(result, "_index");
-            String type = getAsString(result, "_type");
-            String docId = getAsString(result, "_id");
-            Number versionAsNumber = getAsNumber(result, "_version");
-            long version = versionAsNumber != null ? versionAsNumber.longValue() : -1;
-            ActionResponse actionResponse;
-            String error = getAsString(result, "error");
-            if (error != null) {
-                RestStatus status = statusCodeToStatusName.get(getAsNumber(result, "status").intValue());
-                opType = findRealBulkOpType(idx, opType, docId);
-                responses.add(new BulkItemResponse(id++, opType, new BulkItemResponse.Failure(index, type, docId, error, status)));
-            } else {
-                boolean created;
-                switch (opType) {
-                    case "index":
-                    case "create":
-                        // when no id given in the query, it is like an index query with a POST, so the opType should be "created", but it is "index in the response
-                        opType = findRealBulkOpType(idx, opType, docId);
-                        created = getAsNumber(result, "status").intValue() == 201;
-                        actionResponse = new IndexResponse(index, type, docId, version, created);
-                        break;
-                    case "update":
-                        // TODO what values are possible for created ?
-                        created = getAsNumber(result, "status").intValue() == 201;
-                        actionResponse = new UpdateResponse(index, type, docId, version, created);
-                        break;
-                    case "delete":
-                        boolean found = getAsNumber(result, "status").intValue() == 200;
-                        actionResponse = new DeleteResponse(index, type, docId, version, found);
-                        break;
-                    default:
-                        throw new IllegalStateException("unknown bulk opType : " + opType);
-                }
-                responses.add(new BulkItemResponse(id++, opType, actionResponse));
-            }
-            idx++;
-        }
-        // TODO
-        return new BulkResponse(Iterables.toArray(responses, BulkItemResponse.class), took);
-    }
-
-    private String findRealBulkOpType(int idx, String opType, String docId) {
-        if (docId != null && docId.equals("null")) { // the response will contain the String "null" and not a null
-            opType = "create";
-        } else {
-            // we must also set it to created if 'setCreate(true)' was called
-            ActionRequest actionRequest = ((BulkRequest) request).requests().get(idx);
-//            boolean isACreate = findIfRealOpTypeIsCreate(actionRequest);
-            boolean isACreate = false;
-            if (isACreate) {
-                opType = "create";
-            }
-        }
-        return opType;
-    }
-
-    private boolean findIfRealOpTypeIsCreate(ActionRequest actionRequest) {
-        // optypes create are written in the response as "index" but the transportclient may have "created"
-        if (actionRequest instanceof IndexRequest) {
-            if (((IndexRequest) actionRequest).opType() == IndexRequest.OpType.CREATE) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public ClusterStatsResponse toClusterStatsResponse() {
@@ -1719,16 +1518,6 @@ public class ResponseWrapper<Req> {
         Settings transients = ImmutableSettings.builder().put(transientsAsMap).build();
         Settings persistents = ImmutableSettings.builder().put(persistentsAsMap).build();
         return ClusterUpdateSettingsResponseAccessor.create(true, transients, persistents);
-    }
-
-    public UpdateSettingsResponse toUpdateSettingsResponse() {
-        boolean acknowledged = getAs(entityWrapper, "acknowledged", Boolean.class);
-        return UpdateSettingsResponseAccessor.create(acknowledged);
-    }
-
-    public PutMappingResponse toPutMappingResponse() {
-        boolean acknowledged = getAs(entityWrapper, "acknowledged", Boolean.class);
-        return PutMappingResponseAccessor.create(acknowledged);
     }
 
     public MultiGetResponse toMultiGetResponse() {

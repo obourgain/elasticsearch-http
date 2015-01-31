@@ -15,8 +15,6 @@ import org.elasticsearch.action.mlt.MoreLikeThisRequest;
 import org.elasticsearch.action.percolate.PercolateRequest;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.suggest.SuggestRequest;
-import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.action.support.PlainActionFuture;
 import org.elasticsearch.action.termvector.TermVectorRequest;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -36,7 +34,6 @@ import com.github.obourgain.elasticsearch.http.handler.search.ExistsActionHandle
 import com.github.obourgain.elasticsearch.http.handler.search.ExplainActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.PercolateActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.SearchActionHandler;
-import com.github.obourgain.elasticsearch.http.handler.search.SuggestActionHandler;
 import com.github.obourgain.elasticsearch.http.response.document.bulk.BulkResponse;
 import com.github.obourgain.elasticsearch.http.response.document.delete.DeleteResponse;
 import com.github.obourgain.elasticsearch.http.response.document.deleteByQuery.DeleteByQueryResponse;
@@ -52,8 +49,6 @@ import com.github.obourgain.elasticsearch.http.response.search.percolate.Percola
 import com.github.obourgain.elasticsearch.http.response.search.search.SearchResponse;
 import com.github.obourgain.elasticsearch.http.url.RoundRobinUrlProviderStrategy;
 import com.github.obourgain.elasticsearch.http.url.UrlProviderStrategy;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.RxNetty;
 
@@ -66,8 +61,6 @@ public class HttpClient {
 
     private static final int DEFAULT_MAX_RETRIES = 0;
     private static final int DEFAULT_TIMEOUT_MILLIS = 30 * 1000 * 1000;
-
-    public AsyncHttpClient asyncHttpClient;
 
     public io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> client;
 
@@ -95,27 +88,11 @@ public class HttpClient {
     public HttpClient(Collection<String> hosts) {
         this.urlProviderStrategy = new RoundRobinUrlProviderStrategy(hosts);
 
-        AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder()
-                .setMaxRequestRetry(maxRetries)
-                .setConnectTimeout(timeOut)
-                .setRequestTimeout(timeOut)
-                        // TODO lots of options ...
-                .build();
-
-        asyncHttpClient = new AsyncHttpClient(config);
-
         // client
         // searchShard
         // search template
 ////        tempActionHandlers.put(MultiGetAction.INSTANCE, new MultiGetActionHandler(this));
-//        tempActionHandlers.put(SearchAction.INSTANCE, new SearchActionHandler(this));
-//        tempActionHandlers.put(ExistsAction.INSTANCE, new ExistsActionHandler(this));
 //        tempActionHandlers.put(SearchScrollAction.INSTANCE, new SearchScrollActionHandler(this));
-//        tempActionHandlers.put(ClearScrollAction.INSTANCE, new ClearScrollActionHandler(this));
-//        tempActionHandlers.put(ExplainAction.INSTANCE, new ExplainActionHandler(this));
-//        tempActionHandlers.put(PercolateAction.INSTANCE, new PercolateActionHandler(this));
-//        tempActionHandlers.put(MoreLikeThisAction.INSTANCE, new MoreLikeThisActionHandler(this));
-//        tempActionHandlers.put(BulkAction.INSTANCE, new BulkActionHandler(this));
 
         // indices admin
         this.httpAdminClient = new HttpAdminClient(this);
@@ -124,7 +101,6 @@ public class HttpClient {
 
     public void close() {
         client.shutdown();
-        asyncHttpClient.close();
     }
 
     public HttpAdminClient admin() {

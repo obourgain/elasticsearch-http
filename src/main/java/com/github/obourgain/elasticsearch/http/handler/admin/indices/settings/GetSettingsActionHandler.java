@@ -1,8 +1,8 @@
-package com.github.obourgain.elasticsearch.http.handler.admin.indices;
+package com.github.obourgain.elasticsearch.http.handler.admin.indices.settings;
 
 import org.elasticsearch.action.ActionListener;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsAction;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsAction;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
 import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,7 @@ import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObser
 import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
 import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.get.GetMappingsResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.get.GetSettingsResponse;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;
@@ -21,45 +21,47 @@ import rx.functions.Func1;
 /**
  * @author olivier bourgain
  */
-public class GetMappingsActionHandler {
+public class GetSettingsActionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(GetMappingsActionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(GetSettingsActionHandler.class);
 
     private final HttpIndicesAdminClient indicesAdminClient;
 
-    public GetMappingsActionHandler(HttpIndicesAdminClient indicesAdminClient) {
+    public GetSettingsActionHandler(HttpIndicesAdminClient indicesAdminClient) {
         this.indicesAdminClient = indicesAdminClient;
     }
 
-    public GetMappingsAction getAction() {
-        return GetMappingsAction.INSTANCE;
+    public GetSettingsAction getAction() {
+        return GetSettingsAction.INSTANCE;
     }
 
-    public void execute(GetMappingsRequest request, final ActionListener<GetMappingsResponse> listener) {
+    public void execute(GetSettingsRequest request, final ActionListener<GetSettingsResponse> listener) {
         // TODO tests
-        logger.debug("get mappings request {}", request);
+        logger.debug("get settings request {}", request);
         try {
             String indices = HttpRequestUtils.indicesOrAll(request);
             RequestUriBuilder uriBuilder = new RequestUriBuilder(indices);
 
-            String types = Strings.arrayToCommaDelimitedString(request.types());
-            if (!types.isEmpty()) {
-                uriBuilder.type(types);
+            String names = Strings.arrayToCommaDelimitedString(request.names());
+            if (!names.isEmpty()) {
+                names = "/" + names;
             }
-            uriBuilder.addEndpoint("_mapping");
+            uriBuilder.addEndpoint("_settings" + names);
             // lots of url patterns are accepted, but this one is the most practical for a generic impl
 
-            uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString());
+
+            uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString())
+                    .addIndicesOptions(request);
 
             indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
                     .flatMap(ErrorHandler.AS_FUNC)
-                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<GetMappingsResponse>>() {
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<GetSettingsResponse>>() {
                         @Override
-                        public Observable<GetMappingsResponse> call(HttpClientResponse<ByteBuf> response) {
-                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<GetMappingsResponse>>() {
+                        public Observable<GetSettingsResponse> call(HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<GetSettingsResponse>>() {
                                 @Override
-                                public Observable<GetMappingsResponse> call(ByteBuf byteBuf) {
-                                    return GetMappingsResponse.parse(byteBuf);
+                                public Observable<GetSettingsResponse> call(ByteBuf byteBuf) {
+                                    return GetSettingsResponse.parse(byteBuf);
                                 }
                             });
                         }

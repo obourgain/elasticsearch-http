@@ -1,7 +1,5 @@
 package com.github.obourgain.elasticsearch.http.client;
 
-import org.elasticsearch.client.ClusterAdminClient;
-
 /**
  * @author olivier bourgain
  */
@@ -15,7 +13,7 @@ public class HttpAdminClient {
         this.indicesAdminClient = new HttpIndicesAdminClient(httpClient);
     }
 
-    public ClusterAdminClient cluster() {
+    public HttpClusterAdminClient cluster() {
         return clusterAdminClient;
     }
 

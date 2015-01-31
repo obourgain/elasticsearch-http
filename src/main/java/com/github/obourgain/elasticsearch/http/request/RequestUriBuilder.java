@@ -31,6 +31,12 @@ public class RequestUriBuilder {
         addWithPathSeparatorBefore(id);
     }
 
+    public RequestUriBuilder type(String type) {
+        assert !addedQueryParamSeparator;
+        addWithPathSeparatorBefore(type);
+        return this;
+    }
+
     public RequestUriBuilder addEndpoint(String endpoint) {
         assert !addedQueryParamSeparator;
         addWithPathSeparatorBefore(endpoint);

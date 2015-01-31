@@ -1,10 +1,8 @@
 package com.github.obourgain.elasticsearch.http.response;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 import com.google.common.base.Charsets;
-import com.ning.http.client.Response;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;
 import rx.Observable;
@@ -18,19 +16,6 @@ public class ErrorHandler {
             return ErrorHandler.checkError(response);
         }
     };
-
-    public static void checkError(Response response, Set<Integer> non200ValidStatuses) {
-        int statusCode = response.getStatusCode();
-        if (statusCode > 300 && !non200ValidStatuses.contains(statusCode)) {
-            try {
-                throw new ElasticsearchHttpException(response.getResponseBody(), statusCode);
-            } catch (IOException e) {
-                RuntimeException exception = new RuntimeException("Unable to read response", e);
-                exception.addSuppressed(new ElasticsearchHttpException(statusCode));
-                throw exception;
-            }
-        }
-    }
 
     public static Observable<HttpClientResponse<ByteBuf>> checkError(HttpClientResponse<ByteBuf> response) {
         return checkError(response, Collections.<Integer>emptySet());

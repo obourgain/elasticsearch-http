@@ -7,7 +7,6 @@ import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.Hits;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
-import com.ning.http.client.Response;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.experimental.Builder;
@@ -26,14 +25,6 @@ public class SearchResponse {
 
     public static Observable<SearchResponse> parse(ByteBuf byteBuf) {
         return Observable.just(doParse(new ByteBufBytesReference(byteBuf)));
-    }
-
-    public static SearchResponse parse(Response response) {
-        return doParse(response);
-    }
-
-    protected static SearchResponse doParse(Response response) {
-        return null;
     }
 
     protected static SearchResponse doParse(ByteBufBytesReference bytes) {

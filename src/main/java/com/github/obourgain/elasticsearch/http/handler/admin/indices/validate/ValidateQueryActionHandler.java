@@ -54,7 +54,7 @@ public class ValidateQueryActionHandler {
 
             HttpClientRequest<ByteBuf> httpRequest = HttpClientRequest.createPost(uriBuilder.toString());
 
-            if(ValidateRequestAccessor.getSource(request) != null) {
+            if (ValidateRequestAccessor.getSource(request) != null) {
                 httpRequest.withContent(ValidateRequestAccessor.getSource(request).toBytes());
             }
 

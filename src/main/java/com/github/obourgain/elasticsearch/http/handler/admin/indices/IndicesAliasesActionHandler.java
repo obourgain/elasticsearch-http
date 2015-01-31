@@ -9,7 +9,6 @@ import org.elasticsearch.ElasticsearchParseException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesAction;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequestBuilder;
 import org.elasticsearch.action.admin.indices.alias.IndicesAliasesResponse;
 import org.elasticsearch.cluster.metadata.AliasAction;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -17,19 +16,21 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
-import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
-import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
+import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
+import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.google.common.collect.ImmutableMap;
-import com.ning.http.client.AsyncHttpClient;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClientRequest;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * @author olivier bourgain
  */
-public class IndicesAliasesActionHandler implements ActionHandler<IndicesAliasesRequest, IndicesAliasesResponse, IndicesAliasesRequestBuilder> {
+public class IndicesAliasesActionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(IndicesAliasesActionHandler.class);
 
@@ -39,16 +40,15 @@ public class IndicesAliasesActionHandler implements ActionHandler<IndicesAliases
         this.indicesAdminClient = indicesAdminClient;
     }
 
-    @Override
     public IndicesAliasesAction getAction() {
         return IndicesAliasesAction.INSTANCE;
     }
 
-    @Override
     public void execute(IndicesAliasesRequest request, final ActionListener<IndicesAliasesResponse> listener) {
         logger.debug("indices aliases request {}", request);
         try {
-            HttpClient httpClient = indicesAdminClient.getHttpClient();
+            // TODO test
+            RequestUriBuilder uriBuilder = new RequestUriBuilder().addEndpoint("_aliases");
 
             XContentBuilder jsonBuilder = XContentFactory.jsonBuilder().startObject();
             jsonBuilder.startArray("actions");
@@ -63,24 +63,33 @@ public class IndicesAliasesActionHandler implements ActionHandler<IndicesAliases
                 }
             }
             jsonBuilder.endArray();
-
-            AsyncHttpClient.BoundRequestBuilder httpRequest = httpClient.asyncHttpClient.preparePost(httpClient.getUrl() + "/_aliases");
-
-            httpRequest.addQueryParam("timeout", request.timeout().toString());
-            httpRequest.addQueryParam("master_timeout", request.masterNodeTimeout().toString());
-
             jsonBuilder.endObject();
 
+            uriBuilder.addQueryParameter("timeout", request.timeout().toString());
+            uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString());
+
+
             String body = jsonBuilder.string();
-            httpRequest.setBody(body);
-            HttpRequestUtils.addIndicesOptions(httpRequest, request);
-            httpRequest
-                    .execute(new ListenerAsyncCompletionHandler<IndicesAliasesResponse>(listener) {
+            uriBuilder.addIndicesOptions(request);
+
+            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createGet(uriBuilder.toString())
+                    .withContent(body))
+                    .flatMap(ErrorHandler.AS_FUNC)
+                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<IndicesAliasesResponse>>() {
                         @Override
-                        protected IndicesAliasesResponse convert(ResponseWrapper responseWrapper) {
-                            return responseWrapper.toIndicesAliasesResponse();
+                        public Observable<IndicesAliasesResponse> call(HttpClientResponse<ByteBuf> response) {
+                            return response.getContent().flatMap(new Func1<ByteBuf, Observable<IndicesAliasesResponse>>() {
+                                @Override
+                                public Observable<IndicesAliasesResponse> call(ByteBuf byteBuf) {
+//                                    return IndicesAliasesResponse.parse(byteBuf);
+                                    return null;
+                                }
+                            });
                         }
-                    });
+                    })
+                    .single()
+                    .subscribe(new ListenerCompleterObserver<>(listener));
+
         } catch (Exception e) {
             listener.onFailure(e);
         }

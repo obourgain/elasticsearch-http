@@ -1,25 +1,12 @@
 package com.github.obourgain.elasticsearch.http.handler.search;
 
-import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.indicesOrAll;
-import java.util.Map;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.suggest.SuggestAction;
 import org.elasticsearch.action.suggest.SuggestRequest;
-import org.elasticsearch.action.suggest.SuggestRequestAccessor;
-import org.elasticsearch.action.suggest.SuggestRequestBuilder;
 import org.elasticsearch.action.suggest.SuggestResponse;
-import org.elasticsearch.common.bytes.BytesReference;
-import org.elasticsearch.common.collect.Tuple;
-import org.elasticsearch.common.xcontent.XContentHelper;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
-import com.github.obourgain.elasticsearch.http.concurrent.ListenerAsyncCompletionHandler;
-import com.github.obourgain.elasticsearch.http.handler.ActionHandler;
-import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
-import com.github.obourgain.elasticsearch.http.response.ResponseWrapper;
-import com.ning.http.client.AsyncHttpClient;
 
 /**
  * @author olivier bourgain
