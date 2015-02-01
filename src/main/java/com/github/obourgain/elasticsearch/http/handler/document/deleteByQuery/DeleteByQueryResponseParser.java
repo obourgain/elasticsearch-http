@@ -20,8 +20,6 @@ public class DeleteByQueryResponseParser {
         try {
             XContentParser parser = XContentHelper.createParser(body);
 
-            // TODO parse failures
-
             DeleteByQueryResponse.DeleteByQueryResponseBuilder builder = DeleteByQueryResponse.builder();
             XContentParser.Token token;
             String currentFieldName = null;

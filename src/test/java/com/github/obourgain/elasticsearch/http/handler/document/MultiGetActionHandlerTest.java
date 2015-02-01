@@ -14,7 +14,7 @@ import com.github.obourgain.elasticsearch.http.AbstractTest;
 import com.github.obourgain.elasticsearch.http.response.ElasticsearchHttpException;
 import com.github.obourgain.elasticsearch.http.handler.document.get.GetResponse;
 
-public class GetActionHandlerTest extends AbstractTest {
+public class MultiGetActionHandlerTest extends AbstractTest {
 
     @Test
     public void should_get_document() throws IOException, ExecutionException, InterruptedException {

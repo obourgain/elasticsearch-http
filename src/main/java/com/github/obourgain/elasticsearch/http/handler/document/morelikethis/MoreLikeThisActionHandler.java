@@ -7,9 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
+import com.github.obourgain.elasticsearch.http.handler.search.search.SearchResponse;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
 import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
-import com.github.obourgain.elasticsearch.http.handler.search.search.SearchResponse;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;
@@ -44,45 +44,29 @@ public class MoreLikeThisActionHandler {
                 uriBuilder.addQueryParameter("percent_terms_to_match", String.valueOf(request.percentTermsToMatch()));
             }
 
-            if (request.minTermFreq() != -1) {
-                uriBuilder.addQueryParameter("min_term_freq", String.valueOf(request.minTermFreq()));
-            }
-            if (request.maxQueryTerms() != -1) {
-                uriBuilder.addQueryParameter("max_query_terms", String.valueOf(request.maxQueryTerms()));
-            }
+            uriBuilder.addQueryParameterIfNotMinusOne("min_term_freq", request.minTermFreq());
+            uriBuilder.addQueryParameterIfNotMinusOne("max_query_terms", request.maxQueryTerms());
 
             uriBuilder.addQueryParameterArrayAsCommaDelimitedIfNotNullNorEmpty("stop_words", request.stopWords());
 
-            if (request.minDocFreq() != -1) {
-                uriBuilder.addQueryParameter("min_doc_freq", String.valueOf(request.minDocFreq()));
-            }
-            if (request.maxDocFreq() != -1) {
-                uriBuilder.addQueryParameter("max_doc_freq", String.valueOf(request.maxDocFreq()));
-            }
+            uriBuilder.addQueryParameterIfNotMinusOne("min_doc_freq", request.minDocFreq());
+            uriBuilder.addQueryParameterIfNotMinusOne("max_doc_freq", request.maxDocFreq());
 
-            if (request.minWordLength() != -1) {
-                uriBuilder.addQueryParameter("min_word_len", String.valueOf(request.minWordLength()));
-            }
-            if (request.maxWordLength() != -1) {
-                uriBuilder.addQueryParameter("max_word_len", String.valueOf(request.maxWordLength()));
-            }
+            uriBuilder.addQueryParameterIfNotMinusOne("min_word_len", request.minWordLength());
+            uriBuilder.addQueryParameterIfNotMinusOne("max_word_len", request.maxWordLength());
 
             if (request.boostTerms() != -1) {
-                uriBuilder.addQueryParameter("boost_terms", String.valueOf(request.boostTerms()));
+                uriBuilder.addQueryParameter("boost_terms", request.boostTerms());
             }
 
             uriBuilder.addQueryParameterArrayAsCommaDelimitedIfNotNullNorEmpty("search_indices", request.searchIndices());
             uriBuilder.addQueryParameterArrayAsCommaDelimitedIfNotNullNorEmpty("search_types", request.searchTypes());
 
-            if (request.searchSize() != 0) {
-                uriBuilder.addQueryParameter("search_size", String.valueOf(request.searchSize()));
-            }
+            uriBuilder.addQueryParameterIfNotZero("search_size", request.searchSize());
             if (request.searchScroll() != null) {
-                uriBuilder.addQueryParameterIfNotNull("search_scroll", request.searchScroll().keepAlive().toString());
+                uriBuilder.addQueryParameter("search_scroll", request.searchScroll().keepAlive().toString());
             }
-            if (request.searchFrom() != 0) {
-                uriBuilder.addQueryParameter("search_from", String.valueOf(request.searchFrom()));
-            }
+            uriBuilder.addQueryParameterIfNotZero("search_from", request.searchFrom());
             if (request.include()) {
                 uriBuilder.addQueryParameter("include", request.include());
             }
