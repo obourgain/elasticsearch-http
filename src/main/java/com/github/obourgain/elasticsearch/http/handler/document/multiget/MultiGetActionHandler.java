@@ -49,40 +49,40 @@ public class MultiGetActionHandler {
             uriBuilder.addQueryParameterIfNotNull("refresh", request.refresh());
             uriBuilder.addQueryParameterIfNotNull("realtime", request.realtime());
 
-            request.subRequests()
-
-            request.getItems();
-
-                    FetchSourceContext fetchSourceContext = request.fetchSourceContext();
-            if (fetchSourceContext != null) {
-                uriBuilder.addQueryParameter("_source", fetchSourceContext.fetchSource());
-                if (fetchSourceContext.transformSource()) {
-                    uriBuilder.addQueryParameter("_source_transform", true);
-                }
-                // excludes & includes defaults to empty String array
-                if (fetchSourceContext.excludes().length > 0) {
-                    uriBuilder.addQueryParameterArrayAsCommaDelimited("_source_exclude", fetchSourceContext.excludes());
-                }
-                if (fetchSourceContext.includes().length > 0) {
-                    uriBuilder.addQueryParameterArrayAsCommaDelimited("_source_include", fetchSourceContext.includes());
-                }
-            }
-
-            if (request.version() != Versions.MATCH_ANY) {
-                uriBuilder.addQueryParameter("version", request.version());
-                uriBuilder.addQueryParameter("version_type", request.versionType().toString().toLowerCase());
-            }
-            if (request.fields() != null) {
-                uriBuilder.addQueryParameterArrayAsCommaDelimited("fields", request.fields());
-            }
-            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
-            uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
-            if (request.refresh()) {
-                uriBuilder.addQueryParameter("refresh", request.refresh());
-            }
-            if (request.realtime()) {
-                uriBuilder.addQueryParameter("realtime", request.realtime());
-            }
+//            request.subRequests();
+//
+//            request.getItems();
+//
+//                    FetchSourceContext fetchSourceContext = request.fetchSourceContext();
+//            if (fetchSourceContext != null) {
+//                uriBuilder.addQueryParameter("_source", fetchSourceContext.fetchSource());
+//                if (fetchSourceContext.transformSource()) {
+//                    uriBuilder.addQueryParameter("_source_transform", true);
+//                }
+//                // excludes & includes defaults to empty String array
+//                if (fetchSourceContext.excludes().length > 0) {
+//                    uriBuilder.addQueryParameterArrayAsCommaDelimited("_source_exclude", fetchSourceContext.excludes());
+//                }
+//                if (fetchSourceContext.includes().length > 0) {
+//                    uriBuilder.addQueryParameterArrayAsCommaDelimited("_source_include", fetchSourceContext.includes());
+//                }
+//            }
+//
+//            if (request.version() != Versions.MATCH_ANY) {
+//                uriBuilder.addQueryParameter("version", request.version());
+//                uriBuilder.addQueryParameter("version_type", request.versionType().toString().toLowerCase());
+//            }
+//            if (request.fields() != null) {
+//                uriBuilder.addQueryParameterArrayAsCommaDelimited("fields", request.fields());
+//            }
+//            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
+//            uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
+//            if (request.refresh()) {
+//                uriBuilder.addQueryParameter("refresh", request.refresh());
+//            }
+//            if (request.realtime()) {
+//                uriBuilder.addQueryParameter("realtime", request.realtime());
+//            }
             httpClient.client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<MultiGetResponse>>() {

@@ -1,6 +1,7 @@
 package com.github.obourgain.elasticsearch.http.handler.search.search;
 
 import java.io.IOException;
+import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
@@ -27,7 +28,7 @@ public class SearchResponse {
         return Observable.just(doParse(new ByteBufBytesReference(byteBuf)));
     }
 
-    protected static SearchResponse doParse(ByteBufBytesReference bytes) {
+    protected static SearchResponse doParse(BytesReference bytes) {
         try {
             XContentParser parser = XContentHelper.createParser(bytes);
 
@@ -54,6 +55,12 @@ public class SearchResponse {
                         builder.shards(ShardParser.parseInner(parser));
                     } else if ("hits".equals(currentFieldName)) {
                         builder.hits(Hits.parse(parser));
+                    } else if("aggregations".equals(currentFieldName)) {
+                        System.out.println("foooo");
+                        System.out.println("foooo");
+                        System.out.println("foooo");
+                        System.out.println("foooo");
+                        System.out.println("foooo");
                     }
                 }
                 // TODO shard failures

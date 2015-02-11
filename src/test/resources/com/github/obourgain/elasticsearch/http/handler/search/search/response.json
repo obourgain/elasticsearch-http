@@ -1,0 +1,25 @@
+{
+  "took": 11,
+  "timed_out": false,
+  "_shards": {
+    "total": 20,
+    "successful": 20,
+    "failed": 0
+  },
+  "hits": {
+    "total": 1,
+    "max_score": 1,
+    "hits": [
+      {
+        "_index": "the_index",
+        "_type": "the_type",
+        "_id": "the_id",
+        "_score": 1,
+        "_source": {
+          "user": "foo",
+          "message": "the message"
+        }
+      }
+    ]
+  }
+}
