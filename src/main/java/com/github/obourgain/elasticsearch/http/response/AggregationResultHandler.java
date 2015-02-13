@@ -373,12 +373,13 @@ public class AggregationResultHandler {
         Number min = getAsNumber(aggregationAsMap, "min");
         Number max = getAsNumber(aggregationAsMap, "max");
         Number sumOfSqrs = getAsNumber(aggregationAsMap, "sum_of_squares");
-        return new InternalExtendedStats(aggregationMetaInfos.getName(),
-                count != null ? count.longValue() : 0,
-                sum != null ? sum.doubleValue() : 0,
-                min != null ? min.doubleValue() : Double.POSITIVE_INFINITY,
-                max != null ? max.doubleValue() : Double.NEGATIVE_INFINITY,
-                sumOfSqrs != null ? sumOfSqrs.doubleValue() : 0);
+        return null;
+//        return new InternalExtendedStats(aggregationMetaInfos.getName(),
+//                count != null ? count.longValue() : 0,
+//                sum != null ? sum.doubleValue() : 0,
+//                min != null ? min.doubleValue() : Double.POSITIVE_INFINITY,
+//                max != null ? max.doubleValue() : Double.NEGATIVE_INFINITY,
+//                sumOfSqrs != null ? sumOfSqrs.doubleValue() : 0);
     }
 
     private static InternalAggregation cardinality(AggregationMetaInfos aggregationMetaInfos, Map<String, Object> aggregationAsMap) {

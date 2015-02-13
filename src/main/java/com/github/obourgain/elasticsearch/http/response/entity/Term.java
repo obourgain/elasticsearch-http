@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.elasticsearch.common.xcontent.XContentParser;
 import lombok.Getter;
-import lombok.experimental.Builder;
+import lombok.Builder;
 
 @Builder
 @Getter

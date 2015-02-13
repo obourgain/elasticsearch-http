@@ -19,7 +19,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
-import lombok.experimental.Builder;
+import lombok.Builder;
 import rx.Observable;
 
 @Getter

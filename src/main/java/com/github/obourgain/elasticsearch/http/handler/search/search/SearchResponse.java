@@ -2,15 +2,18 @@ package com.github.obourgain.elasticsearch.http.handler.search.search;
 
 import java.io.IOException;
 import org.elasticsearch.common.bytes.BytesReference;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.XContentType;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.Hits;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
-import lombok.experimental.Builder;
+import lombok.Builder;
 import rx.Observable;
 
 @Builder
@@ -23,6 +26,7 @@ public class SearchResponse {
     private long tookInMillis;
     private boolean timedOut;
     private boolean terminatedEarly;
+    private byte[] aggregations;
 
     public static Observable<SearchResponse> parse(ByteBuf byteBuf) {
         return Observable.just(doParse(new ByteBufBytesReference(byteBuf)));
@@ -32,7 +36,7 @@ public class SearchResponse {
         try {
             XContentParser parser = XContentHelper.createParser(bytes);
 
-            SearchResponse.SearchResponseBuilder builder = SearchResponse.builder();
+            SearchResponse.SearchResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -56,16 +60,13 @@ public class SearchResponse {
                     } else if ("hits".equals(currentFieldName)) {
                         builder.hits(Hits.parse(parser));
                     } else if("aggregations".equals(currentFieldName)) {
-                        System.out.println("foooo");
-                        System.out.println("foooo");
-                        System.out.println("foooo");
-                        System.out.println("foooo");
-                        System.out.println("foooo");
+                        XContentBuilder docBuilder = XContentFactory.contentBuilder(XContentType.JSON);
+                        docBuilder.copyCurrentStructure(parser);
+                        builder.aggregations(docBuilder.bytes().array());
                     }
                 }
                 // TODO shard failures
                 // TODO facets ? maybe not
-                // TODO agg
                 // TODO suggests
             }
             return builder.build();

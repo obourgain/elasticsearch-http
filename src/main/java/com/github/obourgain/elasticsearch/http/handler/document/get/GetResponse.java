@@ -3,7 +3,7 @@ package com.github.obourgain.elasticsearch.http.handler.document.get;
 import java.util.Map;
 import org.elasticsearch.index.get.GetField;
 import lombok.Getter;
-import lombok.experimental.Builder;
+import lombok.Builder;
 
 @Builder
 @Getter

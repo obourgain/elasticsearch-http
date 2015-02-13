@@ -8,7 +8,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
 import lombok.Getter;
-import lombok.experimental.Builder;
+import lombok.Builder;
 
 @Getter
 @Builder

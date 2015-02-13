@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import org.elasticsearch.common.xcontent.XContentParser;
 import lombok.Getter;
-import lombok.experimental.Builder;
+import lombok.Builder;
 
 @Builder
 @Getter

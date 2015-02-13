@@ -9,7 +9,7 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
-import lombok.experimental.Builder;
+import lombok.Builder;
 import rx.Observable;
 
 @Getter

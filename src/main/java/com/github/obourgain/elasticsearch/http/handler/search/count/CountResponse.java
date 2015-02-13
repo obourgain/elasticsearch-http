@@ -9,7 +9,7 @@ import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
-import lombok.experimental.Builder;
+import lombok.Builder;
 import rx.Observable;
 
 @Builder

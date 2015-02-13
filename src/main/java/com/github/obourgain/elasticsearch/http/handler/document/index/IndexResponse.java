@@ -1,7 +1,7 @@
 package com.github.obourgain.elasticsearch.http.handler.document.index;
 
 import lombok.Getter;
-import lombok.experimental.Builder;
+import lombok.Builder;
 
 @Builder
 @Getter

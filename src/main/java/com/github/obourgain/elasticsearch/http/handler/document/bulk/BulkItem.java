@@ -3,7 +3,7 @@ package com.github.obourgain.elasticsearch.http.handler.document.bulk;
 import java.io.IOException;
 import org.elasticsearch.common.xcontent.XContentParser;
 import lombok.Getter;
-import lombok.experimental.Builder;
+import lombok.Builder;
 
 @Builder
 @Getter

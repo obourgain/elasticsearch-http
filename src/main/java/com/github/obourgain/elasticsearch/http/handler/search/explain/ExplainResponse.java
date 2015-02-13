@@ -8,7 +8,7 @@ import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.Explanation;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
-import lombok.experimental.Builder;
+import lombok.Builder;
 import rx.Observable;
 
 @Builder
