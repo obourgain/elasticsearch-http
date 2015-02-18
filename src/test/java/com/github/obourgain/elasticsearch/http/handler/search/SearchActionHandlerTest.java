@@ -7,12 +7,14 @@ import java.util.concurrent.ExecutionException;
 import org.assertj.core.api.Assertions;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.common.bytes.BytesReference;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.lookup.SourceLookup;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
-import com.github.obourgain.elasticsearch.http.response.ElasticsearchHttpException;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchResponse;
+import com.github.obourgain.elasticsearch.http.response.ElasticsearchHttpException;
+import com.github.obourgain.elasticsearch.http.response.entity.aggs.Terms;
 
 public class SearchActionHandlerTest extends AbstractTest {
 
@@ -47,5 +49,31 @@ public class SearchActionHandlerTest extends AbstractTest {
             Assertions.assertThat(e.getMessage()).contains("Failed to parse source");
             Assertions.assertThat(e.getMessage()).contains("ElasticsearchParseException");
         }
+    }
+
+    @Test
+    public void should_search_with_agg() throws IOException, ExecutionException, InterruptedException {
+        BytesReference source = source().bytes();
+        Map<String, Object> expected = SourceLookup.sourceAsMap(source);
+        index(THE_INDEX, THE_TYPE, THE_ID, expected);
+
+        refresh();
+
+        SearchRequest searchRequest = new SearchRequest(THE_INDEX).types(THE_TYPE)
+                .source(new SearchSourceBuilder()
+                        .query(matchAllQuery())
+                        .aggregation(AggregationBuilders
+                                .terms("foo")
+                                .field("the_string_field")));
+
+        SearchResponse searchResponse = httpClient.search(searchRequest).get();
+
+        assertShardsSuccessfulForIT(searchResponse.getShards(), THE_INDEX);
+        Assertions.assertThat(searchResponse.getAggregations()).isNotNull();
+        Assertions.assertThat(searchResponse.getAggregations().getTerms("foo")).isNotNull();
+
+        Assertions.assertThat(searchResponse.getAggregations().getTerms("foo").getSumOtherDocCount()).isEqualTo(0);
+        Assertions.assertThat(searchResponse.getAggregations().getTerms("foo").getBuckets()).hasSize(1);
+        Assertions.assertThat(searchResponse.getAggregations().getTerms("foo").getBuckets()).contains(new Terms.Bucket(0, "the_string_value", 1, null));
     }
 }

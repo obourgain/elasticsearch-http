@@ -2,18 +2,16 @@ package com.github.obourgain.elasticsearch.http.handler.search.search;
 
 import java.io.IOException;
 import org.elasticsearch.common.bytes.BytesReference;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
-import org.elasticsearch.common.xcontent.XContentType;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.Hits;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
+import com.github.obourgain.elasticsearch.http.response.entity.aggs.Aggregations;
 import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
 import io.netty.buffer.ByteBuf;
-import lombok.Getter;
 import lombok.Builder;
+import lombok.Getter;
 import rx.Observable;
 
 @Builder
@@ -26,7 +24,7 @@ public class SearchResponse {
     private long tookInMillis;
     private boolean timedOut;
     private boolean terminatedEarly;
-    private byte[] aggregations;
+    private Aggregations aggregations;
 
     public static Observable<SearchResponse> parse(ByteBuf byteBuf) {
         return Observable.just(doParse(new ByteBufBytesReference(byteBuf)));
@@ -59,10 +57,8 @@ public class SearchResponse {
                         builder.shards(ShardParser.parseInner(parser));
                     } else if ("hits".equals(currentFieldName)) {
                         builder.hits(Hits.parse(parser));
-                    } else if("aggregations".equals(currentFieldName)) {
-                        XContentBuilder docBuilder = XContentFactory.contentBuilder(XContentType.JSON);
-                        docBuilder.copyCurrentStructure(parser);
-                        builder.aggregations(docBuilder.bytes().array());
+                    } else if ("aggregations".equals(currentFieldName)) {
+                        builder.aggregations(Aggregations.parse(parser));
                     }
                 }
                 // TODO shard failures

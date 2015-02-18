@@ -10,8 +10,8 @@ import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.parser.FieldsParser;
 import com.github.obourgain.elasticsearch.http.response.parser.SourceParser;
 import io.netty.buffer.ByteBuf;
-import lombok.Getter;
 import lombok.Builder;
+import lombok.Getter;
 import rx.Observable;
 
 @Builder

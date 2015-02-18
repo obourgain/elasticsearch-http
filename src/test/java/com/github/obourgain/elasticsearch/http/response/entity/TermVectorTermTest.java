@@ -7,7 +7,7 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.junit.Test;
 
-public class TermTest {
+public class TermVectorTermTest {
 
     @Test
     public void should_parse_term() throws Exception {

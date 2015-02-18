@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.elasticsearch.common.xcontent.XContentParser;
-import lombok.Getter;
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
 @Getter

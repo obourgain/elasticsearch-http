@@ -1,0 +1,34 @@
+{
+  "messages": {
+    "buckets": {
+      "the_first_filter": {
+        "doc_count": 34,
+        "foo": {
+          "buckets": [
+            {
+              "key": "the",
+              "doc_count": 1,
+              "author_count": {
+                "value": 2
+              }
+            }
+          ]
+        }
+      },
+      "the_second_filter": {
+        "doc_count": 439,
+        "foo": {
+          "buckets": [
+            {
+              "key": "message",
+              "doc_count": 1,
+              "author_count": {
+                "value": 3
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

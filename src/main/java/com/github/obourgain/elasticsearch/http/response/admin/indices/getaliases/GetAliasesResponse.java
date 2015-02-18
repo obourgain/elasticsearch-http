@@ -18,8 +18,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import io.netty.buffer.ByteBuf;
-import lombok.Getter;
 import lombok.Builder;
+import lombok.Getter;
 import rx.Observable;
 
 @Getter

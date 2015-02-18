@@ -1,0 +1,8 @@
+{
+  "all_products" : {
+    "doc_count" : 100,
+    "avg_price" : {
+      "value" : 56.3
+    }
+  }
+}

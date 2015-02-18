@@ -8,8 +8,8 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import io.netty.buffer.ByteBuf;
-import lombok.Getter;
 import lombok.Builder;
+import lombok.Getter;
 import rx.Observable;
 
 @Getter

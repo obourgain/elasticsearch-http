@@ -34,6 +34,7 @@ import com.github.obourgain.elasticsearch.http.handler.admin.indices.refresh.Ref
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.settings.GetSettingsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.settings.UpdateSettingsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.validate.ValidateQueryActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.admin.indices.validate.ValidateQueryResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.close.CloseIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.create.CreateIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.DeleteIndexResponse;
@@ -45,7 +46,6 @@ import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenI
 import com.github.obourgain.elasticsearch.http.response.admin.indices.optimize.OptimizeResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.refresh.RefreshResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.template.put.PutIndexTemplateResponse;
-import com.github.obourgain.elasticsearch.http.handler.admin.indices.validate.ValidateQueryResponse;
 
 /**
  * @author olivier bourgain

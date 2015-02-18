@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.elasticsearch.common.xcontent.XContentParser;
-import lombok.Getter;
 import lombok.Builder;
+import lombok.Getter;
 
 @Getter
 @Builder

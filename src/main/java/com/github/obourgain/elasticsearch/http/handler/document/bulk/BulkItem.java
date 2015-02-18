@@ -2,8 +2,8 @@ package com.github.obourgain.elasticsearch.http.handler.document.bulk;
 
 import java.io.IOException;
 import org.elasticsearch.common.xcontent.XContentParser;
-import lombok.Getter;
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
 @Getter

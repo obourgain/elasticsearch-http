@@ -1,0 +1,16 @@
+{
+  "grade_stats": {
+    "count": 9,
+    "min": 72,
+    "max": 99,
+    "avg": 86,
+    "sum": 774,
+    "sum_of_squares": 67028,
+    "variance": 51.55555555555556,
+    "std_deviation": 7.180219742846005,
+    "std_deviation_bounds": {
+      "upper": 100.36043948569201,
+      "lower": 71.63956051430799
+    }
+  }
+}

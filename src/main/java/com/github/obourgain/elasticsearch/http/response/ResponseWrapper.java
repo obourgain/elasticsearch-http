@@ -147,7 +147,7 @@ public class ResponseWrapper<Req> {
     }
 
     private EntityWrapper entityWrapper;
-//    private Response response;
+    //    private Response response;
     private static final Joiner settingsJoiner = Joiner.on(".");
 
     private Req request;

@@ -1,0 +1,9 @@
+{
+  "grades_stats": {
+    "count": 6,
+    "min": 60,
+    "max": 98,
+    "avg": 78.5,
+    "sum": 471
+  }
+}

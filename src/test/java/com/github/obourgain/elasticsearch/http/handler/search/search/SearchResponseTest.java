@@ -6,6 +6,7 @@ import org.elasticsearch.common.bytes.BytesArray;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.TestFilesUtils;
 import com.github.obourgain.elasticsearch.http.response.entity.Hit;
+import com.github.obourgain.elasticsearch.http.response.entity.aggs.Terms;
 
 public class SearchResponseTest {
 
@@ -59,5 +60,12 @@ public class SearchResponseTest {
         assertThat(hits.get(0).getId()).isEqualTo("the_id");
         assertThat(hits.get(0).getScore()).isEqualTo(1);
         assertThat(hits.get(0).getSource().length).isGreaterThan(1);
+
+        assertThat(searchResponse.getAggregations()).isNotNull();
+        Terms words = searchResponse.getAggregations().getTerms("words");
+        assertThat(words).isNotNull();
+        assertThat(words.getBuckets()).hasSize(2);
+        assertThat(words.getDocCountErrorUpperBound()).isEqualTo(3);
+        assertThat(words.getSumOtherDocCount()).isEqualTo(2);
     }
 }

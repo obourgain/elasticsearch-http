@@ -29,10 +29,10 @@ public class TermVectorTest {
 
         assertThat(terms).hasSize(2);
         Term term = terms.get(0);
-        TermTest.assertTestTerm(term);
+        TermVectorTermTest.assertTestTerm(term);
 
         Term term2 = terms.get(1);
-        TermTest.assertTwitterTerm(term2);
+        TermVectorTermTest.assertTwitterTerm(term2);
 
         assertTermVector(termVector);
     }
@@ -42,8 +42,8 @@ public class TermVectorTest {
         assertFieldStatistics(termVector);
 
         assertThat(termVector.getTerms()).hasSize(2);
-        TermTest.assertTestTerm(termVector.getTerms().get(0));
-        TermTest.assertTwitterTerm(termVector.getTerms().get(1));
+        TermVectorTermTest.assertTestTerm(termVector.getTerms().get(0));
+        TermVectorTermTest.assertTwitterTerm(termVector.getTerms().get(1));
     }
 
     public static void assertFieldStatistics(TermVector termVector) {

@@ -1,8 +1,8 @@
 package com.github.obourgain.elasticsearch.http.handler.document.termvectors;
 
 import com.github.obourgain.elasticsearch.http.response.entity.TermVector;
-import lombok.Getter;
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
 @Getter

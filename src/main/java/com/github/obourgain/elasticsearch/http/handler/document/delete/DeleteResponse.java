@@ -1,7 +1,7 @@
 package com.github.obourgain.elasticsearch.http.handler.document.delete;
 
-import lombok.Getter;
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
 @Getter

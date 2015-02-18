@@ -2,8 +2,8 @@ package com.github.obourgain.elasticsearch.http.handler.document.get;
 
 import java.util.Map;
 import org.elasticsearch.index.get.GetField;
-import lombok.Getter;
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
 @Getter

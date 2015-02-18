@@ -1,0 +1,16 @@
+{
+  "words": {
+    "doc_count_error_upper_bound": 3,
+    "sum_other_doc_count": 2,
+    "buckets": [
+      {
+        "key": "message",
+        "doc_count": 1
+      },
+      {
+        "key": "the",
+        "doc_count": 1
+      }
+    ]
+  }
+}

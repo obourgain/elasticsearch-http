@@ -8,8 +8,8 @@ import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
 import io.netty.buffer.ByteBuf;
-import lombok.Getter;
 import lombok.Builder;
+import lombok.Getter;
 import rx.Observable;
 
 @Builder

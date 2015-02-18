@@ -1,8 +1,8 @@
 package com.github.obourgain.elasticsearch.http.response.entity;
 
 import java.util.Map;
-import lombok.Getter;
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
 @Getter
