@@ -90,23 +90,14 @@ public class SignificantTerms extends AbtractAggregation {
 
 
     @Getter
-    @EqualsAndHashCode
+    @EqualsAndHashCode(callSuper = true)
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Bucket {
+    public static class Bucket extends AbstractBucket {
         @Nullable
         private String key;
         private long docCount;
         private double score;
         private double bgCount;
-        private Aggregations aggregations;
-
-        private void addSubAgg(String name, XContentBuilder rawAgg) {
-            if (aggregations == null) {
-                aggregations = new Aggregations();
-            }
-            aggregations.addRawAgg(name, rawAgg);
-        }
-
     }
 }

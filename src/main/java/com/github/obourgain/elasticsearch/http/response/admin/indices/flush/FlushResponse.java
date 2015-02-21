@@ -15,7 +15,7 @@ import rx.Observable;
 public class FlushResponse {
 
     private Shards shards;
-    private int status;
+    private final int status;
     private String error;
 
     public FlushResponse(Shards shards, int status) {

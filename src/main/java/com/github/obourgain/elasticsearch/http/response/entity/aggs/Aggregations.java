@@ -16,7 +16,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 
 public class Aggregations {
 
-    private Map<String, Aggregation> parsed = new HashMap<>();
+    private final Map<String, Aggregation> parsed = new HashMap<>();
     private final Map<String, XContentBuilder> rawAggs = new HashMap<>();
 
     public Terms getTerms(final String name) {

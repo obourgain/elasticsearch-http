@@ -22,8 +22,8 @@ public class Foo {
 
     static CountDownLatch latch = new CountDownLatch(ITERATIONS);
 
-    static AtomicInteger count = new AtomicInteger();
-    static AtomicInteger error = new AtomicInteger();
+    static final AtomicInteger count = new AtomicInteger();
+    static final AtomicInteger error = new AtomicInteger();
 
     static volatile long start;
 

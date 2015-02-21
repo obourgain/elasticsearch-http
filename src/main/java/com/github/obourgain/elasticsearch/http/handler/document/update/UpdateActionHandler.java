@@ -68,7 +68,7 @@ public class UpdateActionHandler {
         }
     }
 
-    public static void buildRequest(UpdateRequest request, final RequestUriBuilder uriBuilder) throws IOException {
+    public static void buildRequest(UpdateRequest request, final RequestUriBuilder uriBuilder) {
         if (request.version() != Versions.MATCH_ANY) {
             uriBuilder.addQueryParameter("version", request.version());
         }

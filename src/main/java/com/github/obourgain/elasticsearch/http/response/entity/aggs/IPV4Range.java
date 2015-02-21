@@ -83,24 +83,15 @@ public class IPV4Range extends AbtractAggregation {
     }
 
     @Getter
-    @EqualsAndHashCode
+    @EqualsAndHashCode(callSuper = true)
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Bucket {
+    public static class Bucket extends AbstractBucket {
         private String key;
         private Double from;
         private String fromAsString;
         private Double to;
         private String toAsString;
         private long docCount;
-        private Aggregations aggregations;
-
-        private void addSubAgg(String name, XContentBuilder rawAgg) {
-            if (aggregations == null) {
-                aggregations = new Aggregations();
-            }
-            aggregations.addRawAgg(name, rawAgg);
-        }
-
     }
 }

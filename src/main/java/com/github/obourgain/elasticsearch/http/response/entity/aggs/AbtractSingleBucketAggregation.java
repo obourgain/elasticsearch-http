@@ -9,7 +9,7 @@ import lombok.Getter;
 public abstract class AbtractSingleBucketAggregation extends AbtractAggregation {
 
     private final long docCount;
-    private Aggregations aggregations;
+    private final Aggregations aggregations;
 
     protected AbtractSingleBucketAggregation(String name, long docCount, Aggregations aggregations) {
         super(name);
@@ -88,6 +88,6 @@ public abstract class AbtractSingleBucketAggregation extends AbtractAggregation 
     @Getter
     protected static class ParseResult {
         private long docCount;
-        private Aggregations aggregations = new Aggregations();
+        private final Aggregations aggregations = new Aggregations();
     }
 }

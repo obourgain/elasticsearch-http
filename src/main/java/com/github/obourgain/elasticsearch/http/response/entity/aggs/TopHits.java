@@ -78,22 +78,13 @@ public class TopHits extends AbtractAggregation {
     }
 
     @Getter
-    @EqualsAndHashCode
+    @EqualsAndHashCode(callSuper = true)
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Bucket {
+    public static class Bucket extends AbstractBucket {
         private long docCountErrorUpperBound;
         private String key;
         //        private String keyAsString;
         private long docCount;
-        private Aggregations aggregations;
-
-        private void addSubAgg(String name, XContentBuilder rawAgg) {
-            if (aggregations == null) {
-                aggregations = new Aggregations();
-            }
-            aggregations.addRawAgg(name, rawAgg);
-        }
-
     }
 }

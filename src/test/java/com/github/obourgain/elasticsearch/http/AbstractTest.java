@@ -79,7 +79,7 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
         ).actionGet();
     }
 
-    protected void deleteDoc() throws IOException {
+    protected void deleteDoc() {
         transportClient.delete(Requests.deleteRequest(THE_INDEX).type(THE_TYPE).id(THE_ID).refresh(true)).actionGet();
     }
 
