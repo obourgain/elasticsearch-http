@@ -234,7 +234,15 @@ public class Aggregations {
         });
     }
 
-    // TODO geodistance
+    public GeoDistance getGeoDistance(final String name) {
+        return findOrCreate(name, new Converter<GeoDistance>() {
+            @Override
+            public GeoDistance convert(XContentParser parser) {
+                return GeoDistance.parse(parser, name);
+            }
+        });
+    }
+
     // TODO geohash grid
 
     private <T extends Aggregation> T findOrCreate(String name, Converter<T> converter) {
