@@ -127,7 +127,6 @@ public class Aggregations {
         });
     }
 
-
     public TopHits getTopHits(final String name) {
         return findOrCreate(name, new Converter<TopHits>() {
             @Override
@@ -137,7 +136,14 @@ public class Aggregations {
         });
     }
 
-    // TODO scripted metric / just make a map ?
+    public ScriptedMetric getScriptedMetric(final String name) {
+        return findOrCreate(name, new Converter<ScriptedMetric>() {
+            @Override
+            public ScriptedMetric convert(XContentParser parser) {
+                return ScriptedMetric.parse(parser, name);
+            }
+        });
+    }
 
     public Global getGlobal(final String name) {
         return findOrCreate(name, new Converter<Global>() {
