@@ -100,7 +100,14 @@ public class Aggregations {
         });
     }
 
-    // TODO percentilesRank w/ keyed
+    public PercentileRanks getPercentileRanks(final String name) {
+        return findOrCreate(name, new Converter<PercentileRanks>() {
+            @Override
+            public PercentileRanks convert(XContentParser parser) {
+                return PercentileRanks.parse(parser, name);
+            }
+        });
+    }
 
     public Cardinality getCardinality(final String name) {
         return findOrCreate(name, new Converter<Cardinality>() {
