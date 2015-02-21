@@ -11,31 +11,31 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public class GeoHash extends AbstractAggregation {
+public abstract class AbstractHistogram<T extends AbstractHistogram<?>> extends AbstractAggregation {
 
     private List<Bucket> buckets;
-
-    public GeoHash(String name) {
-        super(name);
-    }
 
     public List<Bucket> getBuckets() {
         return buckets;
     }
 
-    public static GeoHash parse(XContentParser parser, String name) {
+    public T parse(XContentParser parser, String name) {
         try {
-            GeoHash range = new GeoHash(name);
+            this.name = name;
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
                 if (token == XContentParser.Token.FIELD_NAME) {
                     currentFieldName = parser.currentName();
+                } else if (token == XContentParser.Token.START_OBJECT && "buckets".equals(currentFieldName)) {
+                    // keyed
+                    buckets = parseKeyedBuckets(parser);
                 } else if (token == XContentParser.Token.START_ARRAY && "buckets".equals(currentFieldName)) {
-                    range.buckets = parseBuckets(parser);
+                    // not keyed
+                    buckets = parseBuckets(parser);
                 }
             }
-            return range;
+            return (T) this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -52,6 +52,22 @@ public class GeoHash extends AbstractAggregation {
         return result;
     }
 
+    protected static List<Bucket> parseKeyedBuckets(XContentParser parser) throws IOException {
+        XContentParser.Token token;
+        List<Bucket> result = new ArrayList<>();
+        String currentFieldName = null;
+        while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
+            if (token == XContentParser.Token.FIELD_NAME) {
+                currentFieldName = parser.text();
+            } else if (token == XContentParser.Token.START_OBJECT) {
+                Bucket bucket = parseBucket(parser);
+                bucket.keyAsString = currentFieldName;
+                result.add(bucket);
+            }
+        }
+        return result;
+    }
+
     protected static Bucket parseBucket(XContentParser parser) throws IOException {
         XContentParser.Token token;
         String currentFieldName = null;
@@ -60,10 +76,10 @@ public class GeoHash extends AbstractAggregation {
             if (token == XContentParser.Token.FIELD_NAME) {
                 currentFieldName = parser.currentName();
             } else if (token.isValue()) {
-                if ("doc_count".equals(currentFieldName)) {
+                if ("key".equals(currentFieldName)) {
+                    bucket.key = parser.longValue();
+                } else if ("doc_count".equals(currentFieldName)) {
                     bucket.docCount = parser.longValue();
-                } else if ("key".equals(currentFieldName)) {
-                    bucket.key = parser.text();
                 }
             } else if (token == XContentParser.Token.START_OBJECT) {
                 Pair<String, XContentBuilder> agg = Aggregations.parseInnerAgg(parser, currentFieldName);
@@ -78,7 +94,8 @@ public class GeoHash extends AbstractAggregation {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Bucket extends AbstractBucket {
-        private String key;
+        private String keyAsString;
+        private long key;
         private long docCount;
     }
 }

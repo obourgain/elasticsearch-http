@@ -1,7 +1,6 @@
 package com.github.obourgain.elasticsearch.http.response.entity.aggs;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import java.util.List;
 import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.xcontent.XContentHelper;
@@ -14,7 +13,7 @@ public class PercentilesTest {
     public void should_parse() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/percentiles/percentiles.json");
 
-        Percentiles percentilesAgg = Percentiles.parse(XContentHelper.createParser(new BytesArray(json)), "load_time_outlier");
+        Percentiles percentilesAgg = new Percentiles().parse(XContentHelper.createParser(new BytesArray(json)), "load_time_outlier");
 
         assertThat(percentilesAgg.getName()).isEqualTo("load_time_outlier");
 
@@ -38,7 +37,7 @@ public class PercentilesTest {
     public void should_parse_keyed() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/percentiles/percentiles_without_key.json");
 
-        Percentiles percentilesAgg = Percentiles.parse(XContentHelper.createParser(new BytesArray(json)), "load_time_outlier");
+        Percentiles percentilesAgg = new Percentiles().parse(XContentHelper.createParser(new BytesArray(json)), "load_time_outlier");
 
         assertThat(percentilesAgg.getName()).isEqualTo("load_time_outlier");
 

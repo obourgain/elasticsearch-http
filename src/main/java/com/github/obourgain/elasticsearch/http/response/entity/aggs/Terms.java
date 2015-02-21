@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-public class Terms extends AbtractAggregation {
+public class Terms extends AbstractAggregation {
 
     private long sumOtherDocCount;
     private long docCountErrorUpperBound;
@@ -76,7 +76,7 @@ public class Terms extends AbtractAggregation {
                 } else if ("doc_count".equals(currentFieldName)) {
                     bucket.docCount = parser.longValue();
                 }
-            } else if (token == XContentParser.Token.START_OBJECT) {
+            } else if (token == XContentParser.Token.START_OBJECT && currentFieldName != null) { // parse as sub agg only if not at first level
                 Pair<String, XContentBuilder> agg = Aggregations.parseInnerAgg(parser, currentFieldName);
                 bucket.addSubAgg(agg.getKey(), agg.getValue());
             }

@@ -3,23 +3,17 @@ package com.github.obourgain.elasticsearch.http.response.entity.aggs;
 import java.io.IOException;
 import org.elasticsearch.common.xcontent.XContentParser;
 
-public abstract class AbtractValueAggregation extends AbtractAggregation {
+public abstract class AbstractValueAggregation<T extends AbstractValueAggregation<?>> extends AbstractAggregation {
 
-    private final double value;
-
-    protected AbtractValueAggregation(String name, double value) {
-        super(name);
-        this.value = value;
-    }
+    private double value;
 
     public final double getValue() {
         return value;
     }
 
-    protected static double parse(XContentParser parser) {
+    protected T parse(XContentParser parser, String name) {
         try {
-            boolean found = false;
-            double value = 0;
+            this.name = name;
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -27,15 +21,12 @@ public abstract class AbtractValueAggregation extends AbtractAggregation {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
                     if ("value".equals(currentFieldName)) {
-                        value = parser.doubleValue();
-                        found = true;
+                        this.value = parser.doubleValue();
+                        return (T) this;
                     }
                 }
             }
-            if (!found) {
-                throw new IllegalStateException("value not found in response");
-            }
-            return value;
+            throw new IllegalStateException("value not found in response");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

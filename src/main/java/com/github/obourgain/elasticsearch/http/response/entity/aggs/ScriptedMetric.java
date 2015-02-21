@@ -5,7 +5,7 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import lombok.Getter;
 
 @Getter
-public class ScriptedMetric extends AbtractAggregation {
+public class ScriptedMetric extends AbstractAggregation {
 
     private final String value;
 

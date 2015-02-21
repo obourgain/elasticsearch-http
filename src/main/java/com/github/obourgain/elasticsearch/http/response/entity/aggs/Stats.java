@@ -5,7 +5,7 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import lombok.Getter;
 
 @Getter
-public class Stats extends AbtractAggregation {
+public class Stats extends AbstractAggregation {
 
     protected long count;
     protected double min;

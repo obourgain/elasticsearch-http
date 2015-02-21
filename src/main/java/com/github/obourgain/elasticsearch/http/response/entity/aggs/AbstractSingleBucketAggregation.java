@@ -4,17 +4,14 @@ import java.io.IOException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentParser;
-import lombok.Getter;
 
-public abstract class AbtractSingleBucketAggregation extends AbtractAggregation {
+public abstract class AbstractSingleBucketAggregation<T extends AbstractSingleBucketAggregation<?>> extends AbstractAggregation {
 
-    private final long docCount;
-    private final Aggregations aggregations;
+    private long docCount;
+    private Aggregations aggregations;
 
-    protected AbtractSingleBucketAggregation(String name, long docCount, Aggregations aggregations) {
-        super(name);
-        this.docCount = docCount;
-        this.aggregations = aggregations;
+    protected AbstractSingleBucketAggregation() {
+
     }
 
     public final long getDocCount() {
@@ -25,11 +22,14 @@ public abstract class AbtractSingleBucketAggregation extends AbtractAggregation 
         return aggregations;
     }
 
-    protected static ParseResult parse(XContentParser parser) {
+    protected T parse(XContentParser parser) {
+        return parse(parser, this.name);
+    }
+
+    protected T parse(XContentParser parser, String name) {
         try {
-            boolean found = false;
+            this.name = name;
             boolean atSubAggsLevel = false;
-            ParseResult parseResult = new ParseResult();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -37,8 +37,7 @@ public abstract class AbtractSingleBucketAggregation extends AbtractAggregation 
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
                     if ("doc_count".equals(currentFieldName)) {
-                        parseResult.docCount = parser.longValue();
-                        found = true;
+                        this.docCount = parser.longValue();
                     }
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if (atSubAggsLevel) {
@@ -48,19 +47,14 @@ public abstract class AbtractSingleBucketAggregation extends AbtractAggregation 
                     }
                 }
             }
-            if (!found) {
-                throw new IllegalStateException("value not found in response");
-            }
-            return parseResult;
+            throw new IllegalStateException("value not found in response");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected static ParseResult innerParse(XContentParser parser) {
+    protected T innerParse(XContentParser parser) {
         try {
-            boolean found = false;
-            ParseResult parseResult = new ParseResult();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -68,26 +62,20 @@ public abstract class AbtractSingleBucketAggregation extends AbtractAggregation 
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
                     if ("doc_count".equals(currentFieldName)) {
-                        parseResult.docCount = parser.longValue();
-                        found = true;
+                        this.docCount = parser.longValue();
                     }
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     Pair<String, XContentBuilder> agg = Aggregations.parseInnerAgg(parser, currentFieldName);
-                    parseResult.aggregations.addRawAgg(agg.getKey(), agg.getValue());
+                    if(this.aggregations == null) {
+                        this.aggregations = new Aggregations();
+                    }
+                    this.aggregations.addRawAgg(agg.getKey(), agg.getValue());
                 }
             }
-            if (!found) {
-                throw new IllegalStateException("value not found in response");
-            }
-            return parseResult;
+            return (T) this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @Getter
-    protected static class ParseResult {
-        private long docCount;
-        private final Aggregations aggregations = new Aggregations();
-    }
 }

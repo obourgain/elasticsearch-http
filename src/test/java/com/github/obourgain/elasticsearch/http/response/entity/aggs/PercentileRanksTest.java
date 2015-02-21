@@ -13,7 +13,7 @@ public class PercentileRanksTest {
     public void should_parse() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/percentileranks/percentileranks.json");
 
-        Percentiles percentilesAgg = Percentiles.parse(XContentHelper.createParser(new BytesArray(json)), "ranks");
+        PercentileRanks percentilesAgg = new PercentileRanks().parse(XContentHelper.createParser(new BytesArray(json)), "ranks");
 
         assertThat(percentilesAgg.getName()).isEqualTo("ranks");
 
@@ -45,7 +45,7 @@ public class PercentileRanksTest {
     public void should_parse_keyed() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/percentileranks/percentileranks_without_key.json");
 
-        Percentiles percentilesAgg = Percentiles.parse(XContentHelper.createParser(new BytesArray(json)), "ranks");
+        PercentileRanks percentilesAgg = new PercentileRanks().parse(XContentHelper.createParser(new BytesArray(json)), "ranks");
 
         assertThat(percentilesAgg.getName()).isEqualTo("ranks");
 

@@ -11,39 +11,39 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public class GeoDistance extends AbstractAggregation {
+public abstract class AbstractRange<T extends AbstractRange<?>> extends AbstractAggregation {
 
     private List<Bucket> buckets;
 
-    public GeoDistance(String name) {
-        super(name);
-    }
-
-    public List<Bucket> getBuckets() {
+    public List<AbstractRange.Bucket> getBuckets() {
         return buckets;
     }
 
-    public static GeoDistance parse(XContentParser parser, String name) {
+    public T parse(XContentParser parser, String name) {
         try {
-            GeoDistance range = new GeoDistance(name);
+            this.name = name;
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
                 if (token == XContentParser.Token.FIELD_NAME) {
                     currentFieldName = parser.currentName();
+                } else if (token == XContentParser.Token.START_OBJECT && "buckets".equals(currentFieldName)) {
+                    // keyed
+                    buckets = parseKeyedBuckets(parser);
                 } else if (token == XContentParser.Token.START_ARRAY && "buckets".equals(currentFieldName)) {
-                    range.buckets = parseBuckets(parser);
+                    // not keyed
+                    buckets = parseBuckets(parser);
                 }
             }
-            return range;
+            return (T) this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected static List<Bucket> parseBuckets(XContentParser parser) throws IOException {
+    protected static List<AbstractRange.Bucket> parseBuckets(XContentParser parser) throws IOException {
         XContentParser.Token token;
-        List<Bucket> result = new ArrayList<>();
+        List<AbstractRange.Bucket> result = new ArrayList<>();
         while ((token = parser.nextToken()) != XContentParser.Token.END_ARRAY) {
             if (token == XContentParser.Token.START_OBJECT) {
                 result.add(parseBucket(parser));
@@ -52,18 +52,38 @@ public class GeoDistance extends AbstractAggregation {
         return result;
     }
 
-    protected static Bucket parseBucket(XContentParser parser) throws IOException {
+    protected static List<AbstractRange.Bucket> parseKeyedBuckets(XContentParser parser) throws IOException {
+        XContentParser.Token token;
+        List<AbstractRange.Bucket> result = new ArrayList<>();
+        String currentFieldName = null;
+        while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
+            if (token == XContentParser.Token.FIELD_NAME) {
+                currentFieldName = parser.text();
+            } else if (token == XContentParser.Token.START_OBJECT) {
+                AbstractRange.Bucket bucket = parseBucket(parser);
+                bucket.key = currentFieldName;
+                result.add(bucket);
+            }
+        }
+        return result;
+    }
+
+    protected static AbstractRange.Bucket parseBucket(XContentParser parser) throws IOException {
         XContentParser.Token token;
         String currentFieldName = null;
-        Bucket bucket = new Bucket();
+        AbstractRange.Bucket bucket = new AbstractRange.Bucket();
         while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
             if (token == XContentParser.Token.FIELD_NAME) {
                 currentFieldName = parser.currentName();
             } else if (token.isValue()) {
                 if ("from".equals(currentFieldName)) {
                     bucket.from = parser.doubleValue();
+                } else if ("from_as_string".equals(currentFieldName)) {
+                    bucket.fromAsString = parser.text();
                 } else if ("to".equals(currentFieldName)) {
                     bucket.to = parser.doubleValue();
+                } else if ("to_as_string".equals(currentFieldName)) {
+                    bucket.toAsString = parser.text();
                 } else if ("doc_count".equals(currentFieldName)) {
                     bucket.docCount = parser.longValue();
                 } else if ("key".equals(currentFieldName)) {
@@ -82,9 +102,11 @@ public class GeoDistance extends AbstractAggregation {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Bucket extends AbstractBucket {
-        private String key;
-        private Double from;
-        private Double to;
-        private long docCount;
+        protected String key;
+        protected Double from;
+        protected String fromAsString;
+        protected Double to;
+        protected String toAsString;
+        protected long docCount;
     }
 }

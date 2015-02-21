@@ -13,7 +13,7 @@ public class DateRangeTest {
     public void should_parse() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/daterange/daterange.json");
 
-        DateRange ranges = DateRange.parse(XContentHelper.createParser(new BytesArray(json)), "range");
+        DateRange ranges = new DateRange().parse(XContentHelper.createParser(new BytesArray(json)), "range");
 
         assertThat(ranges.getName()).isEqualTo("range");
 

@@ -12,8 +12,8 @@ public class CardinalityTest {
     @Test
     public void should_parse_min() throws IOException {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/cardinality/cardinality.json");
-        Min min = Min.parse(XContentHelper.createParser(new BytesArray(json)), "author_count");
+        Cardinality cardinality = new Cardinality().parse(XContentHelper.createParser(new BytesArray(json)), "author_count");
 
-        assertThat(min.getValue()).isEqualTo(12);
+        assertThat(cardinality.getValue()).isEqualTo(12);
     }
 }

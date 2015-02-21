@@ -13,7 +13,7 @@ public class HistogramTest {
     public void should_parse() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/histogram/histogram.json");
 
-        Histogram prices = Histogram.parse(XContentHelper.createParser(new BytesArray(json)), "price");
+        Histogram prices = new Histogram().parse(XContentHelper.createParser(new BytesArray(json)), "price");
 
         assertThat(prices.getName()).isEqualTo("price");
 
@@ -43,7 +43,7 @@ public class HistogramTest {
     public void should_parse_keyed() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/histogram/histogram_keyed.json");
 
-        Histogram prices = Histogram.parse(XContentHelper.createParser(new BytesArray(json)), "price");
+        Histogram prices = new Histogram().parse(XContentHelper.createParser(new BytesArray(json)), "price");
 
         assertThat(prices.getName()).isEqualTo("price");
 

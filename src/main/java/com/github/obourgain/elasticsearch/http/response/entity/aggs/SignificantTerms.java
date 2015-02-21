@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public class SignificantTerms extends AbtractAggregation {
+public class SignificantTerms extends AbstractAggregation {
 
     private List<Bucket> buckets = new ArrayList<>();
     private long docCount;

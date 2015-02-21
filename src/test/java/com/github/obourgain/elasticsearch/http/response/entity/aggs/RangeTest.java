@@ -13,7 +13,7 @@ public class RangeTest {
     public void should_parse() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/range/range.json");
 
-        Range ranges = Range.parse(XContentHelper.createParser(new BytesArray(json)), "price_ranges");
+        Range ranges = new Range().parse(XContentHelper.createParser(new BytesArray(json)), "price_ranges");
 
         assertThat(ranges.getName()).isEqualTo("price_ranges");
 
@@ -46,7 +46,7 @@ public class RangeTest {
     public void should_parse_keyed() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/range/range_keyed.json");
 
-        Range ranges = Range.parse(XContentHelper.createParser(new BytesArray(json)), "price_ranges");
+        Range ranges = new Range().parse(XContentHelper.createParser(new BytesArray(json)), "price_ranges");
 
         assertThat(ranges.getName()).isEqualTo("price_ranges");
 

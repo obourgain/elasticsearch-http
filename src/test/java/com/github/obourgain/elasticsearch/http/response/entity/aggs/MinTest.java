@@ -13,7 +13,7 @@ public class MinTest {
     @Test
     public void should_parse_min() throws IOException {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/min/min.json");
-        Min min = Min.parse(XContentHelper.createParser(new BytesArray(json)), "min_price");
+        Min min = new Min().parse(XContentHelper.createParser(new BytesArray(json)), "min_price");
 
         assertThat(min.getValue()).isEqualTo(10d, offset(0.01d));
     }

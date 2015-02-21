@@ -1,7 +1,6 @@
 package com.github.obourgain.elasticsearch.http.response.entity.aggs;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import java.util.List;
 import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.xcontent.XContentHelper;

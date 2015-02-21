@@ -3,23 +3,17 @@ package com.github.obourgain.elasticsearch.http.response.entity.aggs;
 import java.io.IOException;
 import org.elasticsearch.common.xcontent.XContentParser;
 
-public class Cardinality extends AbtractAggregation {
+public class Cardinality extends AbstractAggregation {
 
-    private final long value;
-
-    protected Cardinality(String name, long value) {
-        super(name);
-        this.value = value;
-    }
+    private long value;
 
     public final double getValue() {
         return value;
     }
 
-    protected static Cardinality parse(XContentParser parser, String name) {
+    protected Cardinality parse(XContentParser parser, String name) {
         try {
-            boolean found = false;
-            long value = 0;
+            this.name = name;
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -28,14 +22,11 @@ public class Cardinality extends AbtractAggregation {
                 } else if (token.isValue()) {
                     if ("value".equals(currentFieldName)) {
                         value = parser.longValue();
-                        found = true;
+                        return this;
                     }
                 }
             }
-            if (!found) {
-                throw new IllegalStateException("value not found in response");
-            }
-            return new Cardinality(name, value);
+            throw new IllegalStateException("value not found in response");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-public class TopHits extends AbtractAggregation {
+public class TopHits extends AbstractAggregation {
 
     private Hits hits;
 

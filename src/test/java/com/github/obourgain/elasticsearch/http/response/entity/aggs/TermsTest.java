@@ -1,9 +1,7 @@
 package com.github.obourgain.elasticsearch.http.response.entity.aggs;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.junit.Test;
@@ -30,8 +28,8 @@ public class TermsTest {
         assertThat(buckets)
                 .hasSize(2)
                 .containsExactly(
-                        new Terms.Bucket(0, "message", 1, null),
-                        new Terms.Bucket(0, "the", 1, null));
+                        new Terms.Bucket(0, "message", 1),
+                        new Terms.Bucket(0, "the", 1));
     }
 
     @Test
@@ -47,8 +45,8 @@ public class TermsTest {
         assertThat(terms.getBuckets())
                 .hasSize(2)
                 .containsExactly(
-                        new Terms.Bucket(0, "message", 1, null),
-                        new Terms.Bucket(0, "the", 1, null));
+                        new Terms.Bucket(0, "message", 1),
+                        new Terms.Bucket(0, "the", 1));
     }
 
     @Test

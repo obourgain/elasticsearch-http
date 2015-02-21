@@ -15,7 +15,6 @@ import lombok.Getter;
 @Builder
 public class Hit {
 
-    private static final String[] EMPTY = {};
     private String index;
     private String type;
     private String id;

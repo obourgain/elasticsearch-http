@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public class Filters extends AbtractAggregation {
+public class Filters extends AbstractAggregation {
 
     private List<Bucket> buckets = new ArrayList<>();
 
@@ -100,22 +100,13 @@ public class Filters extends AbtractAggregation {
 
 
     @Getter
-    @EqualsAndHashCode
+    @EqualsAndHashCode(callSuper = true)
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Bucket {
+    public static class Bucket extends AbstractBucket {
         @Nullable
         private String key;
         //        private String keyAsString;
         private long docCount;
-        private Aggregations aggregations;
-
-        private void addSubAgg(String name, XContentBuilder rawAgg) {
-            if (aggregations == null) {
-                aggregations = new Aggregations();
-            }
-            aggregations.addRawAgg(name, rawAgg);
-        }
-
     }
 }

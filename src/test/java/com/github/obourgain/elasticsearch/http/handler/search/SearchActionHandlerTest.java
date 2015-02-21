@@ -74,6 +74,6 @@ public class SearchActionHandlerTest extends AbstractTest {
 
         Assertions.assertThat(searchResponse.getAggregations().getTerms("foo").getSumOtherDocCount()).isEqualTo(0);
         Assertions.assertThat(searchResponse.getAggregations().getTerms("foo").getBuckets()).hasSize(1);
-        Assertions.assertThat(searchResponse.getAggregations().getTerms("foo").getBuckets()).contains(new Terms.Bucket(0, "the_string_value", 1, null));
+        Assertions.assertThat(searchResponse.getAggregations().getTerms("foo").getBuckets()).contains(new Terms.Bucket(0, "the_string_value", 1));
     }
 }

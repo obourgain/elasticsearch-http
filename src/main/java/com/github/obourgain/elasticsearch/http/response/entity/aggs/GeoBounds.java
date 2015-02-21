@@ -5,7 +5,7 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import lombok.Getter;
 
 @Getter
-public class GeoBounds extends AbtractAggregation {
+public class GeoBounds extends AbstractAggregation {
     private double topLeftLat;
     private double topLeftLon;
     private double bottomRightLat;
@@ -26,9 +26,13 @@ public class GeoBounds extends AbtractAggregation {
                     currentFieldName = parser.currentName();
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("top_left".equals(currentFieldName)) {
-                        parseTopLeft(parser, geoBounds);
+                        Coordinates coordinates = coordinates(parser);
+                        geoBounds.topLeftLat = coordinates.lat;
+                        geoBounds.topLeftLon = coordinates.lon;
                     } else if ("bottom_right".equals(currentFieldName)) {
-                        parseBottomRight(parser, geoBounds);
+                        Coordinates coordinates = coordinates(parser);
+                        geoBounds.bottomRightLat = coordinates.lat;
+                        geoBounds.bottomRightLon = coordinates.lon;
                     }
                 }
             }
@@ -38,36 +42,27 @@ public class GeoBounds extends AbtractAggregation {
         }
     }
 
-    private static void parseTopLeft(XContentParser parser, GeoBounds geoBounds) throws IOException {
+    private static Coordinates coordinates(XContentParser parser) throws IOException {
         XContentParser.Token token;
         String currentFieldName = null;
+        Coordinates coordinates = new Coordinates();
         while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
             if (token == XContentParser.Token.FIELD_NAME) {
                 currentFieldName = parser.currentName();
             } else if (token.isValue()) {
                 if ("lat".equals(currentFieldName)) {
-                    geoBounds.topLeftLat = parser.doubleValue();
+                    coordinates.lat = parser.doubleValue();
                 } else if ("lon".equals(currentFieldName)) {
-                    geoBounds.topLeftLon = parser.doubleValue();
+                    coordinates.lon = parser.doubleValue();
                 }
             }
         }
+        return coordinates;
     }
 
-    private static void parseBottomRight(XContentParser parser, GeoBounds geoBounds) throws IOException {
-        XContentParser.Token token;
-        String currentFieldName = null;
-        while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
-            if (token == XContentParser.Token.FIELD_NAME) {
-                currentFieldName = parser.currentName();
-            } else if (token.isValue()) {
-                if ("lat".equals(currentFieldName)) {
-                    geoBounds.bottomRightLat = parser.doubleValue();
-                } else if ("lon".equals(currentFieldName)) {
-                    geoBounds.bottomRightLon = parser.doubleValue();
-                }
-            }
-        }
+    private static class Coordinates {
+        double lat;
+        double lon;
     }
 
 }

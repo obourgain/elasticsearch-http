@@ -13,7 +13,7 @@ public class IPV4RangeTest {
     public void should_parse() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/ipv4range/ipv4range.json");
 
-        IPV4Range ranges = IPV4Range.parse(XContentHelper.createParser(new BytesArray(json)), "ip_ranges");
+        IPV4Range ranges = new IPV4Range().parse(XContentHelper.createParser(new BytesArray(json)), "ip_ranges");
 
         assertThat(ranges.getName()).isEqualTo("ip_ranges");
 
@@ -43,7 +43,7 @@ public class IPV4RangeTest {
     public void should_parse_with_mask() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/aggs/ipv4range/ipv4range_with_mask.json");
 
-        IPV4Range ranges = IPV4Range.parse(XContentHelper.createParser(new BytesArray(json)), "ip_ranges");
+        IPV4Range ranges = new IPV4Range().parse(XContentHelper.createParser(new BytesArray(json)), "ip_ranges");
 
         assertThat(ranges.getName()).isEqualTo("ip_ranges");
 

@@ -14,6 +14,7 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentParser.Token;
 import org.elasticsearch.common.xcontent.XContentType;
 
+@SuppressWarnings("unused")
 public class Aggregations {
 
     private final Map<String, Aggregation> parsed = new HashMap<>();
@@ -32,7 +33,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Min>() {
             @Override
             public Min convert(XContentParser parser) {
-                return Min.parse(parser, name);
+                return new Min().parse(parser, name);
             }
         });
     }
@@ -41,7 +42,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Max>() {
             @Override
             public Max convert(XContentParser parser) {
-                return Max.parse(parser, name);
+                return new Max().parse(parser, name);
             }
         });
     }
@@ -50,7 +51,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Avg>() {
             @Override
             public Avg convert(XContentParser parser) {
-                return Avg.parse(parser, name);
+                return new Avg().parse(parser, name);
             }
         });
     }
@@ -59,7 +60,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Sum>() {
             @Override
             public Sum convert(XContentParser parser) {
-                return Sum.parse(parser, name);
+                return new Sum().parse(parser, name);
             }
         });
     }
@@ -86,7 +87,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<ValueCount>() {
             @Override
             public ValueCount convert(XContentParser parser) {
-                return ValueCount.parse(parser, name);
+                return new ValueCount().parse(parser, name);
             }
         });
     }
@@ -95,7 +96,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Percentiles>() {
             @Override
             public Percentiles convert(XContentParser parser) {
-                return Percentiles.parse(parser, name);
+                return new Percentiles().parse(parser, name);
             }
         });
     }
@@ -104,7 +105,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<PercentileRanks>() {
             @Override
             public PercentileRanks convert(XContentParser parser) {
-                return PercentileRanks.parse(parser, name);
+                return new PercentileRanks().parse(parser, name);
             }
         });
     }
@@ -113,7 +114,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Cardinality>() {
             @Override
             public Cardinality convert(XContentParser parser) {
-                return Cardinality.parse(parser, name);
+                return new Cardinality().parse(parser, name);
             }
         });
     }
@@ -149,7 +150,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Global>() {
             @Override
             public Global convert(XContentParser parser) {
-                return Global.parse(parser, name);
+                return new Global().parse(parser, name);
             }
         });
     }
@@ -158,7 +159,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Filter>() {
             @Override
             public Filter convert(XContentParser parser) {
-                return Filter.parse(parser, name);
+                return new Filter().parse(parser, name);
             }
         });
     }
@@ -176,7 +177,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Missing>() {
             @Override
             public Missing convert(XContentParser parser) {
-                return Missing.parse(parser, name);
+                return new Missing().parse(parser, name);
             }
         });
     }
@@ -185,7 +186,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Nested>() {
             @Override
             public Nested convert(XContentParser parser) {
-                return Nested.parse(parser, name);
+                return new Nested().parse(parser, name);
             }
         });
     }
@@ -194,7 +195,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<ReverseNested>() {
             @Override
             public ReverseNested convert(XContentParser parser) {
-                return ReverseNested.parse(parser, name);
+                return new ReverseNested().parse(parser, name);
             }
         });
     }
@@ -203,7 +204,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Children>() {
             @Override
             public Children convert(XContentParser parser) {
-                return Children.parse(parser, name);
+                return new Children().parse(parser, name);
             }
         });
     }
@@ -221,7 +222,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Range>() {
             @Override
             public Range convert(XContentParser parser) {
-                return Range.parse(parser, name);
+                return new Range().parse(parser, name);
             }
         });
     }
@@ -230,7 +231,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<DateRange>() {
             @Override
             public DateRange convert(XContentParser parser) {
-                return DateRange.parse(parser, name);
+                return new DateRange().parse(parser, name);
             }
         });
     }
@@ -239,7 +240,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<IPV4Range>() {
             @Override
             public IPV4Range convert(XContentParser parser) {
-                return IPV4Range.parse(parser, name);
+                return new IPV4Range().parse(parser, name);
             }
         });
     }
@@ -248,7 +249,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<Histogram>() {
             @Override
             public Histogram convert(XContentParser parser) {
-                return Histogram.parse(parser, name);
+                return new Histogram().parse(parser, name);
             }
         });
     }
@@ -257,7 +258,7 @@ public class Aggregations {
         return findOrCreate(name, new Converter<DateHistogram>() {
             @Override
             public DateHistogram convert(XContentParser parser) {
-                return DateHistogram.parse(parser, name);
+                return new DateHistogram().parse(parser, name);
             }
         });
     }
