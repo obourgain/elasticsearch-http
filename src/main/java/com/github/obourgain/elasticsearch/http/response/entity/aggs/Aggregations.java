@@ -216,8 +216,24 @@ public class Aggregations {
         });
     }
 
-    // TODO histogram
-    // TODO date histogram
+    public Histogram getHistogram(final String name) {
+        return findOrCreate(name, new Converter<Histogram>() {
+            @Override
+            public Histogram convert(XContentParser parser) {
+                return Histogram.parse(parser, name);
+            }
+        });
+    }
+
+    public DateHistogram getDateHistogram(final String name) {
+        return findOrCreate(name, new Converter<DateHistogram>() {
+            @Override
+            public DateHistogram convert(XContentParser parser) {
+                return DateHistogram.parse(parser, name);
+            }
+        });
+    }
+
     // TODO geodistance
     // TODO geohash grid
 

@@ -1,0 +1,18 @@
+{
+  "prices" : {
+    "buckets": [
+      {
+        "key": 0,
+        "doc_count": 2
+      },
+      {
+        "key": 50,
+        "doc_count": 4
+      },
+      {
+        "key": 150,
+        "doc_count": 3
+      }
+    ]
+  }
+}
