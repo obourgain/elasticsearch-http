@@ -1,0 +1,78 @@
+{
+  "top-tags": {
+    "buckets": [
+      {
+        "key": "windows-7",
+        "doc_count": 25365,
+        "top_tags_hits": {
+          "hits": {
+            "total": 25365,
+            "max_score": 1,
+            "hits": [
+              {
+                "_index": "stack",
+                "_type": "question",
+                "_id": "602679",
+                "_score": 1,
+                "_source": {
+                  "title": "Windows port opening"
+                },
+                "sort": [
+                  1370143231177
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "key": "linux",
+        "doc_count": 18342,
+        "top_tags_hits": {
+          "hits": {
+            "total": 18342,
+            "max_score": 1,
+            "hits": [
+              {
+                "_index": "stack",
+                "_type": "question",
+                "_id": "602672",
+                "_score": 1,
+                "_source": {
+                  "title": "Ubuntu RFID Screensaver lock-unlock"
+                },
+                "sort": [
+                  1370143379747
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "key": "windows",
+        "doc_count": 18119,
+        "top_tags_hits": {
+          "hits": {
+            "total": 18119,
+            "max_score": 1,
+            "hits": [
+              {
+                "_index": "stack",
+                "_type": "question",
+                "_id": "602678",
+                "_score": 1,
+                "_source": {
+                  "title": "If I change my computers date / time, what could be affected?"
+                },
+                "sort": [
+                  1370142868283
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

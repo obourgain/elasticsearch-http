@@ -128,9 +128,16 @@ public class Aggregations {
     }
 
 
-    // TODO top hits
-    // TODO scripted metric / just make a map ?
+    public TopHits getTopHits(final String name) {
+        return findOrCreate(name, new Converter<TopHits>() {
+            @Override
+            public TopHits convert(XContentParser parser) {
+                return TopHits.parse(parser, name);
+            }
+        });
+    }
 
+    // TODO scripted metric / just make a map ?
 
     public Global getGlobal(final String name) {
         return findOrCreate(name, new Converter<Global>() {
