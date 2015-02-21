@@ -1,0 +1,19 @@
+{
+  "price_ranges" : {
+    "buckets": [
+      {
+        "to": 50,
+        "doc_count": 2
+      },
+      {
+        "from": 50,
+        "to": 100,
+        "doc_count": 4
+      },
+      {
+        "from": 100,
+        "doc_count": 4
+      }
+    ]
+  }
+}

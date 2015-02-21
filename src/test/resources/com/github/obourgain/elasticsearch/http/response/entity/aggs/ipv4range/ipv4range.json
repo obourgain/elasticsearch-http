@@ -1,0 +1,16 @@
+{
+  "ip_ranges": {
+    "buckets": [
+      {
+        "to": 167772165,
+        "to_as_string": "10.0.0.5",
+        "doc_count": 4
+      },
+      {
+        "from": 167772165,
+        "from_as_string": "10.0.0.5",
+        "doc_count": 6
+      }
+    ]
+  }
+}

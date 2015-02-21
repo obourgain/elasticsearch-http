@@ -1,0 +1,13 @@
+{
+  "significantCrimeTypes": {
+    "doc_count": 47347,
+    "buckets": [
+      {
+        "key": "Bicycle theft",
+        "doc_count": 3640,
+        "score": 0.371235374214817,
+        "bg_count": 66799
+      }
+    ]
+  }
+}

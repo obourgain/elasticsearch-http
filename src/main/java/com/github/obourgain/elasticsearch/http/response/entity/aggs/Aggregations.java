@@ -134,7 +134,15 @@ public class Aggregations {
             }
         });
     }
-    // TODO filters
+
+    public Filters getFilters(final String name) {
+        return findOrCreate(name, new Converter<Filters>() {
+            @Override
+            public Filters convert(XContentParser parser) {
+                return Filters.parse(parser, name);
+            }
+        });
+    }
 
     public Missing getMissing(final String name) {
         return findOrCreate(name, new Converter<Missing>() {
@@ -172,13 +180,44 @@ public class Aggregations {
         });
     }
 
-    // TODO terms
-    // TODO significant terms
-    // TODO range
-    // TODO date range
-    // TODO ipv4 range
-    // TODO histogram range
-    // TODO date histogram range
+    public SignificantTerms getSignificantTerms(final String name) {
+        return findOrCreate(name, new Converter<SignificantTerms>() {
+            @Override
+            public SignificantTerms convert(XContentParser parser) {
+                return SignificantTerms.parse(parser, name);
+            }
+        });
+    }
+
+    public Range getRange(final String name) {
+        return findOrCreate(name, new Converter<Range>() {
+            @Override
+            public Range convert(XContentParser parser) {
+                return Range.parse(parser, name);
+            }
+        });
+    }
+
+    public DateRange getDateRange(final String name) {
+        return findOrCreate(name, new Converter<DateRange>() {
+            @Override
+            public DateRange convert(XContentParser parser) {
+                return DateRange.parse(parser, name);
+            }
+        });
+    }
+
+    public IPV4Range getIPV4Range(final String name) {
+        return findOrCreate(name, new Converter<IPV4Range>() {
+            @Override
+            public IPV4Range convert(XContentParser parser) {
+                return IPV4Range.parse(parser, name);
+            }
+        });
+    }
+
+    // TODO histogram
+    // TODO date histogram
     // TODO geodistance
     // TODO geohash grid
 
@@ -190,9 +229,11 @@ public class Aggregations {
             XContentBuilder builder = rawAggs.get(name);
             try {
                 if (builder != null) {
-                    t = converter.convert(XContentHelper.createParser(builder.bytes()));
-                    parsed.put(name, t);
-                    return t;
+                    try (XContentParser parser = XContentHelper.createParser(builder.bytes())) {
+                        t = converter.convert(parser);
+                        parsed.put(name, t);
+                        return t;
+                    }
                 } else {
                     return null;
                 }
@@ -222,10 +263,10 @@ public class Aggregations {
      */
     public static Aggregations parse(XContentParser parser) {
         try {
+            assert parser.currentToken() == START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
             Aggregations aggregations = new Aggregations();
             Token token;
             String currentFieldName = null;
-            assert parser.currentToken() == START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
             while ((token = parser.nextToken()) != END_OBJECT) {
                 if (token == FIELD_NAME) {
                     currentFieldName = parser.currentName();
