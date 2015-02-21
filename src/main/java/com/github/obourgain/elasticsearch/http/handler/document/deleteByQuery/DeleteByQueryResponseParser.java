@@ -16,10 +16,8 @@ public class DeleteByQueryResponseParser {
         return Observable.just(doParse(new ByteBufBytesReference(content)));
     }
 
-    private static DeleteByQueryResponse doParse(BytesReference body) {
-        try {
-            XContentParser parser = XContentHelper.createParser(body);
-
+    private static DeleteByQueryResponse doParse(BytesReference bytesReference) {
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             DeleteByQueryResponse.DeleteByQueryResponseBuilder builder = DeleteByQueryResponse.builder();
             XContentParser.Token token;
             String currentFieldName = null;

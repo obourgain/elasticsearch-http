@@ -23,9 +23,7 @@ public class RefreshResponse {
     }
 
     private static RefreshResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {

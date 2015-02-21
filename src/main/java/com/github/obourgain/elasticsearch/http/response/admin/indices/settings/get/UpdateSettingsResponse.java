@@ -25,9 +25,7 @@ public class UpdateSettingsResponse {
     }
 
     private static UpdateSettingsResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             UpdateSettingsResponseBuilder builder = builder();
             return null;
         } catch (IOException e) {

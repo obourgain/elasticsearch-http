@@ -23,9 +23,7 @@ public class PutIndexTemplateResponse {
     }
 
     private static PutIndexTemplateResponse doParse(BytesReference bytesReference, int status) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             PutIndexTemplateResponseBuilder builder = builder();
             builder.status(status);
             XContentParser.Token token;

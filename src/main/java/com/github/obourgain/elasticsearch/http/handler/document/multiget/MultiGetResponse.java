@@ -31,9 +31,7 @@ public class MultiGetResponse {
     }
 
     private static MultiGetResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             MultiGetResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;

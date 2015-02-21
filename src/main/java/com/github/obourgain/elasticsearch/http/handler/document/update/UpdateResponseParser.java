@@ -15,9 +15,7 @@ public class UpdateResponseParser {
     }
 
     private static UpdateResponse doParse(BytesReference bytesReference, int status) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             UpdateResponse.UpdateResponseBuilder builder = UpdateResponse.builder();
             builder.created(status == 201);
             XContentParser.Token token;

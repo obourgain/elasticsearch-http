@@ -21,10 +21,8 @@ public class ExistsResponse {
     }
 
     private static ExistsResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
-            ExistsResponseBuilder builder = ExistsResponse.builder();
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
+            ExistsResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {

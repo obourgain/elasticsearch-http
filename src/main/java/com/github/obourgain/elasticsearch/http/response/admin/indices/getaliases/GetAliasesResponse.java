@@ -33,10 +33,8 @@ public class GetAliasesResponse {
     }
 
     @VisibleForTesting
-    protected static GetAliasesResponse doParse(BytesReference body) {
-        try {
-            XContentParser parser = XContentHelper.createParser(body);
-
+    protected static GetAliasesResponse doParse(BytesReference bytesReference) {
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             ListMultimap<String, AliasMetaData> metaDatas = ArrayListMultimap.create();
 
             GetAliasesResponseBuilder builder = builder();

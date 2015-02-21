@@ -7,6 +7,7 @@ import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
+import com.sun.xml.internal.bind.v2.TODO;
 import io.netty.buffer.ByteBuf;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,9 +24,9 @@ public class GetSettingsResponse {
     }
 
     private static GetSettingsResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try {try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
+            //TODO
+        }
             GetSettingsResponseBuilder builder = builder();
             return null;
         } catch (IOException e) {

@@ -25,10 +25,8 @@ public class CountResponse {
     }
 
     private static CountResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
-            CountResponse.CountResponseBuilder builder = CountResponse.builder();
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
+            CountResponse.CountResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {

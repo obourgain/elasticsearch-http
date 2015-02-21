@@ -17,10 +17,8 @@ public class TermVectorResponseParser {
     }
 
     @VisibleForTesting
-    protected static TermVectorResponse doParse(BytesReference body) {
-        try {
-            XContentParser parser = XContentHelper.createParser(body);
-
+    protected static TermVectorResponse doParse(BytesReference bytesReference) {
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             TermVectorResponse.TermVectorResponseBuilder builder = TermVectorResponse.builder();
             XContentParser.Token token;
             String currentFieldName = null;

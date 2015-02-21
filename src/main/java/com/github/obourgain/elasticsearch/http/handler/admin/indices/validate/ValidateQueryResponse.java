@@ -24,9 +24,7 @@ public class ValidateQueryResponse {
     }
 
     protected static ValidateQueryResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             ValidateQueryResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;

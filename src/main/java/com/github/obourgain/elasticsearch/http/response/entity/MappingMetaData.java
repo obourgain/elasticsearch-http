@@ -19,8 +19,8 @@ public class MappingMetaData {
     }
 
     private static MappingMetaData doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
+            // TODO
             return null;
         } catch (IOException e) {
             throw new RuntimeException(e);

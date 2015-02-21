@@ -17,9 +17,7 @@ public class GetResponseParser {
     }
 
     private static GetResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             GetResponse.GetResponseBuilder builder = GetResponse.builder();
             XContentParser.Token token;
             String currentFieldName = null;

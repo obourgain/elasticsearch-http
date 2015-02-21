@@ -23,9 +23,7 @@ public class DeleteIndexResponse {
     }
 
     private static DeleteIndexResponse doParse(BytesReference bytesReference, int status) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             DeleteIndexResponseBuilder builder = builder();
             builder.status(status);
             XContentParser.Token token;

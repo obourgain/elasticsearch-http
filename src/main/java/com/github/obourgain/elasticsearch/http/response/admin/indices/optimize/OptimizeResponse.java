@@ -35,9 +35,7 @@ public class OptimizeResponse {
     }
 
     private static OptimizeResponse doParse(BytesReference bytesReference, int status) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             String error = null;
 
             XContentParser.Token token;

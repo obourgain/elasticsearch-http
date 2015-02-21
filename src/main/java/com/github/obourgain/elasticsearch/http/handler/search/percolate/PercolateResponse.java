@@ -28,10 +28,8 @@ public class PercolateResponse {
     }
 
     protected static PercolateResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
-            PercolateResponseBuilder builder = PercolateResponse.builder();
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
+            PercolateResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {

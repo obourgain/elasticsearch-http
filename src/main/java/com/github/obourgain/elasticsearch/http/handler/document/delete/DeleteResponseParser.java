@@ -19,9 +19,7 @@ public class DeleteResponseParser {
     }
 
     private static DeleteResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             DeleteResponse.DeleteResponseBuilder builder = DeleteResponse.builder();
             XContentParser.Token token;
             String currentFieldName = null;

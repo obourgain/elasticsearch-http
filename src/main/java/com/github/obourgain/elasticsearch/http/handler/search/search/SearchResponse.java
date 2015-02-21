@@ -30,10 +30,8 @@ public class SearchResponse {
         return Observable.just(doParse(new ByteBufBytesReference(byteBuf)));
     }
 
-    protected static SearchResponse doParse(BytesReference bytes) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytes);
-
+    protected static SearchResponse doParse(BytesReference bytesReference) {
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             SearchResponse.SearchResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;

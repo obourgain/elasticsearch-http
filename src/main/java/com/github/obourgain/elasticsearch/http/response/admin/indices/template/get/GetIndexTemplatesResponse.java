@@ -23,10 +23,9 @@ public class GetIndexTemplatesResponse {
     }
 
     private static GetIndexTemplatesResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             GetIndexTemplatesResponseBuilder builder = builder();
+            // TODO
             return null;
         } catch (IOException e) {
             throw new RuntimeException(e);

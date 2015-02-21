@@ -23,9 +23,7 @@ public class OpenIndexResponse {
     }
 
     private static OpenIndexResponse doParse(BytesReference bytesReference, int status) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             OpenIndexResponseBuilder builder = builder();
             builder.status(status);
             XContentParser.Token token;

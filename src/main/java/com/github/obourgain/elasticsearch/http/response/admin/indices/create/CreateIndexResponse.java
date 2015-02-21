@@ -23,9 +23,7 @@ public class CreateIndexResponse {
     }
 
     protected static CreateIndexResponse doParse(BytesReference bytesReference, int status) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             CreateIndexResponseBuilder builder = builder();
             builder.status(status);
             XContentParser.Token token;

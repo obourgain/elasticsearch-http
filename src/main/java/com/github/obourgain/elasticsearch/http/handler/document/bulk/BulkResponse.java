@@ -26,10 +26,8 @@ public class BulkResponse {
     }
 
     @VisibleForTesting
-    protected static BulkResponse doParse(BytesReference body) {
-        try {
-            XContentParser parser = XContentHelper.createParser(body);
-
+    protected static BulkResponse doParse(BytesReference bytesReference) {
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             List<BulkItem> items = new ArrayList<>();
 
             BulkResponseBuilder builder = builder();

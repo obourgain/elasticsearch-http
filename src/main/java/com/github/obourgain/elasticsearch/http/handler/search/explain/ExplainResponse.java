@@ -26,9 +26,7 @@ public class ExplainResponse {
     }
 
     protected static ExplainResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             ExplainResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;

@@ -23,10 +23,9 @@ public class GetMappingsResponse {
     }
 
     private static GetMappingsResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             GetMappingsResponseBuilder builder = builder();
+            // TODO
             return null;
         } catch (IOException e) {
             throw new RuntimeException(e);

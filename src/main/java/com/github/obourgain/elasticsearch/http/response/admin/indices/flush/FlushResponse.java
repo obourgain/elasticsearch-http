@@ -33,9 +33,7 @@ public class FlushResponse {
     }
 
     private static FlushResponse doParse(BytesReference bytesReference, int status) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             String error = null;
 
             XContentParser.Token token;

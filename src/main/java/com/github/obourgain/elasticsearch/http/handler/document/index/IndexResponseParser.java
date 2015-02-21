@@ -15,9 +15,7 @@ public class IndexResponseParser {
     }
 
     private static IndexResponse doParse(BytesReference bytesReference) {
-        try {
-            XContentParser parser = XContentHelper.createParser(bytesReference);
-
+        try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             IndexResponse.IndexResponseBuilder builder = IndexResponse.builder();
             XContentParser.Token token;
             String currentFieldName = null;
