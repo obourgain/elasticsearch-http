@@ -20,7 +20,6 @@ public class IndicesExistsResponse {
                 return new IndicesExistsResponse(true);
             case 404:
                 return new IndicesExistsResponse(false);
-            // TODO when cluster blocks, I get a 403
             default:
                 throw new IllegalStateException("status code " + status + " is not supported for indices exists request");
         }

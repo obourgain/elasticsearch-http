@@ -7,7 +7,6 @@ import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
-import com.sun.xml.internal.bind.v2.TODO;
 import io.netty.buffer.ByteBuf;
 import lombok.Builder;
 import lombok.Getter;

@@ -47,8 +47,6 @@ import com.github.obourgain.elasticsearch.http.handler.search.percolate.Percolat
 import com.github.obourgain.elasticsearch.http.handler.search.percolate.PercolateResponse;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchResponse;
-import com.github.obourgain.elasticsearch.http.url.RoundRobinUrlProviderStrategy;
-import com.github.obourgain.elasticsearch.http.url.UrlProviderStrategy;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.RxNetty;
 
@@ -66,7 +64,6 @@ public class HttpClient {
 
     private int maxRetries = DEFAULT_MAX_RETRIES;
     private int timeOut = DEFAULT_TIMEOUT_MILLIS;
-    private UrlProviderStrategy urlProviderStrategy;
     private HttpAdminClient httpAdminClient;
 
     IndexActionHandler indexActionHandler = new IndexActionHandler(this);
@@ -86,8 +83,6 @@ public class HttpClient {
 //    SuggestActionHandler suggestActionHandler = new SuggestActionHandler(this);
 
     public HttpClient(Collection<String> hosts) {
-        this.urlProviderStrategy = new RoundRobinUrlProviderStrategy(hosts);
-
         // client
         // searchShard
         // search template
@@ -105,10 +100,6 @@ public class HttpClient {
 
     public HttpAdminClient admin() {
         return httpAdminClient;
-    }
-
-    public String getUrl() {
-        return urlProviderStrategy.getUrl();
     }
 
     public void index(IndexRequest request, ActionListener<IndexResponse> listener) {

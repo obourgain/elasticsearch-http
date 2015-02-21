@@ -1,6 +1,5 @@
 package com.github.obourgain.elasticsearch.http.handler.document.update;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.support.replication.ShardReplicationOperationRequest;
