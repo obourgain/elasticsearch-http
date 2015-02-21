@@ -91,7 +91,15 @@ public class Aggregations {
         });
     }
 
-    // TODO percentiles w/ keyed
+    public Percentiles getPercentiles(final String name) {
+        return findOrCreate(name, new Converter<Percentiles>() {
+            @Override
+            public Percentiles convert(XContentParser parser) {
+                return Percentiles.parse(parser, name);
+            }
+        });
+    }
+
     // TODO percentilesRank w/ keyed
 
     public Cardinality getCardinality(final String name) {
