@@ -243,7 +243,14 @@ public class Aggregations {
         });
     }
 
-    // TODO geohash grid
+    public GeoHash getGeoHash(final String name) {
+        return findOrCreate(name, new Converter<GeoHash>() {
+            @Override
+            public GeoHash convert(XContentParser parser) {
+                return GeoHash.parse(parser, name);
+            }
+        });
+    }
 
     private <T extends Aggregation> T findOrCreate(String name, Converter<T> converter) {
         T t = (T) parsed.get(name);

@@ -1,0 +1,14 @@
+{
+  "myLarge-GrainGeoHashGrid": {
+    "buckets": [
+      {
+        "key": "svz",
+        "doc_count": 10964
+      },
+      {
+        "key": "sv8",
+        "doc_count": 3198
+      }
+    ]
+  }
+}
