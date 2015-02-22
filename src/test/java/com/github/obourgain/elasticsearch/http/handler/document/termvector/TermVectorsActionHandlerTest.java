@@ -15,7 +15,7 @@ import com.github.obourgain.elasticsearch.http.response.entity.Term;
 import com.github.obourgain.elasticsearch.http.response.entity.TermVector;
 import com.github.obourgain.elasticsearch.http.response.entity.Token;
 import com.github.obourgain.elasticsearch.http.handler.document.termvectors.TermVectorResponse;
-import com.github.obourgain.elasticsearch.http.handler.document.termvectors.TermVectorResponseParserTest;
+import com.github.obourgain.elasticsearch.http.handler.document.termvectors.TermVectorResponseTest;
 
 public class TermVectorsActionHandlerTest extends AbstractTest {
 
@@ -35,7 +35,7 @@ public class TermVectorsActionHandlerTest extends AbstractTest {
                 .selectedFields(new String[]{"text"});
 
         TermVectorResponse response = httpClient.termVectors(request).get();
-        TermVectorResponseParserTest.assertTermVectorResponse(response);
+        TermVectorResponseTest.assertTermVectorResponse(response);
     }
 
     @Test

@@ -9,9 +9,6 @@ import org.elasticsearch.common.bytes.BytesReference;
  */
 public class ValidateRequestAccessor {
 
-    /**
-     * This exposes the package visible constructor {@link ValidateQueryResponse#ValidateQueryResponse(boolean, java.util.List, int, int, int, java.util.List)}.
-     */
     public static ValidateQueryResponse build(boolean valid, List<QueryExplanation> queryExplanations, int totalShards, int successfulShards, int failedShards, List<ShardOperationFailedException> shardFailures) {
         return new ValidateQueryResponse(valid, queryExplanations, totalShards, successfulShards, failedShards, shardFailures);
     }

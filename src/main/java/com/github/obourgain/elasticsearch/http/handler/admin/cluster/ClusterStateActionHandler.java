@@ -69,7 +69,7 @@ public class ClusterStateActionHandler {
 
             String uri = "/_cluster/state/" + metrics + "/" + indices;
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPut(uri))
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createPut(uri))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<ClusterStateResponse>>() {
                         @Override

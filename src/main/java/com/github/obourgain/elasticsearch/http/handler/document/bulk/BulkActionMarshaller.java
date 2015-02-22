@@ -23,7 +23,7 @@ public class BulkActionMarshaller {
 
     public static final byte[] LINE_BREAK = "\n".getBytes(Charsets.US_ASCII);
 
-    public static Observable<byte[]> write(List<ActionRequest> actions) {
+    public static Observable<byte[]> lazyConvertToBytes(List<ActionRequest> actions) {
         return Observable.from(actions)
                 .flatMap(new Func1<ActionRequest, Observable<byte[]>>() {
                     @Override

@@ -46,7 +46,7 @@ public class PutMappingActionHandler {
             uriBuilder.addQueryParameter("timeout", request.timeout().toString());
             uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString());
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPost(uriBuilder.toString())
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createPost(uriBuilder.toString())
                     .withContent(request.source()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<PutMappingResponse>>() {

@@ -55,7 +55,7 @@ public class UpdateActionHandler {
                             return response.getContent().flatMap(new Func1<ByteBuf, Observable<UpdateResponse>>() {
                                 @Override
                                 public Observable<UpdateResponse> call(ByteBuf byteBuf) {
-                                    return UpdateResponseParser.parse(byteBuf, response.getStatus().code());
+                                    return UpdateResponse.parse(byteBuf, response.getStatus().code());
                                 }
                             });
                         }

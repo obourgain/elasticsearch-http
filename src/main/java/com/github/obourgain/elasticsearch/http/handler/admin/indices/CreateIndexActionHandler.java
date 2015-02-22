@@ -49,7 +49,6 @@ public class CreateIndexActionHandler {
     public void execute(CreateIndexRequest request, final ActionListener<CreateIndexResponse> listener) {
         logger.debug("create index request {}", request);
         try {
-            HttpClient httpClient = indicesAdminClient.getHttpClient();
 // TODO warmers
 // TODO creation date http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-create-index.html#_creation_date
 
@@ -115,7 +114,7 @@ public class CreateIndexActionHandler {
                         logger.warn("skipping unsupported custom field at index creation {} - {}", entry.getKey(), entry.getValue());
                     } else {
                         jsonBuilder.startObject(value.type());
-                        customFactory.toXContent(value, jsonBuilder, new ToXContent.MapParams(Collections.<String, String>emptyMap()));
+                        customFactory.toXContent(value, jsonBuilder, ToXContent.EMPTY_PARAMS);
                         jsonBuilder.endObject();
                     }
                 }
@@ -129,7 +128,7 @@ public class CreateIndexActionHandler {
             HttpClientRequest<ByteBuf> httpRequest = HttpClientRequest.createPut(uriBuilder.toString())
                     .withContent(body);
 
-            httpClient.client.submit(httpRequest)
+            indicesAdminClient.getHttpClient().submit(httpRequest)
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<CreateIndexResponse>>() {
                         @Override

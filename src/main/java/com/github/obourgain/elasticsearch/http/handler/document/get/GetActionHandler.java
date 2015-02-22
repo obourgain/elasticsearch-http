@@ -81,7 +81,7 @@ public class GetActionHandler {
                             return response.getContent().flatMap(new Func1<ByteBuf, Observable<GetResponse>>() {
                                 @Override
                                 public Observable<GetResponse> call(ByteBuf byteBuf) {
-                                    return GetResponseParser.parse(byteBuf);
+                                    return GetResponse.parse(byteBuf);
                                 }
                             });
                         }

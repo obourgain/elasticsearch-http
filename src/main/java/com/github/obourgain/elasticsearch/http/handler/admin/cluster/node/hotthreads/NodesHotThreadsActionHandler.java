@@ -57,7 +57,7 @@ public class NodesHotThreadsActionHandler {
             uriBuilder.addQueryParameter("threads", String.valueOf(threads));
             uriBuilder.addQueryParameter("type", type);
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createGet(uriBuilder.toString()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<NodesHotThreadsResponse>>() {
                         @Override

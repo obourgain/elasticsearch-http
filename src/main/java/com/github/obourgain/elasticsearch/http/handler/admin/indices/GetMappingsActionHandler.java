@@ -1,5 +1,6 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices;
 
+import static com.github.obourgain.elasticsearch.http.response.ErrorHandler.*;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsAction;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
@@ -11,6 +12,7 @@ import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObser
 import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
 import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
+import com.github.obourgain.elasticsearch.http.response.ValidStatusCodes;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.get.GetMappingsResponse;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
@@ -51,8 +53,8 @@ public class GetMappingsActionHandler {
 
             uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString());
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
-                    .flatMap(ErrorHandler.AS_FUNC)
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createGet(uriBuilder.toString()))
+                    .flatMap(HANDLES_404)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<GetMappingsResponse>>() {
                         @Override
                         public Observable<GetMappingsResponse> call(HttpClientResponse<ByteBuf> response) {

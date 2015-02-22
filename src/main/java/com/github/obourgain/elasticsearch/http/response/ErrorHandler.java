@@ -1,5 +1,6 @@
 package com.github.obourgain.elasticsearch.http.response;
 
+import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
 import java.util.Collections;
 import java.util.Set;
 import com.google.common.base.Charsets;
@@ -14,6 +15,13 @@ public class ErrorHandler {
         @Override
         public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
             return ErrorHandler.checkError(response);
+        }
+    };
+
+    public static Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>> HANDLES_404 = new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
+        @Override
+        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
+            return ErrorHandler.checkError(response, _404);
         }
     };
 

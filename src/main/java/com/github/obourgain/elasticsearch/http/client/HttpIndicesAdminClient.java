@@ -20,11 +20,11 @@ import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.CreateIndexActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.GetMappingsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.GetTemplatesActionHandler;
-import com.github.obourgain.elasticsearch.http.handler.admin.indices.IndicesAliasesActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.IndicesExistsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.PutIndexTemplateActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.close.CloseIndexActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.delete.DeleteIndexActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.admin.indices.exists.IndicesAliasesActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.flush.FlushActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.getaliases.GetAliasesActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.mapping.put.PutMappingActionHandler;
@@ -46,6 +46,7 @@ import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenI
 import com.github.obourgain.elasticsearch.http.response.admin.indices.optimize.OptimizeResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.refresh.RefreshResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.template.put.PutIndexTemplateResponse;
+import io.netty.buffer.ByteBuf;
 
 /**
  * @author olivier bourgain
@@ -54,7 +55,7 @@ public class HttpIndicesAdminClient {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpIndicesAdminClient.class);
 
-    private final HttpClient httpClient;
+    private final io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> httpClient;
     private ValidateQueryActionHandler validateQueryActionHandler = new ValidateQueryActionHandler(this);
 
     private CreateIndexActionHandler createIndexActionHandler = new CreateIndexActionHandler(this);
@@ -74,11 +75,11 @@ public class HttpIndicesAdminClient {
     private IndicesAliasesActionHandler indicesAliasesActionHandler = new IndicesAliasesActionHandler(this);
     private GetAliasesActionHandler getAliasesActionHandler = new GetAliasesActionHandler(this);
 
-    public HttpIndicesAdminClient(HttpClient httpClient) {
+    public HttpIndicesAdminClient(io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> httpClient) {
         this.httpClient = httpClient;
     }
 
-    public HttpClient getHttpClient() {
+    public io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> getHttpClient() {
         return httpClient;
     }
 

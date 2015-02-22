@@ -1,7 +1,6 @@
-package com.github.obourgain.elasticsearch.http.handler.admin.indices;
+package com.github.obourgain.elasticsearch.http.handler.admin.indices.exists;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +53,6 @@ public class IndicesAliasesActionHandler {
             jsonBuilder.startArray("actions");
 
             List<IndicesAliasesRequest.AliasActions> actions = request.getAliasActions();
-            List<Map<String, ? extends Map<String, Object>>> actionsAsMaps = new ArrayList<>();
             for (IndicesAliasesRequest.AliasActions action : actions) {
                 for (String alias : action.aliases()) {
                     for (String index : action.indices()) {
@@ -72,7 +70,7 @@ public class IndicesAliasesActionHandler {
             String body = jsonBuilder.string();
             uriBuilder.addIndicesOptions(request);
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createGet(uriBuilder.toString())
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createGet(uriBuilder.toString())
                     .withContent(body))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<IndicesAliasesResponse>>() {

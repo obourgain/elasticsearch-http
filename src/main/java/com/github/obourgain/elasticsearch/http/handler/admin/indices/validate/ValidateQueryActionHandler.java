@@ -35,7 +35,6 @@ public class ValidateQueryActionHandler {
     }
 
     public void execute(ValidateQueryRequest request, final ActionListener<ValidateQueryResponse> listener) {
-        // TODO test
         logger.debug("validate query request {}", request);
         try {
             RequestUriBuilder uriBuilder;
@@ -57,7 +56,7 @@ public class ValidateQueryActionHandler {
                 httpRequest.withContent(ValidateRequestAccessor.getSource(request).toBytes());
             }
 
-            httpClient.getHttpClient().client.submit(httpRequest)
+            httpClient.getHttpClient().submit(httpRequest)
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<ValidateQueryResponse>>() {
                         @Override

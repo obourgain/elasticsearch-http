@@ -90,8 +90,8 @@ public class HttpClient {
 //        tempActionHandlers.put(SearchScrollAction.INSTANCE, new SearchScrollActionHandler(this));
 
         // indices admin
-        this.httpAdminClient = new HttpAdminClient(this);
         client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder("localhost", 9501).build();
+        this.httpAdminClient = new HttpAdminClient(client);
     }
 
     public void close() {

@@ -1,6 +1,6 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices;
 
-import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
+import static com.github.obourgain.elasticsearch.http.response.ErrorHandler.HANDLES_404;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsAction;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
-import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.exists.IndicesExistsResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpMethod;
@@ -44,13 +43,8 @@ public class IndicesExistsActionHandler {
             uriBuilder.addQueryParameter("local", request.local());
             uriBuilder.addIndicesOptions(request);
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.<ByteBuf>create(HttpMethod.HEAD, uriBuilder.toString()))
-                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
-                        @Override
-                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
-                            return ErrorHandler.checkError(response, _404);
-                        }
-                    })
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.<ByteBuf>create(HttpMethod.HEAD, uriBuilder.toString()))
+                    .flatMap(HANDLES_404)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<IndicesExistsResponse>>() {
                         @Override
                         public Observable<IndicesExistsResponse> call(final HttpClientResponse<ByteBuf> response) {

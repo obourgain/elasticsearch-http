@@ -105,7 +105,7 @@ public class PutIndexTemplateActionHandler {
                     .addQueryParameter("create", create)
                     .addQueryParameter("cause", cause);
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPut(uriBuilder.toString())
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createPut(uriBuilder.toString())
                     .withContent(data))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<PutIndexTemplateResponse>>() {

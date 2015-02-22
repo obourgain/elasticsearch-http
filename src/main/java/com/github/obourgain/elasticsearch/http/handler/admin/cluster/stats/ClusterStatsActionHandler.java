@@ -46,7 +46,7 @@ public class ClusterStatsActionHandler {
             RequestUriBuilder uriBuilder = new RequestUriBuilder(indices)
                     .addEndpoint("_cluster/stats" + indices);
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createGet(uriBuilder.toString()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<ClusterStatsResponse>>() {
                         @Override

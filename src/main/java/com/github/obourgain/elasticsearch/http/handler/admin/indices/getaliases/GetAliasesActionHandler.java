@@ -49,7 +49,7 @@ public class GetAliasesActionHandler {
             uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString());
             uriBuilder.addQueryParameter("local", request.local());
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createGet(uriBuilder.toString()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<GetAliasesResponse>>() {
                         @Override

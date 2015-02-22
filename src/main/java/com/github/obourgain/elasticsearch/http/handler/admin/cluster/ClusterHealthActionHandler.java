@@ -58,7 +58,7 @@ public class ClusterHealthActionHandler {
             uriBuilder.addQueryParameter("timeout", request.timeout().toString());
             uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString());
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPut(uriBuilder.toString()))
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createPut(uriBuilder.toString()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<ClusterHealthResponse>>() {
                         @Override

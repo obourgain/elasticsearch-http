@@ -87,7 +87,7 @@ public class IndexActionHandler {
                             return response.getContent().flatMap(new Func1<ByteBuf, Observable<IndexResponse>>() {
                                 @Override
                                 public Observable<IndexResponse> call(ByteBuf byteBuf) {
-                                    return IndexResponseParser.parse(byteBuf);
+                                    return IndexResponse.parse(byteBuf);
                                 }
                             });
                         }

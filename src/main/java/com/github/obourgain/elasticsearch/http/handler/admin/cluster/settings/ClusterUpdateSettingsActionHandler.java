@@ -62,7 +62,7 @@ public class ClusterUpdateSettingsActionHandler {
             uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString());
             uriBuilder.addQueryParameter("flat_settings", true);
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPut(uriBuilder.toString())
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createPut(uriBuilder.toString())
                     .withContent(body))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<ClusterUpdateSettingsResponse>>() {

@@ -39,6 +39,7 @@ public class GetSettingsActionHandler {
         // TODO tests
         logger.debug("get settings request {}", request);
         try {
+            // lots of url patterns are accepted, but this one is the most practical for a generic impl
             String indices = HttpRequestUtils.indicesOrAll(request);
             RequestUriBuilder uriBuilder = new RequestUriBuilder(indices);
 
@@ -47,13 +48,11 @@ public class GetSettingsActionHandler {
                 names = "/" + names;
             }
             uriBuilder.addEndpoint("_settings" + names);
-            // lots of url patterns are accepted, but this one is the most practical for a generic impl
-
 
             uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString())
                     .addIndicesOptions(request);
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createGet(uriBuilder.toString()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<GetSettingsResponse>>() {
                         @Override

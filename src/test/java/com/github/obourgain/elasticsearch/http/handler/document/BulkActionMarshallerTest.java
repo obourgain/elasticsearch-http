@@ -23,7 +23,7 @@ public class BulkActionMarshallerTest {
         request.index("the_index");
         request.type("the_type");
         request.id("the_id");
-        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        Observable<byte[]> observable = BulkActionMarshaller.lazyConvertToBytes(Collections.<ActionRequest>singletonList(request));
 
         assertHasSize(observable, 4);
 
@@ -46,7 +46,7 @@ public class BulkActionMarshallerTest {
         request.index("the_index");
         request.type("the_type");
         request.id("the_id");
-        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        Observable<byte[]> observable = BulkActionMarshaller.lazyConvertToBytes(Collections.<ActionRequest>singletonList(request));
         assertHasSize(observable, 2);
 
         byte[] bytes = takeNth(observable, 0);
@@ -64,7 +64,7 @@ public class BulkActionMarshallerTest {
         request.type("the_type");
         request.id("the_id");
         request.doc("foo", "bar");
-        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        Observable<byte[]> observable = BulkActionMarshaller.lazyConvertToBytes(Collections.<ActionRequest>singletonList(request));
         assertHasSize(observable, 4);
 
         byte[] bytes = takeNth(observable, 0);
@@ -84,7 +84,7 @@ public class BulkActionMarshallerTest {
         request.type("the_type");
         request.id("the_id");
         request.upsert("bar", "baz");
-        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        Observable<byte[]> observable = BulkActionMarshaller.lazyConvertToBytes(Collections.<ActionRequest>singletonList(request));
         assertHasSize(observable, 4);
 
         byte[] bytes = takeNth(observable, 0);
@@ -108,7 +108,7 @@ public class BulkActionMarshallerTest {
         request.id("the_id");
         request.doc("bar", "baz");
         request.docAsUpsert(true);
-        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        Observable<byte[]> observable = BulkActionMarshaller.lazyConvertToBytes(Collections.<ActionRequest>singletonList(request));
         assertHasSize(observable, 4);
 
         byte[] bytes = takeNth(observable, 0);
@@ -131,7 +131,7 @@ public class BulkActionMarshallerTest {
         request.type("the_type");
         request.id("the_id");
         request.script("the_script");
-        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        Observable<byte[]> observable = BulkActionMarshaller.lazyConvertToBytes(Collections.<ActionRequest>singletonList(request));
         assertHasSize(observable, 4);
 
         byte[] bytes = takeNth(observable, 0);
@@ -155,7 +155,7 @@ public class BulkActionMarshallerTest {
         request.id("the_id");
         request.script("the_script");
         request.upsert("bar", "baz");
-        Observable<byte[]> observable = BulkActionMarshaller.write(Collections.<ActionRequest>singletonList(request));
+        Observable<byte[]> observable = BulkActionMarshaller.lazyConvertToBytes(Collections.<ActionRequest>singletonList(request));
         assertHasSize(observable, 4);
 
         byte[] bytes = takeNth(observable, 0);
@@ -191,7 +191,7 @@ public class BulkActionMarshallerTest {
         index.type("the_type");
         index.id("the_id");
 
-        Observable<byte[]> observable = BulkActionMarshaller.write(Arrays.<ActionRequest>asList(update, delete, index));
+        Observable<byte[]> observable = BulkActionMarshaller.lazyConvertToBytes(Arrays.<ActionRequest>asList(update, delete, index));
         assertHasSize(observable, 10);
 
         // update request

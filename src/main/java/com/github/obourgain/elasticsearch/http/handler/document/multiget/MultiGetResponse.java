@@ -26,11 +26,11 @@ public class MultiGetResponse {
     private Map<String, Object> source;
     private Map<String, GetField> fields;
 
-    public static Observable<MultiGetResponse> parse(ByteBuf content) {
+    protected static Observable<MultiGetResponse> parse(ByteBuf content) {
         return Observable.just(doParse(new ByteBufBytesReference(content)));
     }
 
-    private static MultiGetResponse doParse(BytesReference bytesReference) {
+    protected static MultiGetResponse doParse(BytesReference bytesReference) {
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             MultiGetResponseBuilder builder = builder();
             XContentParser.Token token;

@@ -1,7 +1,7 @@
 package com.github.obourgain.elasticsearch.http.handler.search.exists;
 
 import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.indicesOrAll;
-import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
+import static com.github.obourgain.elasticsearch.http.response.ErrorHandler.HANDLES_404;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.exists.ExistsAction;
 import org.elasticsearch.action.exists.ExistsRequest;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
-import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;
@@ -62,12 +61,7 @@ public class ExistsActionHandler {
             httpRequest.withContent(source.toBytes());
 
             httpClient.client.submit(httpRequest)
-                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
-                        @Override
-                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
-                            return ErrorHandler.checkError(response, _404);
-                        }
-                    })
+                    .flatMap(HANDLES_404)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<ExistsResponse>>() {
                         @Override
                         public Observable<ExistsResponse> call(final HttpClientResponse<ByteBuf> response) {

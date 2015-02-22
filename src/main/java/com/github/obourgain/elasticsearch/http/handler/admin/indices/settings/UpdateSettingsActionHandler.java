@@ -1,12 +1,13 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices.settings;
 
-import java.util.Map;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsAction;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequestAccessor;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.xcontent.ToXContent;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,14 +51,15 @@ public class UpdateSettingsActionHandler {
             RequestUriBuilder uriBuilder = new RequestUriBuilder(indices).addEndpoint("_settings");
 
             Settings settings = UpdateSettingsRequestAccessor.settings(request);
-
-            String body = XContentFactory.jsonBuilder().map((Map) settings.getAsMap()).string();
+            XContentBuilder builder = XContentFactory.jsonBuilder();
+            settings.toXContent(builder, ToXContent.EMPTY_PARAMS);
+            byte[] body = builder.bytes().toBytes();
 
             uriBuilder.addQueryParameter("timeout", String.valueOf(request.timeout()));
             uriBuilder.addQueryParameter("master_timeout", String.valueOf(request.masterNodeTimeout()));
             uriBuilder.addIndicesOptions(request);
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createGet(uriBuilder.toString())
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createGet(uriBuilder.toString())
                     .withContent(body))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<UpdateSettingsResponse>>() {

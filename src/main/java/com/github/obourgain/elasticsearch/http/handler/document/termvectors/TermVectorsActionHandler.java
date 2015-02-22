@@ -60,7 +60,7 @@ public class TermVectorsActionHandler {
                             return response.getContent().flatMap(new Func1<ByteBuf, Observable<TermVectorResponse>>() {
                                 @Override
                                 public Observable<TermVectorResponse> call(ByteBuf byteBuf) {
-                                    return TermVectorResponseParser.parse(byteBuf);
+                                    return TermVectorResponse.parse(byteBuf);
                                 }
                             });
                         }

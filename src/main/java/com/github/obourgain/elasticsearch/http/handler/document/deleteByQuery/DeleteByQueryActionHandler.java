@@ -71,7 +71,7 @@ public class DeleteByQueryActionHandler {
                             return response.getContent().flatMap(new Func1<ByteBuf, Observable<DeleteByQueryResponse>>() {
                                 @Override
                                 public Observable<DeleteByQueryResponse> call(ByteBuf byteBuf) {
-                                    return DeleteByQueryResponseParser.parse(byteBuf);
+                                    return DeleteByQueryResponse.parse(byteBuf);
                                 }
                             });
                         }

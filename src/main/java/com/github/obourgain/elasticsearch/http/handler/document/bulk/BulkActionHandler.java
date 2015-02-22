@@ -85,7 +85,7 @@ public class BulkActionHandler {
         public void call(final Subscriber<? super ByteBuf> subscriber) {
             subscriber.onStart();
 
-            Observable<byte[]> actions = BulkActionMarshaller.write(request.requests());
+            Observable<byte[]> actions = BulkActionMarshaller.lazyConvertToBytes(request.requests());
             actions.forEach(new Action1<byte[]>() {
                 @Override
                 public void call(byte[] bytes) {

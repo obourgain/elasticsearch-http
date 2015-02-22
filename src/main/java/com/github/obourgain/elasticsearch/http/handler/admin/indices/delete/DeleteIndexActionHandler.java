@@ -1,6 +1,6 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices.delete;
 
-import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
+import static com.github.obourgain.elasticsearch.http.response.ErrorHandler.HANDLES_404;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexAction;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
-import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.DeleteIndexResponse;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
@@ -50,13 +49,8 @@ public class DeleteIndexActionHandler {
             uriBuilder.addQueryParameter("master_timeout", request.timeout().toString());
             uriBuilder.addIndicesOptions(request);
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createDelete(uriBuilder.toString()))
-                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
-                        @Override
-                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
-                            return ErrorHandler.checkError(response, _404);
-                        }
-                    })
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createDelete(uriBuilder.toString()))
+                    .flatMap(HANDLES_404)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<DeleteIndexResponse>>() {
                         @Override
                         public Observable<DeleteIndexResponse> call(final HttpClientResponse<ByteBuf> response) {

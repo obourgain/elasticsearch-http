@@ -1,6 +1,6 @@
 package com.github.obourgain.elasticsearch.http.handler.admin.indices.optimize;
 
-import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
+import static com.github.obourgain.elasticsearch.http.response.ErrorHandler.HANDLES_404;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.optimize.OptimizeAction;
 import org.elasticsearch.action.admin.indices.optimize.OptimizeRequest;
@@ -10,7 +10,6 @@ import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
-import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.optimize.OptimizeResponse;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
@@ -49,13 +48,8 @@ public class OptimizeActionHandler {
                     .addQueryParameter("only_expunge_deletes", request.onlyExpungeDeletes())
                     .addQueryParameter("wait_for_merge", request.waitForMerge());
 
-            indicesAdminClient.getHttpClient().client.submit(HttpClientRequest.createPost(uriBuilder.toString()))
-                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
-                        @Override
-                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
-                            return ErrorHandler.checkError(response, _404);
-                        }
-                    })
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createPost(uriBuilder.toString()))
+                    .flatMap(HANDLES_404)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<OptimizeResponse>>() {
                         @Override
                         public Observable<OptimizeResponse> call(final HttpClientResponse<ByteBuf> response) {

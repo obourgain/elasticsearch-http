@@ -7,13 +7,13 @@ import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.response.entity.TermVector;
 import com.github.obourgain.elasticsearch.http.response.entity.TermVectorTest;
 
-public class TermVectorResponseParserTest {
+public class TermVectorResponseTest {
 
     @Test
     public void should_parse_response() throws Exception {
         String json = readFromClasspath("json/termvector/termvector_response.json");
 
-        TermVectorResponse response = TermVectorResponseParser.doParse(new BytesArray(json));
+        TermVectorResponse response = TermVectorResponse.doParse(new BytesArray(json));
 
         assertTermVectorResponse(response);
     }

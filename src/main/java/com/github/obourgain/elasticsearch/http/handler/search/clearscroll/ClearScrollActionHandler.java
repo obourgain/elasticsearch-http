@@ -1,6 +1,6 @@
 package com.github.obourgain.elasticsearch.http.handler.search.clearscroll;
 
-import static com.github.obourgain.elasticsearch.http.response.ValidStatusCodes._404;
+import static com.github.obourgain.elasticsearch.http.response.ErrorHandler.HANDLES_404;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.search.ClearScrollAction;
 import org.elasticsearch.action.search.ClearScrollRequest;
@@ -11,7 +11,6 @@ import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchScrollActionHandler;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
-import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;
@@ -43,12 +42,7 @@ public class ClearScrollActionHandler {
 
             uriBuilder.addQueryParameter("scroll_id", Strings.collectionToCommaDelimitedString(request.getScrollIds()));
             httpClient.client.submit(HttpClientRequest.createDelete(uriBuilder.toString()))
-                    .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<HttpClientResponse<ByteBuf>>>() {
-                        @Override
-                        public Observable<HttpClientResponse<ByteBuf>> call(HttpClientResponse<ByteBuf> response) {
-                            return ErrorHandler.checkError(response, _404);
-                        }
-                    })
+                    .flatMap(HANDLES_404)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<ClearScrollResponse>>() {
                         @Override
                         public Observable<ClearScrollResponse> call(final HttpClientResponse<ByteBuf> response) {

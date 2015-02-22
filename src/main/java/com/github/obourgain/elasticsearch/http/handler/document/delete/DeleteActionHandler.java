@@ -62,7 +62,7 @@ public class DeleteActionHandler {
                             return response.getContent().flatMap(new Func1<ByteBuf, Observable<DeleteResponse>>() {
                                 @Override
                                 public Observable<DeleteResponse> call(ByteBuf byteBuf) {
-                                    return DeleteResponseParser.parse(byteBuf);
+                                    return DeleteResponse.parse(byteBuf);
                                 }
                             });
                         }
