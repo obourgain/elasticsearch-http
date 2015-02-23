@@ -19,7 +19,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <elasticsearch.version>1.4.3</elasticsearch.version>
+        <elasticsearch.version>1.4.4</elasticsearch.version>
         <!-- must be the same as the version used in elasticsearch -->
         <lucene.version>4.10.3</lucene.version>
         <jackson.version>2.5.1</jackson.version>
@@ -32,9 +32,9 @@
         <lombok.version>1.16.2</lombok.version>
         <randomizedtesting.version>2.1.11</randomizedtesting.version>
         <json-unit.version>1.5.2</json-unit.version>
-        <mockito-core.version>2.0.3-beta</mockito-core.version>
+        <mockito-core.version>2.0.4-beta</mockito-core.version>
         <jest.version>0.1.5</jest.version>
-        <rxjava.version>1.0.6</rxjava.version>
+        <rxjava.version>1.0.7</rxjava.version>
         <netty.version>4.0.25.Final</netty.version>
         <rxnetty.version>0.4.6</rxnetty.version>
     </properties>
