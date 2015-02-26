@@ -54,4 +54,56 @@ public class GetMappingsResponse {
             throw new RuntimeException(e);
         }
     }
+
+    public GetMappingsResponse parseIndex(XContentParser parser) throws IOException {
+            // TODO
+            XContentParser.Token token;
+            String currentFieldName = null;
+            while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
+                if (token == XContentParser.Token.FIELD_NAME) {
+                    currentFieldName = parser.currentName();
+//                } else if (token.isValue()) {
+//                    if ("took".equals(currentFieldName)) {
+//                        builder.tookInMillis(parser.longValue());
+//                    } else if ("timed_out".equals(currentFieldName)) {
+//                        builder.timedOut(parser.booleanValue());
+//                    } else if ("_scroll_id".equals(currentFieldName)) {
+//                        builder.scrollId(parser.text());
+//                    } else if ("terminated_early".equals(currentFieldName)) {
+//                        builder.terminatedEarly(parser.booleanValue());
+//                    } else {
+//                        throw new IllegalStateException("unknown field " + currentFieldName);
+//                    }
+                } else if (token == XContentParser.Token.START_OBJECT) {
+
+                }
+            }
+            return this;
+    }
+
+    public GetMappingsResponse parseType(XContentParser parser) throws IOException {
+            // TODO
+            XContentParser.Token token;
+            String currentFieldName = null;
+            while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
+                if (token == XContentParser.Token.FIELD_NAME) {
+                    currentFieldName = parser.currentName();
+//                } else if (token.isValue()) {
+//                    if ("took".equals(currentFieldName)) {
+//                        builder.tookInMillis(parser.longValue());
+//                    } else if ("timed_out".equals(currentFieldName)) {
+//                        builder.timedOut(parser.booleanValue());
+//                    } else if ("_scroll_id".equals(currentFieldName)) {
+//                        builder.scrollId(parser.text());
+//                    } else if ("terminated_early".equals(currentFieldName)) {
+//                        builder.terminatedEarly(parser.booleanValue());
+//                    } else {
+//                        throw new IllegalStateException("unknown field " + currentFieldName);
+//                    }
+                } else if (token == XContentParser.Token.START_OBJECT) {
+
+                }
+            }
+            return this;
+    }
 }
