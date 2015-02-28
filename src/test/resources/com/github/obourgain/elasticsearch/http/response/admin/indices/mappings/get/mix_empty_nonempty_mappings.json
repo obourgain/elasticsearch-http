@@ -1,0 +1,35 @@
+{
+  "test_index_1": {"mappings": {}},
+  "twitter": {
+    "mappings": {
+      "foo": {
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "post_date": {
+            "type": "date",
+            "format": "dateOptionalTime"
+          },
+          "user": {
+            "type": "string"
+          }
+        }
+      },
+      "tweet": {
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "post_date": {
+            "type": "date",
+            "format": "dateOptionalTime"
+          },
+          "user": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

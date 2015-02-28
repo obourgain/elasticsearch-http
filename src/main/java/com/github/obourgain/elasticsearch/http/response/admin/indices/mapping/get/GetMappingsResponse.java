@@ -1,109 +1,90 @@
 package com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.get;
 
+import static org.elasticsearch.common.xcontent.XContentParser.Token.END_OBJECT;
+import static org.elasticsearch.common.xcontent.XContentParser.Token.START_OBJECT;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
-import com.github.obourgain.elasticsearch.http.response.entity.Hits;
-import com.github.obourgain.elasticsearch.http.response.entity.aggs.Aggregations;
-import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
+import com.github.obourgain.elasticsearch.http.response.entity.MappingMetaData;
 import io.netty.buffer.ByteBuf;
-import lombok.Builder;
 import lombok.Getter;
-import rx.Observable;
 
 @Getter
 public class GetMappingsResponse {
 
     private Map<String, Map<String, MappingMetaData>> mappings = new HashMap<>();
 
-//    protected static Observable<GetMappingsResponse> parse(ByteBuf content) {
-//        return Observable.just(doParse(new ByteBufBytesReference(content)));
-//    }
+    public GetMappingsResponse parse(ByteBuf content) {
+        return doParse(new ByteBufBytesReference(content));
+    }
 
-    public GetMappingsResponse doParse(ByteBuf content) {
-        try (XContentParser parser = XContentHelper.createParser(new ByteBufBytesReference(content))) {
-            // TODO
-            XContentParser.Token token;
-            String currentFieldName = null;
-            while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
-                if (token == XContentParser.Token.FIELD_NAME) {
-                    currentFieldName = parser.currentName();
-//                } else if (token.isValue()) {
-//                    if ("took".equals(currentFieldName)) {
-//                        builder.tookInMillis(parser.longValue());
-//                    } else if ("timed_out".equals(currentFieldName)) {
-//                        builder.timedOut(parser.booleanValue());
-//                    } else if ("_scroll_id".equals(currentFieldName)) {
-//                        builder.scrollId(parser.text());
-//                    } else if ("terminated_early".equals(currentFieldName)) {
-//                        builder.terminatedEarly(parser.booleanValue());
-//                    } else {
-//                        throw new IllegalStateException("unknown field " + currentFieldName);
-//                    }
-                } else if (token == XContentParser.Token.START_OBJECT) {
-
-                }
-            }
-            return this;
+    public GetMappingsResponse doParse(BytesReference content) {
+        try (XContentParser parser = XContentHelper.createParser(content)) {
+            parser.nextToken();
+            return doParse(parser);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public GetMappingsResponse parseIndex(XContentParser parser) throws IOException {
-            // TODO
-            XContentParser.Token token;
-            String currentFieldName = null;
-            while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
-                if (token == XContentParser.Token.FIELD_NAME) {
-                    currentFieldName = parser.currentName();
-//                } else if (token.isValue()) {
-//                    if ("took".equals(currentFieldName)) {
-//                        builder.tookInMillis(parser.longValue());
-//                    } else if ("timed_out".equals(currentFieldName)) {
-//                        builder.timedOut(parser.booleanValue());
-//                    } else if ("_scroll_id".equals(currentFieldName)) {
-//                        builder.scrollId(parser.text());
-//                    } else if ("terminated_early".equals(currentFieldName)) {
-//                        builder.terminatedEarly(parser.booleanValue());
-//                    } else {
-//                        throw new IllegalStateException("unknown field " + currentFieldName);
-//                    }
-                } else if (token == XContentParser.Token.START_OBJECT) {
+    protected GetMappingsResponse doParse(XContentParser parser) throws IOException {
+        assert parser.currentToken() == START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
 
-                }
+        XContentParser.Token token;
+        String currentFieldName = null;
+        while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
+            System.out.println("GetMappingsResponse.doParse : token = " + token + " " + parser.currentName() + " / " + parser.text());
+            if (token == XContentParser.Token.FIELD_NAME) {
+                currentFieldName = parser.currentName();
+            } else if (token == XContentParser.Token.START_OBJECT) {
+                Map<String, MappingMetaData> mappingsForIndex = parseIndex(parser);
+                // skip the end token of the index's mapping because due to the return in the loop of parseIndex it is not consumed
+                assert parser.currentToken() == END_OBJECT : "expected a END_OBJECT token but was " + parser.currentToken();
+                parser.nextToken();
+                mappings.put(currentFieldName, mappingsForIndex);
             }
-            return this;
+        }
+        return this;
     }
 
-    public GetMappingsResponse parseType(XContentParser parser) throws IOException {
-            // TODO
-            XContentParser.Token token;
-            String currentFieldName = null;
-            while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
-                if (token == XContentParser.Token.FIELD_NAME) {
-                    currentFieldName = parser.currentName();
-//                } else if (token.isValue()) {
-//                    if ("took".equals(currentFieldName)) {
-//                        builder.tookInMillis(parser.longValue());
-//                    } else if ("timed_out".equals(currentFieldName)) {
-//                        builder.timedOut(parser.booleanValue());
-//                    } else if ("_scroll_id".equals(currentFieldName)) {
-//                        builder.scrollId(parser.text());
-//                    } else if ("terminated_early".equals(currentFieldName)) {
-//                        builder.terminatedEarly(parser.booleanValue());
-//                    } else {
-//                        throw new IllegalStateException("unknown field " + currentFieldName);
-//                    }
-                } else if (token == XContentParser.Token.START_OBJECT) {
+    protected Map<String, MappingMetaData> parseIndex(XContentParser parser) throws IOException {
+        assert parser.currentToken() == START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
 
+        XContentParser.Token token;
+        String currentFieldName = null;
+        while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
+            System.out.println("GetMappingsResponse.parseIndex : token = " + token + " " + parser.currentName() + " / " + parser.text());
+            if (token == XContentParser.Token.FIELD_NAME) {
+                currentFieldName = parser.currentName();
+            } else if (token == XContentParser.Token.START_OBJECT) {
+                if(currentFieldName != null && currentFieldName.equals("mappings")) {
+                    return parseMappings(parser);
                 }
             }
-            return this;
+        }
+        throw new IllegalStateException("'mappings' field not found");
+    }
+
+    protected Map<String, MappingMetaData> parseMappings(XContentParser parser) throws IOException {
+        assert parser.currentToken() == START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
+
+        Map<String, MappingMetaData> mappingsForIndex = new HashMap<>();
+
+        XContentParser.Token token;
+        String currentFieldName = null;
+        while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
+            System.out.println("GetMappingsResponse.parseMappings : token = " + token + " " + parser.currentName() + " / " + parser.text());
+            if (token == XContentParser.Token.FIELD_NAME) {
+                currentFieldName = parser.currentName();
+            } else if (token == XContentParser.Token.START_OBJECT) {
+                MappingMetaData metadata = new MappingMetaData().parse(parser);
+                mappingsForIndex.put(currentFieldName, metadata);
+            }
+        }
+        return mappingsForIndex;
     }
 }

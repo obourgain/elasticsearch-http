@@ -8,6 +8,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.open.OpenIndexRequest;
 import org.elasticsearch.action.admin.indices.optimize.OptimizeRequest;
@@ -41,6 +42,7 @@ import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.Del
 import com.github.obourgain.elasticsearch.http.response.admin.indices.exists.IndicesExistsResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.flush.FlushResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.getaliases.GetAliasesResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.get.GetMappingsResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.put.PutMappingResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.optimize.OptimizeResponse;
@@ -200,6 +202,16 @@ public class HttpIndicesAdminClient {
     public Future<IndicesExistsResponse> indicesExists(IndicesExistsRequest request) {
         PlainActionFuture<IndicesExistsResponse> future = PlainActionFuture.newFuture();
         indicesExists(request, future);
+        return future;
+    }
+
+    public void getMappings(GetMappingsRequest request, ActionListener<GetMappingsResponse> listener) {
+        getMappingsActionHandler.execute(request, listener);
+    }
+
+    public Future<GetMappingsResponse> getMappings(GetMappingsRequest request) {
+        PlainActionFuture<GetMappingsResponse> future = PlainActionFuture.newFuture();
+        getMappings(request, future);
         return future;
     }
 
