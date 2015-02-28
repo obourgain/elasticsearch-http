@@ -30,6 +30,7 @@ import com.github.obourgain.elasticsearch.http.AbstractTest;
 import com.github.obourgain.elasticsearch.http.response.entity.Hit;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchResponse;
 
+@SuppressWarnings("LongLiteralLowerCaseSuffix")
 public class MoreLikeThisActionHandlerTest extends AbstractTest {
 
     @Test
