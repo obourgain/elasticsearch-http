@@ -2,6 +2,7 @@ package com.github.obourgain.elasticsearch.http.response.entity.aggs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.elasticsearch.common.bytes.BytesArray;
@@ -20,7 +21,7 @@ public class FiltersTest {
         assertThat(filters.getName()).isEqualTo("foo");
 
         List<Filters.Bucket> buckets = filters.getBuckets();
-        buckets.sort(new Comparator<Filters.Bucket>() {
+        Collections.sort(buckets, new Comparator<Filters.Bucket>() {
             @Override
             public int compare(Filters.Bucket o1, Filters.Bucket o2) {
                 return Long.compare(o1.getDocCount(), o2.getDocCount());
@@ -51,7 +52,7 @@ public class FiltersTest {
         assertThat(filters.getName()).isEqualTo("foo");
 
         List<Filters.Bucket> buckets = filters.getBuckets();
-        buckets.sort(new Comparator<Filters.Bucket>() {
+        Collections.sort(buckets, new Comparator<Filters.Bucket>() {
             @Override
             public int compare(Filters.Bucket o1, Filters.Bucket o2) {
                 return Long.compare(o1.getDocCount(), o2.getDocCount());
