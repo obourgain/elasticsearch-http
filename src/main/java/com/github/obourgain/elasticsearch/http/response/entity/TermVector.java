@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.elasticsearch.common.xcontent.XContentParser;
-import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
 public class TermVector {
 
@@ -15,14 +13,13 @@ public class TermVector {
     private FieldStatistics fieldStatistics;
     private List<Term> terms;
 
-    public static TermVector parse(XContentParser parser) {
+    public TermVector parse(XContentParser parser) {
         try {
             assert parser.currentToken() == XContentParser.Token.START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
-            TermVectorBuilder builder = builder();
             parser.nextToken();
             // the term vector's field
             assert parser.currentToken() == XContentParser.Token.FIELD_NAME : "expected a FIELD_NAME token but was " + parser.currentToken();
-            builder.field(parser.text());
+            field = parser.text();
 
             XContentParser.Token token;
             String currentFieldName = null;
@@ -33,15 +30,13 @@ public class TermVector {
                     if ("field_statistics".equals(currentFieldName)) {
                         parser.nextToken();
                         Map<String, Object> map = parser.map();
-                        builder.fieldStatistics(FieldStatistics.fromMap(map));
+                        fieldStatistics = FieldStatistics.fromMap(map);
                     } else if ("terms".equals(currentFieldName)) {
-                        List<Term> terms = Term.parseTerms(parser);
-                        builder.terms(terms);
+                        terms = Term.parseTerms(parser);
                     }
-                    // throw if unknown ?
                 }
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

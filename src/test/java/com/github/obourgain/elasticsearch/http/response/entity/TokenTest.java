@@ -15,7 +15,7 @@ public class TokenTest {
 
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
-        Token token = Token.parse(parser);
+        Token token = new Token().parse(parser);
 
         assertToken(token);
     }

@@ -19,7 +19,7 @@ public class HitTest {
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
-        Hit hit = Hit.parseHit(parser);
+        Hit hit = new Hit().parse(parser);
         assertThat(hit.getId()).isEqualTo("1");
         assertThat(hit.getType()).isEqualTo("tweet");
         assertThat(hit.getIndex()).isEqualTo("twitter");

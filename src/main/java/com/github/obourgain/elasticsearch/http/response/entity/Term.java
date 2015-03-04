@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.elasticsearch.common.xcontent.XContentParser;
-import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
 public class Term {
 
@@ -17,10 +15,9 @@ public class Term {
     private Integer totalTermFreq;
     private List<Token> tokens;
 
-    public static Term parse(XContentParser parser) {
+    public Term parse(XContentParser parser) {
         try {
-            TermBuilder builder = builder();
-            builder.term(parser.text());
+            term = parser.text();
             parser.nextToken();
             assert parser.currentToken() == XContentParser.Token.START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
             XContentParser.Token token;
@@ -30,20 +27,19 @@ public class Term {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
                     if ("doc_freq".equals(currentFieldName)) {
-                        builder.docFreq(parser.intValue());
+                        docFreq = parser.intValue();
                     } else if ("term_freq".equals(currentFieldName)) {
-                        builder.termFreq(parser.intValue());
+                        termFreq = parser.intValue();
                     } else if ("ttf".equals(currentFieldName)) {
-                        builder.totalTermFreq(parser.intValue());
+                        totalTermFreq = parser.intValue();
                     }
                 } else if (token == XContentParser.Token.START_ARRAY) {
                     if ("tokens".equals(currentFieldName)) {
-                        List<Token> parsedTokens = Token.parseList(parser);
-                        builder.tokens(parsedTokens);
+                        tokens = Token.parseList(parser);
                     }
                 }
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -55,8 +51,7 @@ public class Term {
             List<Term> terms = new ArrayList<>();
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 assert parser.currentToken() == XContentParser.Token.FIELD_NAME : "expected a FIELD_NAME token but was " + parser.currentToken();
-                Term term = parse(parser);
-                terms.add(term);
+                terms.add(new Term().parse(parser));
             }
             return terms;
         } catch (IOException e) {

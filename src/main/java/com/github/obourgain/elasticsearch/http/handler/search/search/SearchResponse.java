@@ -54,7 +54,7 @@ public class SearchResponse {
                     if ("_shards".equals(currentFieldName)) {
                         builder.shards(ShardParser.parseInner(parser));
                     } else if ("hits".equals(currentFieldName)) {
-                        builder.hits(Hits.parse(parser));
+                        builder.hits(new Hits().parse(parser));
                     } else if ("aggregations".equals(currentFieldName)) {
                         builder.aggregations(Aggregations.parse(parser));
                     }

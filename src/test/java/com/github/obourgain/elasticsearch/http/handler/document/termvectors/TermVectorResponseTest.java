@@ -13,7 +13,7 @@ public class TermVectorResponseTest {
     public void should_parse_response() throws Exception {
         String json = readFromClasspath("json/termvector/termvector_response.json");
 
-        TermVectorResponse response = TermVectorResponse.doParse(new BytesArray(json));
+        TermVectorResponse response = new TermVectorResponse().parse(new BytesArray(json));
 
         assertTermVectorResponse(response);
     }

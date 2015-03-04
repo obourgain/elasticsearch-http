@@ -331,9 +331,9 @@ public class Aggregations {
                 if (token == FIELD_NAME) {
                     currentFieldName = parser.currentName();
                 } else if (token == START_OBJECT) {
-                    XContentBuilder docBuilder = XContentFactory.contentBuilder(XContentType.JSON);
-                    aggregations.addRawAgg(currentFieldName, docBuilder.copyCurrentStructure(parser));
-                    docBuilder.close();
+                    try (XContentBuilder docBuilder = XContentFactory.contentBuilder(XContentType.JSON)) {
+                        aggregations.addRawAgg(currentFieldName, docBuilder.copyCurrentStructure(parser));
+                    }
                 }
             }
             return aggregations;

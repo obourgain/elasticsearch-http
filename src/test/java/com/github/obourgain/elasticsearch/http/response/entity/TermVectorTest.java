@@ -17,7 +17,7 @@ public class TermVectorTest {
 
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
-        TermVector termVector = TermVector.parse(parser);
+        TermVector termVector = new TermVector().parse(parser);
 
         List<Term> terms = termVector.getTerms();
         Collections.sort(terms, new Comparator<Term>() {

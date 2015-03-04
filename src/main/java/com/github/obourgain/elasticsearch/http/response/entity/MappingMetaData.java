@@ -1,7 +1,6 @@
 package com.github.obourgain.elasticsearch.http.response.entity;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -19,7 +18,6 @@ public class MappingMetaData {
     public MappingMetaData parse(XContentParser parser) {
         try {
             XContentParser.Token token;
-            String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
                 System.out.println("MappingMetaData.parse : token = " + token + " " + parser.currentName() + " / " + parser.text());
                 if (token == XContentParser.Token.FIELD_NAME) {

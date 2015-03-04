@@ -7,11 +7,9 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.TermVector;
 import io.netty.buffer.ByteBuf;
-import lombok.Builder;
 import lombok.Getter;
 import rx.Observable;
 
-@Builder
 @Getter
 public class TermVectorResponse {
 
@@ -23,12 +21,11 @@ public class TermVectorResponse {
     private TermVector termVector;
 
     protected static Observable<TermVectorResponse> parse(ByteBuf content) {
-        return Observable.just(doParse(new ByteBufBytesReference(content)));
+        return Observable.just(new TermVectorResponse().parse(new ByteBufBytesReference(content)));
     }
 
-    protected static TermVectorResponse doParse(BytesReference bytesReference) {
+    protected TermVectorResponse parse(BytesReference bytesReference) {
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
-            TermVectorResponse.TermVectorResponseBuilder builder = TermVectorResponse.builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -38,31 +35,30 @@ public class TermVectorResponse {
                     assert currentFieldName != null;
                     switch (currentFieldName) {
                         case "_index":
-                            builder.index(parser.text());
+                            index = parser.text();
                             break;
                         case "_type":
-                            builder.type(parser.text());
+                            type = parser.text();
                             break;
                         case "_id":
-                            builder.id(parser.text());
+                            id = parser.text();
                             break;
                         case "_version":
-                            builder.version(parser.longValue());
+                            version = parser.longValue();
                             break;
                         case "found":
-                            builder.found(parser.booleanValue());
+                            found = parser.booleanValue();
                             break;
                         default:
                             throw new IllegalStateException("unknown field " + currentFieldName);
                     }
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("term_vectors".equals(currentFieldName)) {
-                        TermVector termVector = TermVector.parse(parser);
-                        builder.termVector(termVector);
+                        termVector = new TermVector().parse(parser);
                     }
                 }
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -20,7 +20,7 @@ public class HitsTest {
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
-        Hits hits = Hits.parse(parser);
+        Hits hits = new Hits().parse(parser);
 
         assertThat(hits.getMaxScore()).isEqualTo(1.7f, offset(0.01f));
         assertThat(hits.getTotal()).isEqualTo(2);

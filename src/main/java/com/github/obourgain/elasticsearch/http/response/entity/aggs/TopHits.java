@@ -31,7 +31,7 @@ public class TopHits extends AbstractAggregation {
                     currentFieldName = parser.currentName();
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("hits".equals(currentFieldName)) {
-                        topHits.hits = Hits.parse(parser);
+                        topHits.hits = new Hits().parse(parser);
                     }
                 }
             }

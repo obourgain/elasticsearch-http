@@ -8,11 +8,9 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
 public class Hit {
 
     private String index;
@@ -24,34 +22,34 @@ public class Hit {
     private byte[] source;
     private List<String> sort = Collections.emptyList();
 
-    public static Hit parseHit(XContentParser parser) throws IOException {
+    public Hit parse(XContentParser parser) throws IOException {
         assert parser.currentToken() == XContentParser.Token.START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
 
         XContentParser.Token token;
         String currentFieldName = null;
-        HitBuilder builder = builder();
         while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
             if (token == XContentParser.Token.FIELD_NAME) {
                 currentFieldName = parser.currentName();
             } else if (token.isValue()) {
                 if ("_id".equals(currentFieldName)) {
-                    builder.id(parser.text());
+                    id = parser.text();
                 } else if ("_index".equals(currentFieldName)) {
-                    builder.index(parser.text());
+                    index = parser.text();
                 } else if ("_type".equals(currentFieldName)) {
-                    builder.type(parser.text());
+                    type = parser.text();
                 } else if ("_version".equals(currentFieldName)) {
-                    builder.version(parser.intValue());
+                    version = parser.intValue();
                 } else if ("_score".equals(currentFieldName)) {
-                    builder.score(parser.floatValue());
+                    score = parser.floatValue();
                 }
             } else if ("_source".equals(currentFieldName)) {
-                XContentBuilder docBuilder = XContentFactory.contentBuilder(XContentType.JSON);
-                docBuilder.copyCurrentStructure(parser);
-                builder.source(docBuilder.bytes().array());
-            } else if("sort".equals(currentFieldName)) {
+                try(XContentBuilder docBuilder = XContentFactory.contentBuilder(XContentType.JSON)) {
+                    docBuilder.copyCurrentStructure(parser);
+                    source = docBuilder.bytes().toBytes();
+                }
+            } else if ("sort".equals(currentFieldName)) {
                 assert parser.currentToken() == XContentParser.Token.START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
-                builder.sort(parseSort(parser));
+                sort = parseSort(parser);
             } else {
                 throw new IllegalStateException("unknown field " + currentFieldName);
             }
@@ -62,8 +60,7 @@ public class Hit {
             // TODO matched_queries
             // TODO _explanation
         }
-
-        return builder.build();
+        return this;
     }
 
     public static List<Hit> parseHitArray(XContentParser parser) {
@@ -72,7 +69,7 @@ public class Hit {
             List<Hit> result = new ArrayList<>();
             while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
                 assert parser.currentToken() == XContentParser.Token.START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
-                result.add(parseHit(parser));
+                result.add(new Hit().parse(parser));
             }
             return result;
         } catch (IOException e) {

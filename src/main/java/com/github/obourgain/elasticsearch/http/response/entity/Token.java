@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.elasticsearch.common.xcontent.XContentParser;
-import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
 public class Token {
 
@@ -16,10 +14,9 @@ public class Token {
     private Integer startOffset;
     private Integer endOffset;
 
-    public static Token parse(XContentParser parser) {
+    public Token parse(XContentParser parser) {
         try {
             assert parser.currentToken() == XContentParser.Token.START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
-            TokenBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -27,17 +24,17 @@ public class Token {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
                     if ("end_offset".equals(currentFieldName)) {
-                        builder.endOffset(parser.intValue());
+                        endOffset = parser.intValue();
                     } else if ("payload".equals(currentFieldName)) {
-                        builder.payload(parser.text());
+                        payload = parser.text();
                     } else if ("position".equals(currentFieldName)) {
-                        builder.position(parser.intValue());
+                        position = parser.intValue();
                     } else if ("start_offset".equals(currentFieldName)) {
-                        builder.startOffset(parser.intValue());
+                        startOffset = parser.intValue();
                     }
                 }
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -51,7 +48,7 @@ public class Token {
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_ARRAY) {
                 assert parser.currentToken() == XContentParser.Token.START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
-                Token parsed = parse(parser);
+                Token parsed = new Token().parse(parser);
                 tokens.add(parsed);
             }
             return tokens;

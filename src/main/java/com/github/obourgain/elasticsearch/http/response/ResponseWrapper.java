@@ -14,15 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.apache.lucene.search.Explanation;
-import org.apache.lucene.util.BytesRef;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.ElasticsearchIllegalArgumentException;
-import org.elasticsearch.ElasticsearchIllegalStateException;
-import org.elasticsearch.ElasticsearchParseException;
 import org.elasticsearch.Version;
-import org.elasticsearch.action.ActionRequestValidationException;
-import org.elasticsearch.action.RoutingMissingException;
-import org.elasticsearch.action.UnavailableShardsException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponseAccessor;
@@ -30,16 +22,12 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.action.admin.cluster.health.ClusterIndexHealth;
 import org.elasticsearch.action.admin.cluster.health.ClusterShardHealth;
 import org.elasticsearch.action.admin.cluster.health.ClusterShardHealthAccessor;
-import org.elasticsearch.action.admin.cluster.node.hotthreads.NodesHotThreadsResponse;
 import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsResponse;
 import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsResponseAccessor;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponseAccessor;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponseAccessor;
-import org.elasticsearch.action.admin.indices.alias.get.GetAliasesResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponseAccessor;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResponse;
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResponseAccessor;
@@ -47,22 +35,17 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.GetResponseAccessor;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
-import org.elasticsearch.action.search.ClearScrollResponse;
-import org.elasticsearch.action.search.ReduceSearchPhaseException;
-import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.action.suggest.SuggestResponseAccessor;
 import org.elasticsearch.cluster.ClusterName;
 import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.block.ClusterBlock;
-import org.elasticsearch.cluster.block.ClusterBlockException;
 import org.elasticsearch.cluster.block.ClusterBlockLevel;
 import org.elasticsearch.cluster.block.ClusterBlocks;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.metadata.IndexTemplateMetaData;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.cluster.metadata.MetaData;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.cluster.node.DiscoveryNodes;
@@ -72,9 +55,7 @@ import org.elasticsearch.cluster.routing.IndexShardRoutingTable;
 import org.elasticsearch.cluster.routing.RoutingTable;
 import org.elasticsearch.cluster.routing.ShardRoutingState;
 import org.elasticsearch.common.Nullable;
-import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.bytes.BytesReference;
-import org.elasticsearch.common.collect.ImmutableOpenIntMap;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.compress.CompressedString;
 import org.elasticsearch.common.hppc.cursors.ObjectObjectCursor;
@@ -82,48 +63,25 @@ import org.elasticsearch.common.io.stream.DataOutputStreamOutput;
 import org.elasticsearch.common.io.stream.InputStreamStreamInput;
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.jackson.core.JsonFactory;
-import org.elasticsearch.common.jackson.core.JsonLocation;
-import org.elasticsearch.common.jackson.core.JsonParseException;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.text.StringText;
-import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.LocalTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.common.xcontent.json.JsonXContentParser;
-import org.elasticsearch.index.Index;
-import org.elasticsearch.index.engine.DocumentAlreadyExistsException;
-import org.elasticsearch.index.engine.DocumentMissingException;
-import org.elasticsearch.index.engine.VersionConflictEngineException;
 import org.elasticsearch.index.get.GetField;
 import org.elasticsearch.index.get.GetResult;
-import org.elasticsearch.index.mapper.MapperParsingException;
 import org.elasticsearch.index.shard.ShardId;
-import org.elasticsearch.indices.IndexAlreadyExistsException;
-import org.elasticsearch.indices.IndexClosedException;
-import org.elasticsearch.indices.IndexMissingException;
-import org.elasticsearch.indices.InvalidIndexNameException;
 import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.rest.action.admin.indices.alias.delete.AliasesMissingException;
-import org.elasticsearch.script.expression.ExpressionScriptCompilationException;
-import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.SearchShardTarget;
-import org.elasticsearch.search.highlight.HighlightField;
-import org.elasticsearch.search.internal.InternalSearchHit;
-import org.elasticsearch.search.internal.InternalSearchHitField;
 import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.warmer.IndexWarmersMetaData;
-import org.elasticsearch.transport.RemoteTransportException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteArrayDataOutput;
@@ -133,18 +91,6 @@ import com.google.common.io.ByteStreams;
  * @author olivier bourgain
  */
 public class ResponseWrapper<Req> {
-
-    private static final Logger logger = LoggerFactory.getLogger(ResponseWrapper.class);
-
-    private static ImmutableOpenIntMap<RestStatus> statusCodeToStatusName;
-
-    static {
-        ImmutableOpenIntMap.Builder<RestStatus> builder = ImmutableOpenIntMap.builder();
-        for (RestStatus restStatus : RestStatus.values()) {
-            builder.put(restStatus.getStatus(), restStatus);
-        }
-        statusCodeToStatusName = builder.build();
-    }
 
     private EntityWrapper entityWrapper;
     //    private Response response;
@@ -296,111 +242,6 @@ public class ResponseWrapper<Req> {
         return new Suggest(result);
     }
 
-    public static InternalSearchHit[] processInternalSearchHits(List<Map<String, Object>> internalHitsAsMap) {
-        InternalSearchHit[] internalSearchHits = new InternalSearchHit[internalHitsAsMap.size()];
-        for (int i = 0; i < internalHitsAsMap.size(); i++) {
-            Map<String, Object> internalHit = internalHitsAsMap.get(i);
-            Map<String, SearchHitField> fields;
-            if (internalHit.get("fields") != null) {
-                fields = new HashMap<>();
-                Map<String, Object> hitFields = getAsStringObjectMap(internalHit, "fields");
-                for (Map.Entry<String, Object> entry : hitFields.entrySet()) {
-                    // value may be a List<String> or a single String
-                    Object value = entry.getValue();
-                    fields.put(entry.getKey(), new InternalSearchHitField(entry.getKey(), value instanceof List ? (List<Object>) value : Collections.singletonList(value)));
-                }
-            } else {
-                fields = ImmutableMap.of();
-            }
-
-            // first param is the docId, I can not set it because it isn't returned by the API, but I don't care because it is not exposed by the SearchHit API
-            InternalSearchHit internalSearchHit = new InternalSearchHit(-1,
-                    (String) internalHit.get("_id"),
-                    new StringText((String) internalHit.get("_type")),
-                    fields);
-
-            Number version = getAsNumber(internalHit, "_version");
-            if (version != null) {
-                internalSearchHit.version(version.longValue());
-            }
-
-            List<String> matchedQueries = getAs(internalHit, "matched_queries", List.class);
-            if (matchedQueries != null) {
-                internalSearchHit.matchedQueries(Iterables.toArray(matchedQueries, String.class));
-            }
-
-            Map<String, Object> source = getAsStringObjectMap(internalHit, "_source");
-            if (source != null) {
-                try {
-                    internalSearchHit.sourceRef(XContentFactory.contentBuilder(XContentType.JSON).map(source).bytes());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            Map<String, List<String>> highlight = getAsStringListOfStringsMap(internalHit, "highlight");
-            if (highlight != null) {
-                Map<String, HighlightField> highlightFieldMap = new HashMap<>();
-                for (Map.Entry<String, List<String>> entry : highlight.entrySet()) {
-                    List<String> value = entry.getValue();
-                    Text[] texts = stringCollectionToTextArray(value);
-                    HighlightField highlightField = new HighlightField(entry.getKey(), texts);
-                    highlightFieldMap.put(entry.getKey(), highlightField);
-                }
-                internalSearchHit.highlightFields(ImmutableMap.copyOf(highlightFieldMap));
-            } else {
-                internalSearchHit.highlightFields(ImmutableMap.<String, HighlightField>of());
-            }
-
-            Map<String, Object> explanationAsMap = getAsStringObjectMap(internalHit, "_explanation");
-            if (explanationAsMap != null) {
-                Explanation explanation = toExplanation(explanationAsMap);
-                internalSearchHit.explanation(explanation);
-            }
-
-            // I don't need this object as it is internal to the API, but internalSearchHit.index() will return shard.index()
-            // maybe I should write my own implementation of SearchHit
-            internalSearchHit.shard(new SearchShardTarget(null, (String) internalHit.get("_index"), -1));
-
-            Number score = (Number) internalHit.get("_score");
-            if (score != null) {
-                // score may be null if the query uses a sort
-                internalSearchHit.score(score.floatValue());
-            } else {
-                internalSearchHit.score(Float.NaN);
-            }
-            Object sort = internalHit.get("sort");
-            if (sort != null) {
-                // dependant on jackson impl here
-                List sortAsList = (List) sort;
-                Object[] sortAsArray = new Object[sortAsList.size()];
-                for (int i1 = 0; i1 < sortAsList.size(); i1++) {
-                    Object o = sortAsList.get(i1);
-                    // TODO what other kind of data can be returned for sort ?
-                    if (o == null) {
-                        sortAsArray[i1] = null;
-                    } else if (o instanceof Double) {
-                        sortAsArray[i1] = o;
-                    } else if (o instanceof Number) {
-                        sortAsArray[i1] = ((Number) o).longValue();
-                    } else {
-                        sortAsArray[i1] = new BytesRef(String.valueOf(o));
-                    }
-                }
-                internalSearchHit.sortValues(sortAsArray);
-            }
-            internalSearchHits[i] = internalSearchHit;
-        }
-        return internalSearchHits;
-    }
-
-    public ClearScrollResponse toClearScrollResponse() {
-        String error = getAs(entityWrapper, "error", String.class);
-        // if the action succeeded, the response is an empty json object, if it has failed, the response is an object with fields error and status
-        // TODO numFreed is not returned, and org.elasticsearch.search.scroll.SearchScrollTests.testClearNonExistentScrollId() tests it as being 0
-        return new ClearScrollResponse(error == null, 0);
-    }
-
     private GetResult toExplainGetResult(boolean found, String index, String type, String id, Map<String, Object> getAsMap) {
         if (getAsMap != null) {
             BytesReference sourceAsBytes = getSourceAsBytes(getAsMap);
@@ -491,17 +332,6 @@ public class ResponseWrapper<Req> {
             }
         }
         return result;
-    }
-
-    private static Text[] stringCollectionToTextArray(List<String> strings) {
-        if (strings == null) {
-            return null;
-        }
-        Text[] texts = new Text[strings.size()];
-        for (int i = 0; i < strings.size(); i++) {
-            texts[i] = new StringText(strings.get(i));
-        }
-        return texts;
     }
 
     private ShardSearchFailure[] buildShardSearchFailures(String error) {
@@ -907,27 +737,6 @@ public class ResponseWrapper<Req> {
         return -1;
     }
 
-    public GetMappingsResponse toGetMappingsResponse() {
-        // TODO factorize with get template
-        ImmutableOpenMap.Builder<String, ImmutableOpenMap<String, MappingMetaData>> builder = ImmutableOpenMap.builder();
-        for (String index : entityWrapper.keySet()) {
-            Map<String, Map<String, Object>> indexMapping = getAsNestedStringToMapMap(entityWrapper, index);
-            Map<String, Map<String, Object>> mappingsAsMapRaw = getAsNestedStringToMapMap(indexMapping, "mappings");
-
-            ImmutableOpenMap.Builder<String, MappingMetaData> mappingsBuilder = ImmutableOpenMap.builder();
-            for (Map.Entry<String, Map<String, Object>> mapEntry : mappingsAsMapRaw.entrySet()) {
-                CompressedString mappingAsString = toCompressedString("{\"" + mapEntry.getKey() + "\":" + mapToString(mapEntry.getValue()) + "}");
-                try {
-                    mappingsBuilder.put(mapEntry.getKey(), new MappingMetaData(mappingAsString));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            builder.put(index, mappingsBuilder.build());
-        }
-        return GetMappingsResponseAccessor.create(builder.build());
-    }
-
     public GetSettingsResponse toGetSettingsResponse() {
         // TODO factorize with get template
         ImmutableOpenMap.Builder<String, Settings> builder = ImmutableOpenMap.builder();
@@ -969,38 +778,6 @@ public class ResponseWrapper<Req> {
                 output.put(settingsJoiner.join(copy), String.valueOf(entry.getValue()));
             }
         }
-    }
-
-    public GetAliasesResponse toGetAliasesResponse() {
-        if (entityWrapper.isEmpty()) {
-            return new GetAliasesResponse(ImmutableOpenMap.<String, List<AliasMetaData>>of());
-        }
-        ImmutableOpenMap.Builder<String, List<AliasMetaData>> aliases = ImmutableOpenMap.builder();
-        for (Map.Entry<String, Object> entry : entityWrapper.entrySet()) {
-            String index = entry.getKey();
-            Map<String, String> aliasInfos = getAs((Map) entry.getValue(), "aliases", Map.class);
-            String alias = aliasInfos.get("alias");
-            String filter = aliasInfos.get("filter");
-            CompressedString filterAsCompressedString = null;
-            if (filter != null) {
-                filterAsCompressedString = toCompressedString(filter);
-            }
-            String indexRouting = aliasInfos.get("index_routing");
-            String searchRouting = aliasInfos.get("search_routing");
-            AliasMetaData aliasMetaData = AliasMetaData.builder(alias).filter(filterAsCompressedString).indexRouting(indexRouting).searchRouting(searchRouting).build();
-            List<AliasMetaData> list = aliases.get(index);
-            if (list == null) {
-                list = new ArrayList<>();
-                aliases.put(index, list);
-            }
-            list.add(aliasMetaData);
-        }
-        return new GetAliasesResponse(aliases.build());
-    }
-
-    public NodesHotThreadsResponse toNodesHotThreadsResponse() {
-        // TODO
-        return new NodesHotThreadsResponse(null, null);
     }
 
     public ClusterStatsResponse toClusterStatsResponse() {
