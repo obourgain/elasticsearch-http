@@ -31,15 +31,15 @@ public class BulkActionMarshaller {
                         try {
                             if (actionRequest instanceof IndexRequest) {
                                 IndexRequest indexRequest = (IndexRequest) actionRequest;
-                                return Observable.just(buildIndexCommand(indexRequest).getBytes(Charsets.UTF_8), LINE_BREAK, indexRequest.source().toBytes(), LINE_BREAK);
+                                return Observable.just(buildIndexCommand(indexRequest), LINE_BREAK, indexRequest.source().toBytes(), LINE_BREAK);
 
                             } else if (actionRequest instanceof DeleteRequest) {
                                 DeleteRequest deleteRequest = (DeleteRequest) actionRequest;
-                                return Observable.just(buildDeleteCommand(deleteRequest).getBytes(Charsets.UTF_8), LINE_BREAK);
+                                return Observable.just(buildDeleteCommand(deleteRequest), LINE_BREAK);
 
                             } else if (actionRequest instanceof UpdateRequest) {
                                 UpdateRequest updateRequest = (UpdateRequest) actionRequest;
-                                return Observable.just(buildUpdateCommand(updateRequest).getBytes(Charsets.UTF_8), LINE_BREAK, UpdateHelper.buildRequestBody(updateRequest).getBytes(Charsets.UTF_8), LINE_BREAK);
+                                return Observable.just(buildUpdateCommand(updateRequest), LINE_BREAK, UpdateHelper.buildRequestBody(updateRequest), LINE_BREAK);
                             } else {
                                 throw new IllegalArgumentException("action type " + actionRequest.getClass().getName() + " not supported");
                             }
@@ -50,68 +50,71 @@ public class BulkActionMarshaller {
                 });
     }
 
-    private static String buildIndexCommand(IndexRequest indexRequest) throws IOException {
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-        addCommonOptions(builder, "index", indexRequest.index(), indexRequest.type(), indexRequest.id(),
-                indexRequest.version(), indexRequest.versionType(), indexRequest.routing(),
-                indexRequest.consistencyLevel(), indexRequest.refresh(), indexRequest.replicationType());
-        String parent = indexRequest.parent();
-        String timestamp = indexRequest.timestamp();
-        long ttl = indexRequest.ttl();
-        if (parent != null) {
-            builder.field("_parent", parent);
+    private static byte[] buildIndexCommand(IndexRequest indexRequest) throws IOException {
+        try (XContentBuilder builder = XContentFactory.jsonBuilder().startObject()) {
+            addCommonOptions(builder, "index", indexRequest.index(), indexRequest.type(), indexRequest.id(),
+                    indexRequest.version(), indexRequest.versionType(), indexRequest.routing(),
+                    indexRequest.consistencyLevel(), indexRequest.refresh(), indexRequest.replicationType());
+            String parent = indexRequest.parent();
+            String timestamp = indexRequest.timestamp();
+            long ttl = indexRequest.ttl();
+            if (parent != null) {
+                builder.field("_parent", parent);
+            }
+            if (timestamp != null) {
+                builder.field("_timestamp", timestamp);
+            }
+            if (ttl != -1) {
+                builder.field("_ttl", ttl);
+            }
+            if (indexRequest.opType() != null) {
+                builder.field("op_type", indexRequest.opType().toString().toLowerCase());
+            }
+            if (indexRequest.parent() != null) {
+                builder.field("op_type", indexRequest.parent());
+            }
+            return builder.bytes().toBytes();
         }
-        if (timestamp != null) {
-            builder.field("_timestamp", timestamp);
-        }
-        if (ttl != -1) {
-            builder.field("_ttl", ttl);
-        }
-        if (indexRequest.opType() != null) {
-            builder.field("op_type", indexRequest.opType().toString().toLowerCase());
-        }
-        if (indexRequest.parent() != null) {
-            builder.field("op_type", indexRequest.parent());
-        }
-        return builder.string();
     }
 
-    private static String buildDeleteCommand(DeleteRequest deleteRequest) throws IOException {
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-        addCommonOptions(builder, "delete", deleteRequest.index(), deleteRequest.type(), deleteRequest.id(),
-                deleteRequest.version(), deleteRequest.versionType(), deleteRequest.routing(),
-                deleteRequest.consistencyLevel(), deleteRequest.refresh(), deleteRequest.replicationType());
-        return builder.string();
+    private static byte[] buildDeleteCommand(DeleteRequest deleteRequest) throws IOException {
+        try(XContentBuilder builder = XContentFactory.jsonBuilder().startObject()) {
+            addCommonOptions(builder, "delete", deleteRequest.index(), deleteRequest.type(), deleteRequest.id(),
+                    deleteRequest.version(), deleteRequest.versionType(), deleteRequest.routing(),
+                    deleteRequest.consistencyLevel(), deleteRequest.refresh(), deleteRequest.replicationType());
+            return builder.bytes().toBytes();
+        }
     }
 
 
-    private static String buildUpdateCommand(UpdateRequest updateRequest) throws IOException {
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-        addCommonOptions(builder, "update", updateRequest.index(), updateRequest.type(), updateRequest.id(),
-                updateRequest.version(), updateRequest.versionType(), updateRequest.routing(),
-                updateRequest.consistencyLevel(), updateRequest.refresh(), updateRequest.replicationType());
+    private static byte[] buildUpdateCommand(UpdateRequest updateRequest) throws IOException {
+        try (XContentBuilder builder = XContentFactory.jsonBuilder().startObject()) {
+            addCommonOptions(builder, "update", updateRequest.index(), updateRequest.type(), updateRequest.id(),
+                    updateRequest.version(), updateRequest.versionType(), updateRequest.routing(),
+                    updateRequest.consistencyLevel(), updateRequest.refresh(), updateRequest.replicationType());
 
-        String timestamp = updateRequest.doc() != null ? updateRequest.doc().timestamp() : null;
-        long ttl = updateRequest.doc() != null ? updateRequest.doc().ttl() : -1;
+            String timestamp = updateRequest.doc() != null ? updateRequest.doc().timestamp() : null;
+            long ttl = updateRequest.doc() != null ? updateRequest.doc().ttl() : -1;
 
-        if (timestamp != null) {
-            builder.field("_timestamp", timestamp);
+            if (timestamp != null) {
+                builder.field("_timestamp", timestamp);
+            }
+            if (ttl != -1) {
+                builder.field("_ttl", ttl);
+            }
+            if (updateRequest.retryOnConflict() != -1) {
+                builder.field("_retry_on_conflict", updateRequest.retryOnConflict());
+            }
+            if (updateRequest.fields() != null && updateRequest.fields().length > 0) {
+                builder.field("_fields", Strings.arrayToCommaDelimitedString(updateRequest.fields()));
+            }
+            if (updateRequest.doc() != null && updateRequest.doc().parent() != null) {
+                builder.field("_parent", updateRequest.doc().parent());
+            } else if (updateRequest.routing() != null) {
+                builder.field("_parent", updateRequest.routing());
+            }
+            return builder.bytes().toBytes();
         }
-        if (ttl != -1) {
-            builder.field("_ttl", ttl);
-        }
-        if (updateRequest.retryOnConflict() != -1) {
-            builder.field("_retry_on_conflict", updateRequest.retryOnConflict());
-        }
-        if (updateRequest.fields() != null && updateRequest.fields().length > 0) {
-            builder.field("_fields", Strings.arrayToCommaDelimitedString(updateRequest.fields()));
-        }
-        if (updateRequest.doc() != null && updateRequest.doc().parent() != null) {
-            builder.field("_parent", updateRequest.doc().parent());
-        } else if (updateRequest.routing() != null) {
-            builder.field("_parent", updateRequest.routing());
-        }
-        return builder.string();
     }
 
     private static void addCommonOptions(XContentBuilder builder, String command, String index, String type, String id,

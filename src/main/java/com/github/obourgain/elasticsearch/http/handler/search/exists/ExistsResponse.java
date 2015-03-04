@@ -1,28 +1,29 @@
 package com.github.obourgain.elasticsearch.http.handler.search.exists;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
+import com.github.obourgain.elasticsearch.http.response.entity.ShardFailure;
 import io.netty.buffer.ByteBuf;
-import lombok.Builder;
 import lombok.Getter;
 import rx.Observable;
 
-@Builder
 @Getter
 public class ExistsResponse {
 
     private boolean exists;
+    private List<ShardFailure> shardFailures = Collections.emptyList();
 
     public static Observable<ExistsResponse> parse(ByteBuf content) {
-        return Observable.just(doParse(new ByteBufBytesReference(content)));
+        return Observable.just(new ExistsResponse().parse(new ByteBufBytesReference(content)));
     }
 
-    private static ExistsResponse doParse(BytesReference bytesReference) {
+    private ExistsResponse parse(BytesReference bytesReference) {
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
-            ExistsResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -30,14 +31,17 @@ public class ExistsResponse {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
                     if ("exists".equals(currentFieldName)) {
-                        builder.exists(parser.booleanValue());
+                        exists=parser.booleanValue();
                     } else {
                         throw new IllegalStateException("unknown field " + currentFieldName);
                     }
+                } else if (token == XContentParser.Token.START_ARRAY) {
+                    if("failures".equals(currentFieldName)) {
+                        shardFailures = ShardFailure.parse(parser);
+                    }
                 }
-                // TODO shard failures
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

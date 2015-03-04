@@ -16,7 +16,7 @@ public class ValidateQueryResponseTest {
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
-        ValidateQueryResponse response = ValidateQueryResponse.doParse(new BytesArray(json.getBytes()));
+        ValidateQueryResponse response = new ValidateQueryResponse().parse(new BytesArray(json.getBytes()));
 
         Shards shards = response.getShards();
         Assertions.assertThat(shards.getTotal()).isEqualTo(3);
@@ -32,7 +32,7 @@ public class ValidateQueryResponseTest {
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
-        ValidateQueryResponse response = ValidateQueryResponse.doParse(new BytesArray(json.getBytes()));
+        ValidateQueryResponse response = new ValidateQueryResponse().parse(new BytesArray(json.getBytes()));
 
         Shards shards = response.getShards();
         Assertions.assertThat(shards.getTotal()).isEqualTo(3);

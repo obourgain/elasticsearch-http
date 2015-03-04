@@ -1,32 +1,33 @@
 package com.github.obourgain.elasticsearch.http.handler.search.count;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
+import com.github.obourgain.elasticsearch.http.response.entity.ShardFailure;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
 import io.netty.buffer.ByteBuf;
-import lombok.Builder;
 import lombok.Getter;
 import rx.Observable;
 
-@Builder
 @Getter
 public class CountResponse {
 
     private Shards shards;
     private long count;
     private boolean terminatedEarly;
+    private List<ShardFailure> shardFailures = Collections.emptyList();
 
     public static Observable<CountResponse> parse(ByteBuf content) {
-        return Observable.just(doParse(new ByteBufBytesReference(content)));
+        return Observable.just(new CountResponse().parse(new ByteBufBytesReference(content)));
     }
 
-    private static CountResponse doParse(BytesReference bytesReference) {
+    private CountResponse parse(BytesReference bytesReference) {
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
-            CountResponse.CountResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -34,20 +35,23 @@ public class CountResponse {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
                     if ("count".equals(currentFieldName)) {
-                        builder.count(parser.longValue());
+                        count=parser.longValue();
                     } else if ("terminated_early".equals(currentFieldName)) {
-                        builder.terminatedEarly(parser.booleanValue());
+                        terminatedEarly=parser.booleanValue();
                     } else {
                         throw new IllegalStateException("unknown field " + currentFieldName);
                     }
+                } else if (token == XContentParser.Token.START_ARRAY) {
+                    if("failures".equals(currentFieldName)) {
+                        shardFailures = ShardFailure.parse(parser);
+                    }
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_shards".equals(currentFieldName)) {
-                        builder.shards(ShardParser.parseInner(parser));
+                        shards=ShardParser.parseInner(parser);
                     }
                 }
-                // TODO shard failures
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

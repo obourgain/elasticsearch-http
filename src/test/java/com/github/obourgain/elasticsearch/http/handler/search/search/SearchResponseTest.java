@@ -14,7 +14,7 @@ public class SearchResponseTest {
     public void should_parse_response() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/handler/search/search/response.json");
 
-        SearchResponse searchResponse = SearchResponse.doParse(new BytesArray(json));
+        SearchResponse searchResponse = new SearchResponse().parse(new BytesArray(json));
 
         assertThat(searchResponse.getShards().getTotal()).isEqualTo(20);
         assertThat(searchResponse.getShards().getSuccessful()).isEqualTo(20);
@@ -40,7 +40,7 @@ public class SearchResponseTest {
     public void should_parse_response_with_aggs() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/handler/search/search/response_with_agg.json");
 
-        SearchResponse searchResponse = SearchResponse.doParse(new BytesArray(json));
+        SearchResponse searchResponse = new SearchResponse().parse(new BytesArray(json));
 
         assertThat(searchResponse.getShards().getTotal()).isEqualTo(20);
         assertThat(searchResponse.getShards().getSuccessful()).isEqualTo(20);
