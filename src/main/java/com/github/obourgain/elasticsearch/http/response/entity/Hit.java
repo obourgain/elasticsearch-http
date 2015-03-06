@@ -4,6 +4,7 @@ import static org.elasticsearch.common.xcontent.XContentParser.Token.END_OBJECT;
 import static org.elasticsearch.common.xcontent.XContentParser.Token.FIELD_NAME;
 import static org.elasticsearch.common.xcontent.XContentParser.Token.START_ARRAY;
 import static org.elasticsearch.common.xcontent.XContentParser.Token.START_OBJECT;
+import static org.elasticsearch.common.xcontent.XContentParser.Token.VALUE_NULL;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +24,7 @@ public class Hit {
     private String index;
     private String type;
     private String id;
-    private float score;
+    private Float score; // may be null when sorting without setting track_scores to true
     private long version;
     private byte[] source;
     private List<String> sort = Collections.emptyList();
@@ -59,13 +60,13 @@ public class Hit {
             } else if (token == START_ARRAY && "sort".equals(currentFieldName)) {
                 assert parser.currentToken() == START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
                 sort = parseSort(parser);
+            } else if (token == VALUE_NULL && "_score".equals(currentFieldName)) {
+                score = null;
             } else {
                 throw new IllegalStateException("unknown field " + currentFieldName);
             }
             // see org.elasticsearch.search.internal.InternalSearchHit
-            // TODO fields
             // TODO highlight
-            // TODO sort
             // TODO matched_queries
             // TODO _explanation
         }

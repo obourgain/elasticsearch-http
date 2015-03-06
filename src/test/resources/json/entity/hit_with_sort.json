@@ -1,0 +1,14 @@
+{
+  "_index": "twitter2",
+  "_type": "tweet",
+  "_id": "2",
+  "_score": null,
+  "_source": {
+    "user": "foo",
+    "message": "the message",
+    "the_int": 12
+  },
+  "sort": [
+    12
+  ]
+}

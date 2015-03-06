@@ -54,6 +54,25 @@ public class HitTest {
     }
 
     @Test
+    public void should_parse_hit_with_sort() throws Exception {
+        // beware, score is null is sorting and track_score is not set to true
+        String json = readFromClasspath("json/entity/hit_with_sort.json");
+        XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
+        parser.nextToken();
+
+        Hit hit = new Hit().parse(parser);
+
+        assertThat(hit.getId()).isEqualTo("2");
+        assertThat(hit.getType()).isEqualTo("tweet");
+        assertThat(hit.getIndex()).isEqualTo("twitter2");
+        assertThat(hit.getScore()).isNull();
+        assertThat(hit.getSource().length).isGreaterThan(1);
+
+        assertThat(hit.getSort()).hasSize(1).containsOnly("12");
+
+    }
+
+    @Test
     public void should_parse_hit_with_fields() throws Exception {
         String json = readFromClasspath("json/entity/hit_with_fields.json");
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
