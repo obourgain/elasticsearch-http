@@ -72,9 +72,7 @@ public class Hit {
                 throw new IllegalStateException("unknown field " + currentFieldName);
             }
             // see org.elasticsearch.search.internal.InternalSearchHit
-            // TODO highlight
             // TODO matched_queries
-            // TODO _explanation
         }
         return this;
     }
