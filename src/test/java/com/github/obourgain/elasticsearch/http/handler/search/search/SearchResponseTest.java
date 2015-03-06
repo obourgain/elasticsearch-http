@@ -68,4 +68,24 @@ public class SearchResponseTest {
         assertThat(words.getDocCountErrorUpperBound()).isEqualTo(3);
         assertThat(words.getSumOtherDocCount()).isEqualTo(2);
     }
+
+    @Test
+    public void should_parse_response_with_fields() throws Exception {
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/handler/search/search/response_with_fields.json");
+
+        SearchResponse searchResponse = new SearchResponse().parse(new BytesArray(json));
+
+        assertThat(searchResponse.getHits().getTotal()).isEqualTo(2);
+        assertThat(searchResponse.getHits().getMaxScore()).isEqualTo(1);
+
+        List<Hit> hits = searchResponse.getHits().getHits();
+        assertThat(hits).hasSize(2);
+        assertThat(hits.get(0).getIndex()).isEqualTo("twitter2");
+        assertThat(hits.get(0).getType()).isEqualTo("tweet");
+        assertThat(hits.get(0).getId()).isEqualTo("1");
+        assertThat(hits.get(0).getScore()).isEqualTo(1);
+        assertThat(hits.get(0).getSource()).isNull();
+
+        assertThat(hits.get(0).getFields()).hasSize(2);
+    }
 }
