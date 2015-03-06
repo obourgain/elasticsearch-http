@@ -13,6 +13,7 @@ import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.open.OpenIndexRequest;
 import org.elasticsearch.action.admin.indices.optimize.OptimizeRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
 import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryRequest;
 import org.elasticsearch.action.support.PlainActionFuture;
@@ -47,6 +48,7 @@ import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.pu
 import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.optimize.OptimizeResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.refresh.RefreshResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.get.GetSettingsResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.template.put.PutIndexTemplateResponse;
 import io.netty.buffer.ByteBuf;
 
@@ -212,6 +214,16 @@ public class HttpIndicesAdminClient {
     public Future<GetMappingsResponse> getMappings(GetMappingsRequest request) {
         PlainActionFuture<GetMappingsResponse> future = PlainActionFuture.newFuture();
         getMappings(request, future);
+        return future;
+    }
+
+    public void getSettings(GetSettingsRequest request, ActionListener<GetSettingsResponse> listener) {
+        getSettingsActionHandler.execute(request, listener);
+    }
+
+    public Future<GetSettingsResponse> getSettings(GetSettingsRequest request) {
+        PlainActionFuture<GetSettingsResponse> future = PlainActionFuture.newFuture();
+        getSettings(request, future);
         return future;
     }
 

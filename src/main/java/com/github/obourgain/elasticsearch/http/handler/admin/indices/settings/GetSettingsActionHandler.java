@@ -36,7 +36,6 @@ public class GetSettingsActionHandler {
     }
 
     public void execute(GetSettingsRequest request, final ActionListener<GetSettingsResponse> listener) {
-        // TODO tests
         logger.debug("get settings request {}", request);
         try {
             // lots of url patterns are accepted, but this one is the most practical for a generic impl
