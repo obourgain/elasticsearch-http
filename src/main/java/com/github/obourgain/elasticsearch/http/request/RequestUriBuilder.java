@@ -204,7 +204,9 @@ public class RequestUriBuilder {
         IndicesOptions indicesOptions = request.indicesOptions();
         addQueryParameter("ignore_unavailable", indicesOptions.ignoreUnavailable());
         addQueryParameter("allow_no_indices", indicesOptions.allowNoIndices());
-        addQueryParameter("ignore_unavailable", indicesOptions.forbidClosedIndices());
+
+        // not used
+//        addQueryParameter("", indicesOptions.forbidClosedIndices());
 
         // comment from IndicesOptions :
         //note that allowAliasesToMultipleIndices is not exposed, always true (only for internal use)

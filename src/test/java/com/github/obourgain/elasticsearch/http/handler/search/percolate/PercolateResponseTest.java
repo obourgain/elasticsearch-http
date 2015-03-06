@@ -18,7 +18,7 @@ public class PercolateResponseTest {
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
-        PercolateResponse response = PercolateResponse.doParse(new BytesArray(json.getBytes()));
+        PercolateResponse response = new PercolateResponse().parse(new BytesArray(json.getBytes()));
 
         Shards shards = response.getShards();
         assertThat(shards.getTotal()).isEqualTo(5);

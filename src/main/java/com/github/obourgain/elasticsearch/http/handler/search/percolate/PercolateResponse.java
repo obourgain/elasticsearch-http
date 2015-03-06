@@ -12,7 +12,6 @@ import lombok.Builder;
 import lombok.Getter;
 import rx.Observable;
 
-@Builder
 @Getter
 public class PercolateResponse {
 
@@ -24,12 +23,11 @@ public class PercolateResponse {
     // TODO aggs ?
 
     public static Observable<PercolateResponse> parse(ByteBuf content) {
-        return Observable.just(doParse(new ByteBufBytesReference(content)));
+        return Observable.just(new PercolateResponse().parse(new ByteBufBytesReference(content)));
     }
 
-    protected static PercolateResponse doParse(BytesReference bytesReference) {
+    protected PercolateResponse parse(BytesReference bytesReference) {
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
-            PercolateResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -37,23 +35,23 @@ public class PercolateResponse {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
                     if ("took".equals(currentFieldName)) {
-                        builder.tookInMillis(parser.longValue());
+                        tookInMillis = parser.longValue();
                     } else if ("total".equals(currentFieldName)) {
-                        builder.total(parser.longValue());
+                        total = parser.longValue();
                     } else {
                         throw new IllegalStateException("unknown field " + currentFieldName);
                     }
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_shards".equals(currentFieldName)) {
-                        builder.shards(ShardParser.parseInner(parser));
+                        shards = ShardParser.parseInner(parser);
                     }
                 } else if (token == XContentParser.Token.START_ARRAY) {
                     if ("matches".equals(currentFieldName)) {
-                        builder.matches(Matches.parse(parser));
+                        matches = Matches.parse(parser);
                     }
                 }
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
