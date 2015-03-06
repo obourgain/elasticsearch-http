@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.apache.lucene.search.Explanation;
 import org.elasticsearch.Version;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
@@ -35,7 +34,6 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.GetResponseAccessor;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
-import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.action.suggest.SuggestResponseAccessor;
 import org.elasticsearch.cluster.ClusterName;
@@ -148,10 +146,6 @@ public class ResponseWrapper<Req> {
         return getAs(map, "found", boolean.class);
     }
 
-    private Boolean getHasTerminatedEarly() {
-        return getAs(entityWrapper, "terminated_early", Boolean.class);
-    }
-
     protected BytesReference getSourceAsBytes(Map<String, Object> map) {
         @SuppressWarnings("unchecked")
         Map<String, Object> source = getAsStringObjectMap(map, "_source");
@@ -193,18 +187,8 @@ public class ResponseWrapper<Req> {
     }
 
     @Nullable
-    private static Map<String, List<String>> getAsStringListOfStringsMap(Map map, String key) {
-        return (Map<String, List<String>>) getAs(map, key, Map.class);
-    }
-
-    @Nullable
     private List<Map<String, Object>> getAsListOfStringObjectMap(Map map, String key) {
         return (List<Map<String, Object>>) getAs(map, key, List.class);
-    }
-
-    @Nullable
-    private List<Map<String, Map<String, Object>>> getAsListOfNestedStringObjectMaps(Map map, String key) {
-        return (List<Map<String, Map<String, Object>>>) getAs(map, key, List.class);
     }
 
     public Map<String, GetField> getFields(Map<String, Object> fieldsAsMap) {
@@ -257,20 +241,6 @@ public class ResponseWrapper<Req> {
             );
         }
         return null;
-    }
-
-    private static Explanation toExplanation(Map<String, Object> explanationAsMap) {
-        float value = ((Number) explanationAsMap.get("value")).floatValue();
-        String description = (String) explanationAsMap.get("description");
-        Explanation explanation = new Explanation(value, description);
-        List<Map<String, Object>> details = getAs(explanationAsMap, "details", List.class);
-        if (details != null) {
-            for (Map<String, Object> detail : details) {
-                Explanation subExplanation = toExplanation(detail);
-                explanation.addDetail(subExplanation);
-            }
-        }
-        return explanation;
     }
 
     public SuggestResponse toSuggestResponse() {
@@ -332,41 +302,6 @@ public class ResponseWrapper<Req> {
             }
         }
         return result;
-    }
-
-    private ShardSearchFailure[] buildShardSearchFailures(String error) {
-        // failure format : org.elasticsearch.action.search.SearchPhaseExecutionException.buildMessage()
-        String[] splitted = error.split("\\{\\[");
-        ShardSearchFailure[] result = new ShardSearchFailure[splitted.length - 1];
-        // skip first occurence as it is something like "; shardFailures "
-        for (int i = 1; i < splitted.length; i++) {
-            String failure = splitted[i];
-            SearchShardTarget searchShardTarget = buildSearchShardTarget(failure);
-            int startException = nthIndexOf(failure, ']', 3) + 3; // + 3 => "]" after shard id, a ":" and a space
-            ShardSearchFailure shardSearchFailure = new ShardSearchFailure(failure.substring(startException), searchShardTarget, stringToRestStatus());
-            result[i - 1] = shardSearchFailure;
-        }
-        return result;
-    }
-
-    private RestStatus stringToRestStatus() {
-//        return RestStatus.valueOf(response.getStatusText().toUpperCase().replaceAll(" ", "_"));
-        return null;
-    }
-
-    private static SearchShardTarget buildSearchShardTarget(String error) {
-        // here we receive something like: dUXMEAWNQLOJmfuu5y98fA][test][5]: SearchParseException[[test][5]: from[-1],size[-1]: Parse Failure [Failed to parse source [{"query":{"query_string":{"query":"future:[now/D TO now+2M/d]","lowercase_expanded_terms":false}}}]]]; nested: ElasticsearchParseException[unit [D] not supported for date math [/D]]; }
-        int endNodeId = nthIndexOf(error, ']', 1);
-        String nodeId = error.substring(0, endNodeId);
-        int startIndex = nthIndexOf(error, '[', 1) + 1;
-        int endIndex = nthIndexOf(error, ']', 2);
-        String index = error.substring(startIndex, endIndex);
-        int startShardId = nthIndexOf(error, '[', 2) + 1;
-        int endShardId = nthIndexOf(error, ']', 3);
-        int shardId = Integer.parseInt(error.substring(startShardId, endShardId));
-
-        return new SearchShardTarget(nodeId, index, shardId);
-
     }
 
     public GetIndexTemplatesResponse toGetIndexTemplatesResponse() {
@@ -706,78 +641,6 @@ public class ResponseWrapper<Req> {
             throw new RuntimeException();
         }
         return metaData;
-    }
-
-    /**
-     * Returns the index of the nth occurrence of given char or -1
-     * Not 0-indexed !
-     */
-    public static int nthIndexOf(String string, char needle, int n) {
-        if (string == null || n < 1) {
-            return -1;
-        }
-        int pos = string.indexOf(needle, 0);
-        while (--n > 0 && pos != -1)
-            pos = string.indexOf(needle, pos + 1);
-        return pos;
-    }
-
-    /**
-     * Returns the index of the next occurrence of given char after startIndex or -1
-     */
-    public static int nextIndexOf(String string, char needle, int startIndex) {
-        if (string == null || startIndex < 1) {
-            return -1;
-        }
-        for (int i = startIndex + 1; i < string.length(); i++) {
-            if (string.charAt(i) == needle) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public GetSettingsResponse toGetSettingsResponse() {
-        // TODO factorize with get template
-        ImmutableOpenMap.Builder<String, Settings> builder = ImmutableOpenMap.builder();
-        for (String index : entityWrapper.keySet()) {
-            Map<String, Map<String, Object>> indexSettings = getAsNestedStringToMapMap(entityWrapper, index);
-            Map<String, Map<String, Object>> settingsAsMap = getAsNestedStringToMapMap(indexSettings, "settings");
-            Map<String, String> flattenedSettings = flattenSettings(settingsAsMap);
-            Settings settings = ImmutableSettings.builder().put(flattenedSettings).build();
-            builder.put(index, settings);
-        }
-        return new GetSettingsResponse(builder.build());
-    }
-
-    /**
-     * We get settings as nested objects whereas the expected result is to have dot separated flat path
-     */
-    private Map<String, String> flattenSettings(Map<String, ?> settingsAsMap) {
-        Map<String, String> result = new HashMap<>();
-        for (Map.Entry<String, ?> entry : settingsAsMap.entrySet()) {
-            if (entry.getValue() instanceof Map) {
-                ArrayList<String> prefix = new ArrayList<>();
-                prefix.add(entry.getKey());
-                flattenSettings((Map<String, ?>) entry.getValue(), prefix, result);
-            } else {
-                result.put(entry.getKey(), String.valueOf(entry.getValue()));
-            }
-        }
-        return result;
-    }
-
-    private void flattenSettings(Map<String, ?> settingsAsMap, List<String> prefix, Map<String, String> output) {
-        for (Map.Entry<String, ?> entry : settingsAsMap.entrySet()) {
-            // copy to avoid sharing it
-            List<String> copy = new ArrayList<>(prefix);
-            copy.add(entry.getKey());
-            if (entry.getValue() instanceof Map) {
-                flattenSettings((Map<String, ?>) entry.getValue(), copy, output);
-            } else {
-                output.put(settingsJoiner.join(copy), String.valueOf(entry.getValue()));
-            }
-        }
     }
 
     public ClusterStatsResponse toClusterStatsResponse() {
