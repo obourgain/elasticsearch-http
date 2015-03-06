@@ -30,6 +30,7 @@ public class Hit {
     private List<String> sort = Collections.emptyList();
     private Map<String, SearchHitField> fields = ImmutableMap.of();
     private Map<String, Highlight> highlights = ImmutableMap.of();
+    private Explanation explanation;
 
     public Hit parse(XContentParser parser) throws IOException {
         assert parser.currentToken() == START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
@@ -60,6 +61,8 @@ public class Hit {
                 fields = parseSearchHitFields(parser);
             } else if (token == START_OBJECT && "highlight".equals(currentFieldName)) {
                 highlights = parseHighlights(parser);
+            } else if (token == START_OBJECT && "_explanation".equals(currentFieldName)) {
+                explanation = Explanation.parseExplanation(parser);
             } else if (token == START_ARRAY && "sort".equals(currentFieldName)) {
                 assert parser.currentToken() == START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
                 sort = parseSort(parser);

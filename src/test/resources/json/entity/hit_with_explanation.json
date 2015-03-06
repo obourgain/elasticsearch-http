@@ -1,0 +1,29 @@
+{
+  "_shard": 2,
+  "_node": "dkV7kODhTpaa1Vg_heeCpQ",
+  "_index": "twitter2",
+  "_type": "tweet",
+  "_id": "1",
+  "_score": 1,
+  "_source": {
+    "user": "foo",
+    "message": [
+      "the message",
+      "twice the message"
+    ]
+  },
+  "_explanation": {
+    "value": 1,
+    "description": "ConstantScore(*:*), product of:",
+    "details": [
+      {
+        "value": 1,
+        "description": "boost"
+      },
+      {
+        "value": 1,
+        "description": "queryNorm"
+      }
+    ]
+  }
+}
