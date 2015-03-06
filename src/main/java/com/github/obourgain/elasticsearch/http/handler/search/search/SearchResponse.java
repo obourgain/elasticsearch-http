@@ -52,7 +52,8 @@ public class SearchResponse {
                         throw new IllegalStateException("unknown field " + currentFieldName);
                     }
                 } else if (token == XContentParser.Token.START_ARRAY) {
-                    ShardSearchFailure.parse(parser);
+                    // TODO test
+                    failures = ShardSearchFailure.parse(parser);
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_shards".equals(currentFieldName)) {
                         shards = ShardParser.parseInner(parser);

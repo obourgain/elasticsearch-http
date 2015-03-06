@@ -8,23 +8,20 @@ import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.Indices;
 import com.github.obourgain.elasticsearch.http.response.parser.IndicesParser;
 import io.netty.buffer.ByteBuf;
-import lombok.Builder;
 import lombok.Getter;
 import rx.Observable;
 
-@Builder
 @Getter
 public class DeleteByQueryResponse {
 
     private Indices indices;
 
     protected static Observable<DeleteByQueryResponse> parse(ByteBuf content) {
-        return Observable.just(doParse(new ByteBufBytesReference(content)));
+        return Observable.just(new DeleteByQueryResponse().doParse(new ByteBufBytesReference(content)));
     }
 
-    protected static DeleteByQueryResponse doParse(BytesReference bytesReference) {
+    protected DeleteByQueryResponse doParse(BytesReference bytesReference) {
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
-            DeleteByQueryResponse.DeleteByQueryResponseBuilder builder = DeleteByQueryResponse.builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -32,12 +29,11 @@ public class DeleteByQueryResponse {
                     currentFieldName = parser.currentName();
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_indices".equals(currentFieldName)) {
-                        Indices indices = IndicesParser.parse(parser);
-                        builder.indices(indices);
+                        indices = IndicesParser.parse(parser);
                     }
                 }
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
