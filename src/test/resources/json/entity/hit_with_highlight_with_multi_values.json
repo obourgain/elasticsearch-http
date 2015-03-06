@@ -1,0 +1,26 @@
+{
+  "_index": "twitter2",
+  "_type": "tweet",
+  "_id": "1",
+  "_score": null,
+  "_source": {
+    "user": "foo",
+    "message": [
+      "the message",
+      "twice the message"
+    ],
+    "the_int": [
+      2,
+      3
+    ]
+  },
+  "highlight": {
+    "message": [
+      "the <em>message</em>",
+      "twice the <em>message</em>"
+    ]
+  },
+  "sort": [
+    3
+  ]
+}

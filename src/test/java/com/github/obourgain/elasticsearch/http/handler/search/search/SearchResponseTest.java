@@ -88,4 +88,29 @@ public class SearchResponseTest {
 
         assertThat(hits.get(0).getFields()).hasSize(2);
     }
+
+    @Test
+    public void should_parse_response_with_highlights() throws Exception {
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/handler/search/search/response_with_highlight.json");
+
+        SearchResponse searchResponse = new SearchResponse().parse(new BytesArray(json));
+
+        assertThat(searchResponse.getHits().getTotal()).isEqualTo(2);
+
+        List<Hit> hits = searchResponse.getHits().getHits();
+        assertThat(hits).hasSize(2);
+        assertThat(hits.get(0).getIndex()).isEqualTo("twitter2");
+        assertThat(hits.get(0).getType()).isEqualTo("tweet");
+        assertThat(hits.get(0).getId()).isEqualTo("2");
+        assertThat(hits.get(0).getSource().length).isGreaterThan(1);
+        assertThat(hits.get(0).getHighlights()).hasSize(1).containsKey("message");
+        assertThat(hits.get(0).getHighlights().get("message").getValue()).isEqualTo("the <em>message</em>");
+
+        assertThat(hits.get(1).getIndex()).isEqualTo("twitter2");
+        assertThat(hits.get(1).getType()).isEqualTo("tweet");
+        assertThat(hits.get(1).getId()).isEqualTo("1");
+        assertThat(hits.get(1).getSource().length).isGreaterThan(1);
+        assertThat(hits.get(1).getHighlights()).hasSize(1).containsKey("message");
+        assertThat(hits.get(1).getHighlights().get("message").getValue()).isEqualTo("the <em>message</em>");
+    }
 }
