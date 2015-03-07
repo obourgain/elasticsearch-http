@@ -54,7 +54,6 @@ public class GetMappingsActionHandlerTest extends AbstractTest {
                 .containsKey("test_index_2");
 
         Map<String, MappingMetaData> test_index_1 = response.getMappings().get("test_index_1");
-        System.out.println(test_index_1);
         Assertions.assertThat(test_index_1).isNotEmpty();
         Assertions.assertThat(response.getMappings().get("test_index_2")).isNotEmpty();
     }

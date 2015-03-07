@@ -37,7 +37,6 @@ public class GetMappingsResponse {
         XContentParser.Token token;
         String currentFieldName = null;
         while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
-            System.out.println("GetMappingsResponse.doParse : token = " + token + " " + parser.currentName() + " / " + parser.text());
             if (token == XContentParser.Token.FIELD_NAME) {
                 currentFieldName = parser.currentName();
             } else if (token == XContentParser.Token.START_OBJECT) {
@@ -57,7 +56,6 @@ public class GetMappingsResponse {
         XContentParser.Token token;
         String currentFieldName = null;
         while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
-            System.out.println("GetMappingsResponse.parseIndex : token = " + token + " " + parser.currentName() + " / " + parser.text());
             if (token == XContentParser.Token.FIELD_NAME) {
                 currentFieldName = parser.currentName();
             } else if (token == XContentParser.Token.START_OBJECT) {
@@ -77,7 +75,6 @@ public class GetMappingsResponse {
         XContentParser.Token token;
         String currentFieldName = null;
         while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
-            System.out.println("GetMappingsResponse.parseMappings : token = " + token + " " + parser.currentName() + " / " + parser.text());
             if (token == XContentParser.Token.FIELD_NAME) {
                 currentFieldName = parser.currentName();
             } else if (token == XContentParser.Token.START_OBJECT) {

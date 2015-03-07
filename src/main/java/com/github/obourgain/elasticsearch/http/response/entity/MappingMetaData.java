@@ -19,7 +19,6 @@ public class MappingMetaData {
         try {
             XContentParser.Token token;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
-                System.out.println("MappingMetaData.parse : token = " + token + " " + parser.currentName() + " / " + parser.text());
                 if (token == XContentParser.Token.FIELD_NAME) {
                     name = parser.currentName();
                 } else if (token == XContentParser.Token.START_OBJECT) {
