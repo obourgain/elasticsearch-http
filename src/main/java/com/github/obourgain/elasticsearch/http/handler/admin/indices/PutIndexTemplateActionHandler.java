@@ -95,12 +95,12 @@ public class PutIndexTemplateActionHandler {
                     xContentBuilder.field("warmers", warmers);
                 }
             }
-            String data = xContentBuilder.string();
+            byte[] data = xContentBuilder.bytes().toBytes();
 
             // TODO make params optional
             uriBuilder
                     .addQueryParameter("order", order)
-                    .addQueryParameter("template", order)
+                    .addQueryParameter("template", request.template())
                     .addQueryParameter("master_timeout", timeValue.toString())
                     .addQueryParameter("create", create)
                     .addQueryParameter("cause", cause);

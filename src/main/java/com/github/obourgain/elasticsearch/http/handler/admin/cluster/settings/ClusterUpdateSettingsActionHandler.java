@@ -56,7 +56,7 @@ public class ClusterUpdateSettingsActionHandler {
                 xContentBuilder.field("persistent").map((Map) persistentSettings.getAsMap());
             }
             xContentBuilder.endObject();
-            String body = xContentBuilder.string();
+            byte[] body = xContentBuilder.bytes().toBytes();
 
             uriBuilder.addQueryParameter("timeout", request.timeout().toString());
             uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString());

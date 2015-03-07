@@ -17,7 +17,6 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
@@ -120,7 +119,7 @@ public class CreateIndexActionHandler {
                 }
             }
             jsonBuilder.endObject();
-            String body = jsonBuilder.string();
+            byte[] body = jsonBuilder.bytes().toBytes();
 
             uriBuilder.addQueryParameter("timeout", timeout.toString());
             uriBuilder.addQueryParameter("master_timeout", masterNodeTimeout.toString());
