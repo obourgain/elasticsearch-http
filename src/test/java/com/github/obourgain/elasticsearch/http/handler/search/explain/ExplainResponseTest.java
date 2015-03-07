@@ -13,7 +13,7 @@ public class ExplainResponseTest {
     public void should_parse() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/search/explain/explain_response.json");
 
-        ExplainResponse response = ExplainResponse.doParse(new BytesArray(json.getBytes()));
+        ExplainResponse response = new ExplainResponse().doParse(new BytesArray(json.getBytes()));
 
         assertThat(response.getIndex()).isEqualTo("twitter");
         assertThat(response.getType()).isEqualTo("tweet");
@@ -30,7 +30,7 @@ public class ExplainResponseTest {
     public void should_parse_non_matched() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/search/explain/explain_response_not_matched.json");
 
-        ExplainResponse response = ExplainResponse.doParse(new BytesArray(json.getBytes()));
+        ExplainResponse response = new ExplainResponse().doParse(new BytesArray(json.getBytes()));
 
         assertThat(response.getIndex()).isEqualTo("twitter");
         assertThat(response.getType()).isEqualTo("tweet");
