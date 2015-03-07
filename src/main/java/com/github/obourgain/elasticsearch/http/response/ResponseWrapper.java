@@ -226,23 +226,6 @@ public class ResponseWrapper<Req> {
         return new Suggest(result);
     }
 
-    private GetResult toExplainGetResult(boolean found, String index, String type, String id, Map<String, Object> getAsMap) {
-        if (getAsMap != null) {
-            BytesReference sourceAsBytes = getSourceAsBytes(getAsMap);
-            Map<String, Object> fieldsAsMap = getAsStringObjectMap(getAsMap, "fields");
-            Map<String, GetField> fields = getResultToMapOfGetFields(fieldsAsMap);
-
-            return new GetResult(index, type, id,
-                    // version is not returned in explain response
-                    -1,
-                    found,
-                    sourceAsBytes,
-                    fields
-            );
-        }
-        return null;
-    }
-
     public SuggestResponse toSuggestResponse() {
         List<Suggest.Suggestion> suggestions = new ArrayList<>();
 
