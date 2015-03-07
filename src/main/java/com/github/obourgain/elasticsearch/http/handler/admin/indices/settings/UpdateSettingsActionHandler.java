@@ -45,21 +45,21 @@ public class UpdateSettingsActionHandler {
         try {
             // TODO this pattern is repeated a lot, better extract it
             String indices = Strings.arrayToCommaDelimitedString(UpdateSettingsRequestAccessor.indices(request));
-            if (!indices.isEmpty()) {
-                indices = "/" + indices;
-            }
             RequestUriBuilder uriBuilder = new RequestUriBuilder(indices).addEndpoint("_settings");
 
             Settings settings = UpdateSettingsRequestAccessor.settings(request);
-            XContentBuilder builder = XContentFactory.jsonBuilder();
+            XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
             settings.toXContent(builder, ToXContent.EMPTY_PARAMS);
+            builder.endObject();
             byte[] body = builder.bytes().toBytes();
 
             uriBuilder.addQueryParameter("timeout", String.valueOf(request.timeout()));
             uriBuilder.addQueryParameter("master_timeout", String.valueOf(request.masterNodeTimeout()));
-            uriBuilder.addIndicesOptions(request);
 
-            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createGet(uriBuilder.toString())
+            // TODO IndicesOptions are not correctly excluded from settings taken from params
+//            uriBuilder.addIndicesOptions(request);
+
+            indicesAdminClient.getHttpClient().submit(HttpClientRequest.createPut(uriBuilder.toString())
                     .withContent(body))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<UpdateSettingsResponse>>() {
