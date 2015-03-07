@@ -69,7 +69,11 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
     }
 
     protected void createDoc() throws IOException {
-        transportClient.index(Requests.indexRequest().index(THE_INDEX).type(THE_TYPE).id(THE_ID).refresh(true)
+        createDoc(THE_INDEX, THE_TYPE, THE_ID);
+    }
+
+    protected void createDoc(String index, String type, String id) throws IOException {
+        transportClient.index(Requests.indexRequest().index(index).type(type).id(id).refresh(true)
                         .source(XContentFactory.jsonBuilder().startObject()
                                 .field("the_string_field", "the_string_value")
                                 .field("the_integer_field", 42)

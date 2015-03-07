@@ -2,6 +2,7 @@ package com.github.obourgain.elasticsearch.http.client;
 
 import java.util.concurrent.Future;
 import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.close.CloseIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -38,6 +39,7 @@ import com.github.obourgain.elasticsearch.http.handler.admin.indices.settings.Ge
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.settings.UpdateSettingsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.validate.ValidateQueryActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.validate.ValidateQueryResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.aliases.IndicesAliasesResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.close.CloseIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.create.CreateIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.DeleteIndexResponse;
@@ -176,6 +178,16 @@ public class HttpIndicesAdminClient {
     public Future<GetAliasesResponse> getAliases(GetAliasesRequest request) {
         PlainActionFuture<GetAliasesResponse> future = PlainActionFuture.newFuture();
         getAliases(request, future);
+        return future;
+    }
+
+    public void aliases(IndicesAliasesRequest request, ActionListener<IndicesAliasesResponse> listener) {
+        indicesAliasesActionHandler.execute(request, listener);
+    }
+
+    public Future<IndicesAliasesResponse> aliases(IndicesAliasesRequest request) {
+        PlainActionFuture<IndicesAliasesResponse> future = PlainActionFuture.newFuture();
+        aliases(request, future);
         return future;
     }
 
