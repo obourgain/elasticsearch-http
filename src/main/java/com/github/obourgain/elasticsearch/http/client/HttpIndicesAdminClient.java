@@ -43,14 +43,14 @@ import com.github.obourgain.elasticsearch.http.response.admin.indices.create.Cre
 import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.DeleteIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.exists.IndicesExistsResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.flush.FlushResponse;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.getaliases.GetAliasesResponse;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.get.GetMappingsResponse;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.put.PutMappingResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.aliases.GetAliasesResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.GetMappingsResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.PutMappingResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.optimize.OptimizeResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.refresh.RefreshResponse;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.get.GetSettingsResponse;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.get.UpdateSettingsResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.GetSettingsResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.UpdateSettingsResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.template.put.PutIndexTemplateResponse;
 import io.netty.buffer.ByteBuf;
 

@@ -8,7 +8,7 @@ import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.getaliases.GetAliasesResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.aliases.GetAliasesResponse;
 
 public class GetAliasesActionHandlerTest extends AbstractTest {
 

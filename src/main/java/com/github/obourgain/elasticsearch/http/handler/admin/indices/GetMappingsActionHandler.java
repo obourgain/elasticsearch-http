@@ -11,7 +11,7 @@ import com.github.obourgain.elasticsearch.http.client.HttpIndicesAdminClient;
 import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObserver;
 import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.get.GetMappingsResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.GetMappingsResponse;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;

@@ -6,7 +6,8 @@ import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.get.GetSettingsResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.GetMappingsResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.GetSettingsResponse;
 
 public class GetSettingsActionHandlerTest extends AbstractTest {
 

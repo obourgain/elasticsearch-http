@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.response.admin.indices.settings.get;
+package com.github.obourgain.elasticsearch.http.response.admin.indices.settings;
 
 import java.io.IOException;
 import org.elasticsearch.common.bytes.BytesReference;

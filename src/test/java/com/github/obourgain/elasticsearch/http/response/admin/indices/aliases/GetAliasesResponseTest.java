@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.response.admin.indices.getaliases;
+package com.github.obourgain.elasticsearch.http.response.admin.indices.aliases;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
@@ -16,7 +16,7 @@ public class GetAliasesResponseTest {
     public void should_parse_empty_response() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/admin/indices/getaliases/empty_response.json");
 
-        GetAliasesResponse aliasesResponse = GetAliasesResponse.doParse(new BytesArray(json));
+        GetAliasesResponse aliasesResponse = new GetAliasesResponse().doParse(new BytesArray(json));
 
         assertThat(aliasesResponse.getAliases()).hasSize(0);
     }
@@ -25,7 +25,7 @@ public class GetAliasesResponseTest {
     public void should_parse_response() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/admin/indices/getaliases/response.json");
 
-        GetAliasesResponse aliasesResponse = GetAliasesResponse.doParse(new BytesArray(json));
+        GetAliasesResponse aliasesResponse = new GetAliasesResponse().doParse(new BytesArray(json));
 
         ImmutableOpenMap<String, List<AliasMetaData>> aliases = aliasesResponse.getAliases();
 

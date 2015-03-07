@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.response.admin.indices.getaliases;
+package com.github.obourgain.elasticsearch.http.response.admin.indices.aliases;
 
 import static org.elasticsearch.common.xcontent.XContentParser.Token.END_OBJECT;
 import static org.elasticsearch.common.xcontent.XContentParser.Token.FIELD_NAME;
@@ -18,26 +18,23 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import io.netty.buffer.ByteBuf;
-import lombok.Builder;
 import lombok.Getter;
 import rx.Observable;
 
 @Getter
-@Builder
 public class GetAliasesResponse {
 
     private ImmutableOpenMap<String, List<AliasMetaData>> aliases = ImmutableOpenMap.of();
 
     public static Observable<GetAliasesResponse> parse(ByteBuf content) {
-        return Observable.just(doParse(new ByteBufBytesReference(content)));
+        return Observable.just(new GetAliasesResponse().doParse(new ByteBufBytesReference(content)));
     }
 
     @VisibleForTesting
-    protected static GetAliasesResponse doParse(BytesReference bytesReference) {
+    protected GetAliasesResponse doParse(BytesReference bytesReference) {
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             ListMultimap<String, AliasMetaData> metaDatas = ArrayListMultimap.create();
 
-            GetAliasesResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != END_OBJECT) {
@@ -51,8 +48,8 @@ public class GetAliasesResponse {
                 }
             }
             Map<String, List<AliasMetaData>> map = Multimaps.asMap(metaDatas);
-            builder.aliases(ImmutableOpenMap.<String, List<AliasMetaData>>builder().putAll(map).build());
-            return builder.build();
+            aliases = ImmutableOpenMap.<String, List<AliasMetaData>>builder().putAll(map).build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

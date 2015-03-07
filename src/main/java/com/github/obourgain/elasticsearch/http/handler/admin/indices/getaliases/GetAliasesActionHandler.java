@@ -11,7 +11,7 @@ import com.github.obourgain.elasticsearch.http.concurrent.ListenerCompleterObser
 import com.github.obourgain.elasticsearch.http.request.HttpRequestUtils;
 import com.github.obourgain.elasticsearch.http.request.RequestUriBuilder;
 import com.github.obourgain.elasticsearch.http.response.ErrorHandler;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.getaliases.GetAliasesResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.aliases.GetAliasesResponse;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientRequest;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;

@@ -8,7 +8,7 @@ import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.get.GetMappingsResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.GetMappingsResponse;
 import com.github.obourgain.elasticsearch.http.response.entity.MappingMetaData;
 
 public class GetMappingsActionHandlerTest extends AbstractTest {

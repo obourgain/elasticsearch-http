@@ -7,7 +7,7 @@ import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.AbstractTest;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.get.UpdateSettingsResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.UpdateSettingsResponse;
 
 public class UpdateSettingsActionHandlerTest extends AbstractTest {
     @Test

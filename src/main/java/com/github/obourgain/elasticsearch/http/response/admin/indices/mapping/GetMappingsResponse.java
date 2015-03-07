@@ -1,4 +1,4 @@
-package com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.get;
+package com.github.obourgain.elasticsearch.http.response.admin.indices.mapping;
 
 import static org.elasticsearch.common.xcontent.XContentParser.Token.END_OBJECT;
 import static org.elasticsearch.common.xcontent.XContentParser.Token.START_OBJECT;

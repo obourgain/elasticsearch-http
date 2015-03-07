@@ -5,6 +5,7 @@ import java.util.Map;
 import org.elasticsearch.common.bytes.BytesArray;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.TestFilesUtils;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.GetMappingsResponse;
 import com.github.obourgain.elasticsearch.http.response.entity.MappingMetaData;
 
 public class GetMappingsResponseTest {
