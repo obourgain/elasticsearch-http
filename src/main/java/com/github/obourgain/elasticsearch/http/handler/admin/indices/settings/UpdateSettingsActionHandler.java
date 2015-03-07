@@ -43,7 +43,6 @@ public class UpdateSettingsActionHandler {
         // TODO test
         logger.debug("update indices settings request {}", request);
         try {
-            // TODO this pattern is repeated a lot, better extract it
             String indices = Strings.arrayToCommaDelimitedString(UpdateSettingsRequestAccessor.indices(request));
             RequestUriBuilder uriBuilder = new RequestUriBuilder(indices).addEndpoint("_settings");
 

@@ -10,6 +10,7 @@ import com.github.obourgain.elasticsearch.http.AbstractTest;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.UpdateSettingsResponse;
 
 public class UpdateSettingsActionHandlerTest extends AbstractTest {
+
     @Test
     public void should_update_settings() throws Exception {
         String index = "to_update_indices";
@@ -19,7 +20,7 @@ public class UpdateSettingsActionHandlerTest extends AbstractTest {
 
         UpdateSettingsResponse response = httpClient.admin().indices().updateSettings(
                 new UpdateSettingsRequest(index)
-                .settings(singletonMap("index.number_of_replicas", 5))
+                        .settings(singletonMap("index.number_of_replicas", 5))
         ).get();
 
         Assertions.assertThat(response.isAcknowledged()).isTrue();
@@ -27,4 +28,5 @@ public class UpdateSettingsActionHandlerTest extends AbstractTest {
         GetSettingsResponse expected = transportClient.admin().indices().getSettings(new GetSettingsRequest().indices(index)).actionGet();
         Assertions.assertThat(expected.getIndexToSettings().get(index).get("index.number_of_replicas")).isEqualTo("5");
     }
+
 }

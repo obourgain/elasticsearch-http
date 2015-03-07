@@ -36,9 +36,6 @@ public class CloseIndexActionHandler {
         logger.debug("close index request {}", request);
         try {
             String indices = Strings.arrayToCommaDelimitedString(CloseIndexRequestAccessor.indices(request));
-            if (!indices.isEmpty()) {
-                indices = "/" + indices;
-            }
 
             RequestUriBuilder uriBuilder = new RequestUriBuilder(indices).addEndpoint("_close");
             uriBuilder.addIndicesOptions(request);
