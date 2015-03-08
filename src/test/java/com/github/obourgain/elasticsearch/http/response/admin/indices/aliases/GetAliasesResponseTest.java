@@ -14,7 +14,7 @@ public class GetAliasesResponseTest {
 
     @Test
     public void should_parse_empty_response() throws Exception {
-        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/admin/indices/getaliases/empty_response.json");
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/admin/indices/aliases/empty_response.json");
 
         GetAliasesResponse aliasesResponse = new GetAliasesResponse().doParse(new BytesArray(json));
 
@@ -23,7 +23,7 @@ public class GetAliasesResponseTest {
 
     @Test
     public void should_parse_response() throws Exception {
-        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/admin/indices/getaliases/response.json");
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/admin/indices/aliases/response.json");
 
         GetAliasesResponse aliasesResponse = new GetAliasesResponse().doParse(new BytesArray(json));
 
@@ -42,7 +42,7 @@ public class GetAliasesResponseTest {
 
     @Test
     public void should_parse_aliases() throws Exception {
-        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/admin/indices/getaliases/index_alias_infos.json");
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/admin/indices/aliases/index_alias_infos.json");
 
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
@@ -62,7 +62,7 @@ public class GetAliasesResponseTest {
 
     @Test
     public void should_parse_aliases_2() throws Exception {
-        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/admin/indices/getaliases/index_alias_infos_2.json");
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/admin/indices/aliases/index_alias_infos_2.json");
 
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
@@ -94,7 +94,7 @@ public class GetAliasesResponseTest {
 
     @Test
     public void should_parse_alias() throws Exception {
-        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/admin/indices/getaliases/alias_infos.json");
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/response/admin/indices/aliases/alias_infos.json");
 
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         // skip start object and field name
