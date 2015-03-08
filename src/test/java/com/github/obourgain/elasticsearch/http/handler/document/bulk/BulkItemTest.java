@@ -29,7 +29,7 @@ public class BulkItemTest {
 
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
-        BulkItem bulkItem = BulkItem.parse(parser);
+        BulkItem bulkItem = new BulkItem().parse(parser);
 
         assertIndex(bulkItem);
     }
@@ -40,7 +40,7 @@ public class BulkItemTest {
 
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
-        BulkItem bulkItem = BulkItem.parse(parser);
+        BulkItem bulkItem = new BulkItem().parse(parser);
 
         assertCreate(bulkItem);
     }
@@ -51,7 +51,7 @@ public class BulkItemTest {
 
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
-        BulkItem bulkItem = BulkItem.parse(parser);
+        BulkItem bulkItem = new BulkItem().parse(parser);
 
         assertUpdate(bulkItem);
     }
@@ -62,7 +62,7 @@ public class BulkItemTest {
 
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
-        BulkItem bulkItem = BulkItem.parse(parser);
+        BulkItem bulkItem = new BulkItem().parse(parser);
 
         assertDelete(bulkItem);
     }

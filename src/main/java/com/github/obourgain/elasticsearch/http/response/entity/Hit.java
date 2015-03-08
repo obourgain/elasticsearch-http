@@ -62,7 +62,7 @@ public class Hit {
             } else if (token == START_OBJECT && "highlight".equals(currentFieldName)) {
                 highlights = parseHighlights(parser);
             } else if (token == START_OBJECT && "_explanation".equals(currentFieldName)) {
-                explanation = Explanation.parseExplanation(parser);
+                explanation = new Explanation().parse(parser);
             } else if (token == START_ARRAY && "sort".equals(currentFieldName)) {
                 assert parser.currentToken() == START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
                 sort = parseSort(parser);

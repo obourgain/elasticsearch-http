@@ -44,7 +44,7 @@ public class ExplainResponse {
                     }
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("explanation".equals(currentFieldName)) {
-                        explanation = Explanation.parseExplanation(parser);
+                        explanation = new Explanation().parse(parser);
                     }
                 }
             }

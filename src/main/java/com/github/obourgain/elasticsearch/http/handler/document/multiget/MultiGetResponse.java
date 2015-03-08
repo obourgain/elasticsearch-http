@@ -14,7 +14,6 @@ import lombok.Builder;
 import lombok.Getter;
 import rx.Observable;
 
-@Builder
 @Getter
 public class MultiGetResponse {
 
@@ -27,12 +26,12 @@ public class MultiGetResponse {
     private Map<String, GetField> fields;
 
     protected static Observable<MultiGetResponse> parse(ByteBuf content) {
-        return Observable.just(doParse(new ByteBufBytesReference(content)));
+        return Observable.just(new MultiGetResponse().doParse(new ByteBufBytesReference(content)));
     }
 
-    protected static MultiGetResponse doParse(BytesReference bytesReference) {
+    protected MultiGetResponse doParse(BytesReference bytesReference) {
+        // TODO factorize with GetResponse ?
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
-            MultiGetResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -42,18 +41,18 @@ public class MultiGetResponse {
                     assert currentFieldName != null;
                     switch (currentFieldName) {
                         case "_index":
-                            builder.index(parser.text());
+                            index = parser.text();
                             break;
                         case "_type":
-                            builder.type(parser.text());
+                            type = parser.text();
                             break;
                         case "_id":
-                            builder.id(parser.text());
+                            id = parser.text();
                             break;
                         case "_version":
-                            builder.version(parser.longValue());
+                            version = parser.longValue();
                         case "found":
-                            builder.found(parser.booleanValue());
+                            found = parser.booleanValue();
                             break;
                         default:
                             throw new IllegalStateException("unknown field " + currentFieldName);
@@ -61,14 +60,14 @@ public class MultiGetResponse {
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_source".equals(currentFieldName)) {
                         parser.nextToken();
-                        builder.source(SourceParser.source(parser));
+                        source = SourceParser.source(parser);
                     } else if ("fields".equals(currentFieldName)) {
                         parser.nextToken();
-                        builder.fields(FieldsParser.fields(parser));
+                        fields = FieldsParser.fields(parser);
                     }
                 }
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

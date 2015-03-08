@@ -10,11 +10,9 @@ import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.parser.FieldsParser;
 import com.github.obourgain.elasticsearch.http.response.parser.SourceParser;
 import io.netty.buffer.ByteBuf;
-import lombok.Builder;
 import lombok.Getter;
 import rx.Observable;
 
-@Builder
 @Getter
 public class GetResponse {
 
@@ -27,12 +25,11 @@ public class GetResponse {
     private Map<String, GetField> fields;
 
     public static Observable<GetResponse> parse(ByteBuf content) {
-        return Observable.just(doParse(new ByteBufBytesReference(content)));
+        return Observable.just(new GetResponse().doParse(new ByteBufBytesReference(content)));
     }
 
-    private static GetResponse doParse(BytesReference bytesReference) {
+    private GetResponse doParse(BytesReference bytesReference) {
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
-            GetResponse.GetResponseBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -42,18 +39,18 @@ public class GetResponse {
                     assert currentFieldName != null;
                     switch (currentFieldName) {
                         case "_index":
-                            builder.index(parser.text());
+                            index = parser.text();
                             break;
                         case "_type":
-                            builder.type(parser.text());
+                            type = parser.text();
                             break;
                         case "_id":
-                            builder.id(parser.text());
+                            id = parser.text();
                             break;
                         case "_version":
-                            builder.version(parser.longValue());
+                            version = parser.longValue();
                         case "found":
-                            builder.found(parser.booleanValue());
+                            found = parser.booleanValue();
                             break;
                         default:
                             throw new IllegalStateException("unknown field " + currentFieldName);
@@ -61,14 +58,14 @@ public class GetResponse {
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_source".equals(currentFieldName)) {
                         parser.nextToken();
-                        builder.source(SourceParser.source(parser));
+                        source = SourceParser.source(parser);
                     } else if ("fields".equals(currentFieldName)) {
                         parser.nextToken();
-                        builder.fields(FieldsParser.fields(parser));
+                        fields = FieldsParser.fields(parser);
                     }
                 }
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

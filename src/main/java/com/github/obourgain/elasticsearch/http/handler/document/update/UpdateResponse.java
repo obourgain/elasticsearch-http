@@ -6,11 +6,9 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import io.netty.buffer.ByteBuf;
-import lombok.Builder;
 import lombok.Getter;
 import rx.Observable;
 
-@Builder
 @Getter
 public class UpdateResponse {
 
@@ -21,13 +19,12 @@ public class UpdateResponse {
     private boolean created;
 
     protected static Observable<UpdateResponse> parse(ByteBuf content, int status) {
-        return Observable.just(doParse(new ByteBufBytesReference(content), status));
+        return Observable.just(new UpdateResponse().doParse(new ByteBufBytesReference(content), status));
     }
 
-    private static UpdateResponse doParse(BytesReference bytesReference, int status) {
+    private UpdateResponse doParse(BytesReference bytesReference, int status) {
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
-            UpdateResponse.UpdateResponseBuilder builder = UpdateResponse.builder();
-            builder.created(status == 201);
+            created = status == 201;
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -37,26 +34,26 @@ public class UpdateResponse {
                     assert currentFieldName != null;
                     switch (currentFieldName) {
                         case "_index":
-                            builder.index(parser.text());
+                            index = parser.text();
                             break;
                         case "_type":
-                            builder.type(parser.text());
+                            type = parser.text();
                             break;
                         case "_id":
-                            builder.id(parser.text());
+                            id = parser.text();
                             break;
                         case "_version":
-                            builder.version(parser.longValue());
+                            version = parser.longValue();
                             break;
                         case "created":
-                            builder.created(parser.booleanValue());
+                            created = parser.booleanValue();
                             break;
                         default:
                             throw new IllegalStateException("unknown field " + currentFieldName);
                     }
                 }
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -15,7 +15,7 @@ public class ExplanationTest {
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
-        Explanation explanation = Explanation.parseExplanation(parser);
+        Explanation explanation = new Explanation().parse(parser);
 
         assertThat(explanation.getDescription()).isEqualTo("termFreq=1.0");
         assertThat(explanation.getValue()).isEqualTo(1.0f);
@@ -54,7 +54,7 @@ public class ExplanationTest {
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
-        Explanation explanation = Explanation.parseExplanation(parser);
+        Explanation explanation = new Explanation().parse(parser);
 
         assertThat(explanation.getDescription()).isEqualTo("fieldWeight in 0, product of:");
         assertThat(explanation.getValue()).isEqualTo(0.15342641f);

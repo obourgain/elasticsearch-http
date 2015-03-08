@@ -6,11 +6,9 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import io.netty.buffer.ByteBuf;
-import lombok.Builder;
 import lombok.Getter;
 import rx.Observable;
 
-@Builder
 @Getter
 public class IndexResponse {
 
@@ -21,12 +19,11 @@ public class IndexResponse {
     private boolean created;
 
     protected static Observable<IndexResponse> parse(ByteBuf content) {
-        return Observable.just(doParse(new ByteBufBytesReference(content)));
+        return Observable.just(new IndexResponse().doParse(new ByteBufBytesReference(content)));
     }
 
-    protected static IndexResponse doParse(BytesReference bytesReference) {
+    protected IndexResponse doParse(BytesReference bytesReference) {
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
-            IndexResponse.IndexResponseBuilder builder = IndexResponse.builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -36,26 +33,26 @@ public class IndexResponse {
                     assert currentFieldName != null;
                     switch (currentFieldName) {
                         case "_index":
-                            builder.index(parser.text());
+                            index = parser.text();
                             break;
                         case "_type":
-                            builder.type(parser.text());
+                            type = parser.text();
                             break;
                         case "_id":
-                            builder.id(parser.text());
+                            id = parser.text();
                             break;
                         case "_version":
-                            builder.version(parser.longValue());
+                            version = parser.longValue();
                             break;
                         case "created":
-                            builder.created(parser.booleanValue());
+                            created = parser.booleanValue();
                             break;
                         default:
                             throw new IllegalStateException("unknown field " + currentFieldName);
                     }
                 }
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

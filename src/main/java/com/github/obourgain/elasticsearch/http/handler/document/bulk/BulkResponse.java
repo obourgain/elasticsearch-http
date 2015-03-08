@@ -9,11 +9,9 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import io.netty.buffer.ByteBuf;
-import lombok.Builder;
 import lombok.Getter;
 import rx.Observable;
 
-@Builder
 @Getter
 public class BulkResponse {
 
@@ -22,16 +20,15 @@ public class BulkResponse {
     private List<BulkItem> items;
 
     public static Observable<BulkResponse> parse(ByteBuf content) {
-        return Observable.just(doParse(new ByteBufBytesReference(content)));
+        return Observable.just(new BulkResponse().doParse(new ByteBufBytesReference(content)));
     }
 
     @VisibleForTesting
-    protected static BulkResponse doParse(BytesReference bytesReference) {
+    protected BulkResponse doParse(BytesReference bytesReference) {
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
             List<BulkItem> items = new ArrayList<>();
 
-            BulkResponseBuilder builder = builder();
-            builder.items(items);
+            this.items = items;
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -39,21 +36,21 @@ public class BulkResponse {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
                     if ("took".equals(currentFieldName)) {
-                        builder.took(parser.longValue());
+                        took = parser.longValue();
                     } else if ("errors".equals(currentFieldName)) {
-                        builder.errors(parser.booleanValue());
+                        errors = parser.booleanValue();
                     }
                 } else if (token == XContentParser.Token.START_ARRAY) {
                     parser.nextToken();
                     if ("items".equals(currentFieldName)) {
                         while (parser.currentToken() != XContentParser.Token.END_ARRAY) {
-                            BulkItem bulkItem = BulkItem.parse(parser);
+                            BulkItem bulkItem = new BulkItem().parse(parser);
                             items.add(bulkItem);
                         }
                     }
                 }
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

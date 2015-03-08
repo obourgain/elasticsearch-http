@@ -16,7 +16,7 @@ public class BulkResponseTest {
     public void should_parse_response() throws Exception {
         String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/handler/document/bulk/bulk_response.json");
 
-        BulkResponse bulkResponse = BulkResponse.doParse(new BytesArray(json));
+        BulkResponse bulkResponse = new BulkResponse().doParse(new BytesArray(json));
 
         assertThat(bulkResponse.getTook()).isGreaterThan(0);
         assertThat(bulkResponse.isErrors()).isTrue();

@@ -2,10 +2,8 @@ package com.github.obourgain.elasticsearch.http.handler.document.bulk;
 
 import java.io.IOException;
 import org.elasticsearch.common.xcontent.XContentParser;
-import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
 public class BulkItem {
 
@@ -21,14 +19,13 @@ public class BulkItem {
 
     private Boolean found;
 
-    public static BulkItem parse(XContentParser parser) {
+    public BulkItem parse(XContentParser parser) {
         try {
             assert parser.currentToken() == XContentParser.Token.START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
-            BulkItemBuilder builder = builder();
             parser.nextToken();
             // the op type's field
             assert parser.currentToken() == XContentParser.Token.FIELD_NAME : "expected a FIELD_NAME token but was " + parser.currentToken();
-            builder.opType(parser.text());
+            opType=parser.text();
 
             XContentParser.Token token;
             String currentFieldName = null;
@@ -37,20 +34,20 @@ public class BulkItem {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
                     if ("_index".equals(currentFieldName)) {
-                        builder.index(parser.text());
+                        index=parser.text();
                     } else if ("_type".equals(currentFieldName)) {
-                        builder.type(parser.text());
+                        type=parser.text();
                     } else if ("_id".equals(currentFieldName)) {
-                        builder.id(parser.text());
+                        id=parser.text();
                     } else if ("_version".equals(currentFieldName)) {
-                        builder.version(parser.longValue());
+                        version=parser.longValue();
                     } else if ("status".equals(currentFieldName)) {
-                        builder.status(parser.intValue());
+                        status=parser.intValue();
                     } else if ("error".equals(currentFieldName)) {
-                        builder.error(parser.text());
-                        builder.failed(true);
+                        error=parser.text();
+                        failed=true;
                     } else if ("found".equals(currentFieldName)) {
-                        builder.found(parser.booleanValue());
+                        found=parser.booleanValue();
                     }
                 }
             }
@@ -59,7 +56,7 @@ public class BulkItem {
             parser.nextToken();
             assert parser.currentToken() == XContentParser.Token.END_OBJECT : "expected a END_OBJECT token but was " + parser.currentToken();
             parser.nextToken();
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
