@@ -282,6 +282,7 @@ public class Aggregations {
     }
 
     private <T extends Aggregation> T findOrCreate(String name, Converter<T> converter) {
+        @SuppressWarnings("unchecked")
         T t = (T) parsed.get(name);
         if (t != null) {
             return t;
