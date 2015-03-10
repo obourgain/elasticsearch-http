@@ -175,6 +175,21 @@ public class HitTest {
         assertThat(hit.getExplanation().getDetails().get(0).getDetails()).isEmpty();
         assertThat(hit.getExplanation().getDetails().get(0).getValue()).isEqualTo(1);
         assertThat(hit.getExplanation().getDetails().get(1).getDescription()).isEqualTo("queryNorm");
+    }
 
+    @Test
+    public void should_parse_hit_with_matched_queries() throws Exception {
+        String json = readFromClasspath("json/entity/hit_with_matched_query.json");
+        XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
+        parser.nextToken();
+
+        Hit hit = new Hit().parse(parser);
+
+        assertThat(hit.getId()).isEqualTo("1");
+        assertThat(hit.getType()).isEqualTo("tweet");
+        assertThat(hit.getIndex()).isEqualTo("twitter2");
+        assertThat(hit.getScore()).isEqualTo(1, Offset.offset(0.01f));
+
+        assertThat(hit.getMatchedQueries()).containsOnly("test");
     }
 }

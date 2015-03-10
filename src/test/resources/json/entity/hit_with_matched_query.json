@@ -1,0 +1,14 @@
+{
+  "_index": "twitter",
+  "_type": "tweet",
+  "_id": "11",
+  "_score": 1,
+  "_source": {
+    "user": "kimchy",
+    "post_date": "2009-11-15T14:12:12",
+    "message": "trying out Elasticsearch"
+  },
+  "matched_queries": [
+    "test"
+  ]
+}

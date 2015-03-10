@@ -1,5 +1,6 @@
 package com.github.obourgain.elasticsearch.http.response.entity;
 
+import static org.elasticsearch.common.xcontent.XContentParser.Token.END_ARRAY;
 import static org.elasticsearch.common.xcontent.XContentParser.Token.END_OBJECT;
 import static org.elasticsearch.common.xcontent.XContentParser.Token.FIELD_NAME;
 import static org.elasticsearch.common.xcontent.XContentParser.Token.START_ARRAY;
@@ -31,6 +32,8 @@ public class Hit {
     private Map<String, SearchHitField> fields = ImmutableMap.of();
     private Map<String, Highlight> highlights = ImmutableMap.of();
     private Explanation explanation;
+
+    private List<String> matchedQueries = Collections.emptyList();
 
     public Hit parse(XContentParser parser) throws IOException {
         assert parser.currentToken() == START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
@@ -66,13 +69,14 @@ public class Hit {
             } else if (token == START_ARRAY && "sort".equals(currentFieldName)) {
                 assert parser.currentToken() == START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
                 sort = parseSort(parser);
+            } else if (token == START_ARRAY && "matched_queries".equals(currentFieldName)) {
+                assert parser.currentToken() == START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
+                sort = parseMatchedQueries(parser);
             } else if (token == VALUE_NULL && "_score".equals(currentFieldName)) {
                 score = null;
             } else {
                 throw new IllegalStateException("unknown field " + currentFieldName);
             }
-            // see org.elasticsearch.search.internal.InternalSearchHit
-            // TODO matched_queries
         }
         return this;
     }
@@ -81,7 +85,7 @@ public class Hit {
         assert parser.currentToken() == START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
         try {
             List<Hit> result = new ArrayList<>();
-            while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
+            while (parser.nextToken() != END_ARRAY) {
                 assert parser.currentToken() == START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
                 result.add(new Hit().parse(parser));
             }
@@ -95,7 +99,7 @@ public class Hit {
         assert parser.currentToken() == START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
         try {
             List<String> result = new ArrayList<>();
-            while (parser.nextToken() != XContentParser.Token.END_ARRAY) {
+            while (parser.nextToken() != END_ARRAY) {
                 result.add(parser.text());
             }
             return result;
@@ -126,6 +130,19 @@ public class Hit {
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 Highlight highlight = new Highlight().parse(parser);
                 result.put(highlight.getName(), highlight);
+            }
+            return result;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<String> parseMatchedQueries(XContentParser parser) {
+        try {
+            assert parser.currentToken() == END_ARRAY : "expected a END_ARRAY token but was " + parser.currentToken();
+            List<String> result = new ArrayList<>();
+            while (parser.nextToken() != END_ARRAY) {
+                result.add(parser.text());
             }
             return result;
         } catch (IOException e) {
