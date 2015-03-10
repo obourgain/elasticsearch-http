@@ -2,6 +2,7 @@ package com.github.obourgain.elasticsearch.http.handler.search.search;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
+import org.assertj.core.api.Assertions;
 import org.elasticsearch.common.bytes.BytesArray;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.TestFilesUtils;
@@ -112,5 +113,20 @@ public class SearchResponseTest {
         assertThat(hits.get(1).getSource().length).isGreaterThan(1);
         assertThat(hits.get(1).getHighlights()).hasSize(1).containsKey("message");
         assertThat(hits.get(1).getHighlights().get("message").getValue()).isEqualTo("the <em>message</em>");
+    }
+
+    @Test
+    public void should_parse_response_with_failures() throws Exception {
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/handler/search/search/response_with_failures.json");
+
+        SearchResponse searchResponse = new SearchResponse().parse(new BytesArray(json));
+
+        Assertions.assertThat(searchResponse.getShards().getTotal()).isEqualTo(5);
+        Assertions.assertThat(searchResponse.getShards().getSuccessful()).isEqualTo(2);
+        Assertions.assertThat(searchResponse.getShards().getFailed()).isEqualTo(3);
+        Assertions.assertThat(searchResponse.getShards().getFailures()).hasSize(3);
+
+        assertThat(searchResponse.getHits().getTotal()).isEqualTo(0);
+        assertThat(searchResponse.getHits().getHits()).isEmpty();
     }
 }

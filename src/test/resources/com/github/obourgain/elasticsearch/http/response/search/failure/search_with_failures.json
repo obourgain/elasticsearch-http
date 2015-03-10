@@ -1,0 +1,28 @@
+{
+  "took": 3,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 2,
+    "failed": 3,
+    "failures": [
+      {
+        "status": 404,
+        "reason": "SearchContextMissingException[No search context found for id [63]]"
+      },
+      {
+        "status": 404,
+        "reason": "SearchContextMissingException[No search context found for id [64]]"
+      },
+      {
+        "status": 404,
+        "reason": "SearchContextMissingException[No search context found for id [65]]"
+      }
+    ]
+  },
+  "hits": {
+    "total": 2,
+    "max_score": null,
+    "hits": []
+  }
+}

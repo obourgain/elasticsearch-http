@@ -6,7 +6,6 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
-import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,7 +30,7 @@ public class RefreshResponse {
                     currentFieldName = parser.currentName();
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_shards".equals(currentFieldName)) {
-                        return new RefreshResponse(ShardParser.parseInner(parser));
+                        return new RefreshResponse(new Shards().parse(parser));
                     }
                 }
             }

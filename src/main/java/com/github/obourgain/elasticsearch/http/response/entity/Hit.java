@@ -71,7 +71,7 @@ public class Hit {
                 sort = parseSort(parser);
             } else if (token == START_ARRAY && "matched_queries".equals(currentFieldName)) {
                 assert parser.currentToken() == START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
-                sort = parseMatchedQueries(parser);
+                matchedQueries = parseMatchedQueries(parser);
             } else if (token == VALUE_NULL && "_score".equals(currentFieldName)) {
                 score = null;
             } else {
@@ -139,7 +139,7 @@ public class Hit {
 
     private List<String> parseMatchedQueries(XContentParser parser) {
         try {
-            assert parser.currentToken() == END_ARRAY : "expected a END_ARRAY token but was " + parser.currentToken();
+            assert parser.currentToken() == START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
             List<String> result = new ArrayList<>();
             while (parser.nextToken() != END_ARRAY) {
                 result.add(parser.text());

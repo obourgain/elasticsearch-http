@@ -1,0 +1,14 @@
+[
+  {
+    "status": 404,
+    "reason": "SearchContextMissingException[No search context found for id [63]]"
+  },
+  {
+    "status": 404,
+    "reason": "SearchContextMissingException[No search context found for id [64]]"
+  },
+  {
+    "status": 404,
+    "reason": "SearchContextMissingException[No search context found for id [65]]"
+  }
+]

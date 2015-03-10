@@ -185,9 +185,9 @@ public class HitTest {
 
         Hit hit = new Hit().parse(parser);
 
-        assertThat(hit.getId()).isEqualTo("1");
+        assertThat(hit.getId()).isEqualTo("11");
         assertThat(hit.getType()).isEqualTo("tweet");
-        assertThat(hit.getIndex()).isEqualTo("twitter2");
+        assertThat(hit.getIndex()).isEqualTo("twitter");
         assertThat(hit.getScore()).isEqualTo(1, Offset.offset(0.01f));
 
         assertThat(hit.getMatchedQueries()).containsOnly("test");

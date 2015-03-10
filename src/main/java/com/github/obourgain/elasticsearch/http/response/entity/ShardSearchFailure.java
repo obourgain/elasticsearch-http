@@ -1,5 +1,10 @@
 package com.github.obourgain.elasticsearch.http.response.entity;
 
+import static org.elasticsearch.common.xcontent.XContentParser.Token.END_ARRAY;
+import static org.elasticsearch.common.xcontent.XContentParser.Token.END_OBJECT;
+import static org.elasticsearch.common.xcontent.XContentParser.Token.FIELD_NAME;
+import static org.elasticsearch.common.xcontent.XContentParser.Token.START_ARRAY;
+import static org.elasticsearch.common.xcontent.XContentParser.Token.START_OBJECT;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +22,12 @@ public class ShardSearchFailure {
     private String reason;
     private int status;
 
-     // TODO test
-
     public static List<ShardSearchFailure> parse(XContentParser parser) throws IOException {
-        assert parser.currentToken() == XContentParser.Token.START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
+        assert parser.currentToken() == START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
         List<ShardSearchFailure> result = new ArrayList<>();
         XContentParser.Token token;
-        while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
-            if (token== XContentParser.Token.START_OBJECT) {
+        while ((token = parser.nextToken()) != END_ARRAY) {
+            if (token== START_OBJECT) {
                 ShardSearchFailure shardFailure = new ShardSearchFailure().doParse(parser);
                 result.add(shardFailure);
             }
@@ -32,12 +35,12 @@ public class ShardSearchFailure {
         return result;
     }
 
-    private ShardSearchFailure doParse(XContentParser parser) throws IOException {
-        assert parser.currentToken() == XContentParser.Token.START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
+    protected ShardSearchFailure doParse(XContentParser parser) throws IOException {
+        assert parser.currentToken() == START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
         XContentParser.Token token;
         String currentFieldName = null;
-        while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
-            if (token == XContentParser.Token.FIELD_NAME) {
+        while ((token = parser.nextToken()) != END_OBJECT) {
+            if (token == FIELD_NAME) {
                 currentFieldName = parser.currentName();
             } else if (token.isValue()) {
                 if ("index".equals(currentFieldName)) {

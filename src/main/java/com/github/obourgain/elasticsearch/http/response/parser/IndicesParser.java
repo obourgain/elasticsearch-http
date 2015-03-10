@@ -26,7 +26,7 @@ public class IndicesParser {
                 } else if (token == XContentParser.Token.START_ARRAY) {
                     failures = ShardFailure.parse(parser);
                 } else if (token == XContentParser.Token.START_OBJECT) {
-                    Shards shards = ShardParser.parse(parser);
+                    Shards shards = new Shards().parse(parser);
                     result.put(currentFieldName, shards);
                 }
             }

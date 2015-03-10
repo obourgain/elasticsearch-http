@@ -1,17 +1,13 @@
 package com.github.obourgain.elasticsearch.http.handler.search.search;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.Hits;
-import com.github.obourgain.elasticsearch.http.response.entity.ShardSearchFailure;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 import com.github.obourgain.elasticsearch.http.response.entity.aggs.Aggregations;
-import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import rx.Observable;
@@ -26,7 +22,6 @@ public class SearchResponse {
     private boolean timedOut;
     private boolean terminatedEarly;
     private Aggregations aggregations;
-    private List<ShardSearchFailure> failures = Collections.emptyList();
 
     public static Observable<SearchResponse> parse(ByteBuf byteBuf) {
         return Observable.just(new SearchResponse().parse(new ByteBufBytesReference(byteBuf)));
@@ -51,12 +46,9 @@ public class SearchResponse {
                     } else {
                         throw new IllegalStateException("unknown field " + currentFieldName);
                     }
-                } else if (token == XContentParser.Token.START_ARRAY) {
-                    // TODO test
-                    failures = ShardSearchFailure.parse(parser);
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_shards".equals(currentFieldName)) {
-                        shards = ShardParser.parseInner(parser);
+                        shards = new Shards().parse(parser);
                     } else if ("hits".equals(currentFieldName)) {
                         hits = new Hits().parse(parser);
                     } else if ("aggregations".equals(currentFieldName)) {

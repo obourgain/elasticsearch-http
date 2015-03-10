@@ -23,7 +23,7 @@ import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.DeleteIndexResponse;
 
 @ThreadLeakFilters(defaultFilters = true, filters = {ElasticsearchThreadFilter.class, RxNettyThreadFilter.class})
-@ElasticsearchIntegrationTest.ClusterScope(transportClientRatio = 1, numClientNodes = 1, numDataNodes = 1, scope = ElasticsearchIntegrationTest.Scope.SUITE)
+@ElasticsearchIntegrationTest.ClusterScope(transportClientRatio = 1, numClientNodes = 1, numDataNodes = 1, scope = ElasticsearchIntegrationTest.Scope.TEST)
 public class DeleteIndexActionHandlerTest extends ElasticsearchIntegrationTest {
 
     private HttpClient httpClient;
@@ -62,6 +62,8 @@ public class DeleteIndexActionHandlerTest extends ElasticsearchIntegrationTest {
     public void should_delete_index() throws Exception {
         Assertions.assertThat(indexExists("the_index")).isTrue();
 
+        ensureGreen("the_index");
+
         DeleteIndexResponse response = httpClient.admin().indices().deleteIndex(Requests.deleteIndexRequest("the_index")).get();
 
         Assertions.assertThat(response.isAcknowledged()).isTrue();
@@ -74,6 +76,8 @@ public class DeleteIndexActionHandlerTest extends ElasticsearchIntegrationTest {
     public void should_delete_all_indices_for_wildcard() throws Exception {
         createIndex("test1");
         createIndex("test2");
+
+        ensureGreen("test1", "test2");
 
         DeleteIndexResponse response = httpClient.admin().indices().deleteIndex(Requests.deleteIndexRequest("_all")).get();
 

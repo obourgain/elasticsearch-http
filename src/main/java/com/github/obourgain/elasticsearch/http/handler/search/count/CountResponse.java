@@ -9,7 +9,6 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.ShardFailure;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
-import com.github.obourgain.elasticsearch.http.response.parser.ShardParser;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import rx.Observable;
@@ -35,19 +34,19 @@ public class CountResponse {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
                     if ("count".equals(currentFieldName)) {
-                        count=parser.longValue();
+                        count = parser.longValue();
                     } else if ("terminated_early".equals(currentFieldName)) {
-                        terminatedEarly=parser.booleanValue();
+                        terminatedEarly = parser.booleanValue();
                     } else {
                         throw new IllegalStateException("unknown field " + currentFieldName);
                     }
                 } else if (token == XContentParser.Token.START_ARRAY) {
-                    if("failures".equals(currentFieldName)) {
+                    if ("failures".equals(currentFieldName)) {
                         shardFailures = ShardFailure.parse(parser);
                     }
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_shards".equals(currentFieldName)) {
-                        shards=ShardParser.parseInner(parser);
+                        shards = new Shards().parse(parser);
                     }
                 }
             }
