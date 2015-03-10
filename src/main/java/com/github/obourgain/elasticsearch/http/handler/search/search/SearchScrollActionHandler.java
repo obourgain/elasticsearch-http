@@ -1,6 +1,7 @@
 package com.github.obourgain.elasticsearch.http.handler.search.search;
 
 import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.ActionRequestValidationException;
 import org.elasticsearch.action.search.SearchScrollAction;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.slf4j.Logger;
@@ -35,7 +36,10 @@ public class SearchScrollActionHandler {
     public void execute(SearchScrollRequest request, final ActionListener<SearchResponse> listener) {
         logger.debug("Search scroll request {}", request);
         try {
-            // TODO test
+            ActionRequestValidationException validation = request.validate();
+            if(validation != null && !validation.validationErrors().isEmpty()) {
+                throw validation;
+            }
 
             RequestUriBuilder uriBuilder = new RequestUriBuilder()
                     .addEndpoint("_search/scroll");

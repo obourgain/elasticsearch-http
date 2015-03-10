@@ -15,6 +15,7 @@ import org.elasticsearch.action.mlt.MoreLikeThisRequest;
 import org.elasticsearch.action.percolate.PercolateRequest;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.support.PlainActionFuture;
 import org.elasticsearch.action.termvector.TermVectorRequest;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -47,6 +48,7 @@ import com.github.obourgain.elasticsearch.http.handler.search.percolate.Percolat
 import com.github.obourgain.elasticsearch.http.handler.search.percolate.PercolateResponse;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchResponse;
+import com.github.obourgain.elasticsearch.http.handler.search.search.SearchScrollActionHandler;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.RxNetty;
 
@@ -79,6 +81,7 @@ public class HttpClient {
     PercolateActionHandler percolateActionHandler = new PercolateActionHandler(this);
     MoreLikeThisActionHandler moreLikeThisActionHandler = new MoreLikeThisActionHandler(this);
     ClearScrollActionHandler clearScrollActionHandler = new ClearScrollActionHandler(this);
+    SearchScrollActionHandler searchScrollActionHandler = new SearchScrollActionHandler(this);
     BulkActionHandler bulkActionHandler = new BulkActionHandler(this);
 //    SuggestActionHandler suggestActionHandler = new SuggestActionHandler(this);
 
@@ -87,7 +90,6 @@ public class HttpClient {
         // searchShard
         // search template
 ////        tempActionHandlers.put(MultiGetAction.INSTANCE, new MultiGetActionHandler(this));
-//        tempActionHandlers.put(SearchScrollAction.INSTANCE, new SearchScrollActionHandler(this));
 
         // indices admin
         client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder("localhost", 9501).build();
@@ -219,6 +221,16 @@ public class HttpClient {
     public Future<SearchResponse> moreLikeThis(MoreLikeThisRequest request) {
         PlainActionFuture<SearchResponse> future = PlainActionFuture.newFuture();
         moreLikeThis(request, future);
+        return future;
+    }
+
+    public void searchScroll(SearchScrollRequest request, ActionListener<SearchResponse> listener) {
+        searchScrollActionHandler.execute(request, listener);
+    }
+
+    public Future<SearchResponse> searchScroll(SearchScrollRequest request) {
+        PlainActionFuture<SearchResponse> future = PlainActionFuture.newFuture();
+        searchScroll(request, future);
         return future;
     }
 

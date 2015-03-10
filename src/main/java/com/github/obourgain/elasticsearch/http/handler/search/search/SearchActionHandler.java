@@ -61,7 +61,7 @@ public class SearchActionHandler {
 
             uriBuilder.addIndicesOptions(request);
 
-            HttpClientRequest<ByteBuf> get = HttpClientRequest.createGet(uriBuilder.toString());
+            HttpClientRequest<ByteBuf> get = HttpClientRequest.createPost(uriBuilder.toString());
             if (request.source() != null) {
                 get.withContent(request.source().toBytes());
             }
