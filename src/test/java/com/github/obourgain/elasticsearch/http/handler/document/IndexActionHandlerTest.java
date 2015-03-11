@@ -61,7 +61,7 @@ public class IndexActionHandlerTest extends AbstractTest {
                 .id(THE_ID)
                 .opType(IndexRequest.OpType.CREATE)
                 .source(source.toBytes());
-        transportClient.index(request);
+        transportClient.index(request).actionGet();
 
         try {
             httpClient.index(request).get();
