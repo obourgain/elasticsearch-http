@@ -8,6 +8,7 @@ import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.Hits;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 import com.github.obourgain.elasticsearch.http.response.entity.aggs.Aggregations;
+import com.github.obourgain.elasticsearch.http.response.entity.suggest.Suggestions;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import rx.Observable;
@@ -22,6 +23,7 @@ public class SearchResponse {
     private boolean timedOut;
     private boolean terminatedEarly;
     private Aggregations aggregations;
+    private Suggestions suggestions;
 
     public static Observable<SearchResponse> parse(ByteBuf byteBuf) {
         return Observable.just(new SearchResponse().parse(new ByteBufBytesReference(byteBuf)));
@@ -51,12 +53,13 @@ public class SearchResponse {
                         shards = new Shards().parse(parser);
                     } else if ("hits".equals(currentFieldName)) {
                         hits = new Hits().parse(parser);
+                    } else if ("suggest".equals(currentFieldName)) {
+                        suggestions = Suggestions.parse(parser);
                     } else if ("aggregations".equals(currentFieldName)) {
                         aggregations = Aggregations.parse(parser);
                     }
                 }
                 // TODO facets ? maybe not
-                // TODO suggests
             }
             return this;
         } catch (IOException e) {

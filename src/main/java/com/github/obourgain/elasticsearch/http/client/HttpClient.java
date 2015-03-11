@@ -16,6 +16,8 @@ import org.elasticsearch.action.percolate.PercolateRequest;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchScrollRequest;
+import org.elasticsearch.action.suggest.SuggestRequest;
+import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.action.support.PlainActionFuture;
 import org.elasticsearch.action.termvector.TermVectorRequest;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -49,6 +51,7 @@ import com.github.obourgain.elasticsearch.http.handler.search.percolate.Percolat
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchResponse;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchScrollActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.search.suggest.SuggestActionHandler;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.RxNetty;
 
@@ -83,7 +86,7 @@ public class HttpClient {
     ClearScrollActionHandler clearScrollActionHandler = new ClearScrollActionHandler(this);
     SearchScrollActionHandler searchScrollActionHandler = new SearchScrollActionHandler(this);
     BulkActionHandler bulkActionHandler = new BulkActionHandler(this);
-//    SuggestActionHandler suggestActionHandler = new SuggestActionHandler(this);
+    SuggestActionHandler suggestActionHandler = new SuggestActionHandler(this);
 
     public HttpClient(Collection<String> hosts) {
         // client
@@ -260,14 +263,14 @@ public class HttpClient {
         return future;
     }
 
-//    public void suggest(SuggestRequest request, ActionListener<SuggestResponse> listener) {
-//        suggestActionHandler.execute(request, listener);
-//    }
-//
-//    public Future<SuggestResponse> suggest(SuggestRequest request) {
-//        PlainActionFuture<SuggestResponse> future = PlainActionFuture.newFuture();
-//        suggest(request, future);
-//        return future;
-//    }
+    public void suggest(SuggestRequest request, ActionListener<SuggestResponse> listener) {
+        suggestActionHandler.execute(request, listener);
+    }
+
+    public Future<SuggestResponse> suggest(SuggestRequest request) {
+        PlainActionFuture<SuggestResponse> future = PlainActionFuture.newFuture();
+        suggest(request, future);
+        return future;
+    }
 
 }

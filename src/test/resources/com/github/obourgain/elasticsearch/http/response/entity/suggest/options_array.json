@@ -1,0 +1,13 @@
+[
+  {
+    "text": "Death - Nothing is Everything",
+    "score": 42
+  },
+  {
+    "text": "Nirvana - Nevermind",
+    "score": 34,
+    "payload": {
+      "artistId": 2321
+    }
+  }
+]
