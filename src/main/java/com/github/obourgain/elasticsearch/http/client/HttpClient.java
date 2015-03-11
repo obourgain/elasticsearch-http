@@ -91,8 +91,11 @@ public class HttpClient {
         // search template
 ////        tempActionHandlers.put(MultiGetAction.INSTANCE, new MultiGetActionHandler(this));
 
+        // assume only one for now, like "http://%s:%d"
+        String[] next = hosts.iterator().next().split(":");
+
         // indices admin
-        client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder("localhost", 9501).build();
+        client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder(next[1], Integer.parseInt(next[2])).build();
         this.httpAdminClient = new HttpAdminClient(client);
     }
 
