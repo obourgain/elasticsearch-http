@@ -95,7 +95,10 @@ public class HttpClient {
         String[] next = hosts.iterator().next().split(":");
 
         // indices admin
-        client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder(next[1], Integer.parseInt(next[2])).build();
+        String host = next[1].substring(2); // remove the // of http://
+        int port = Integer.parseInt(next[2]);
+        logger.info("using host {}:{}", host, port);
+        client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder(host, port).build();
         this.httpAdminClient = new HttpAdminClient(client);
     }
 
