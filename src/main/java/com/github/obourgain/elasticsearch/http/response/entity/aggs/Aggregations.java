@@ -13,6 +13,7 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentParser.Token;
 import org.elasticsearch.common.xcontent.XContentType;
+import com.github.obourgain.elasticsearch.http.response.entity.Converter;
 
 @SuppressWarnings("unused")
 public class Aggregations {
@@ -361,10 +362,6 @@ public class Aggregations {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private interface Converter<T> {
-        T convert(XContentParser parser);
     }
 
     @Override
