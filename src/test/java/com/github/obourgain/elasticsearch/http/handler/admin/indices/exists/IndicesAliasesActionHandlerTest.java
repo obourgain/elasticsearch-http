@@ -63,7 +63,7 @@ public class IndicesAliasesActionHandlerTest extends AbstractTest{
         ensureGreen(index);
 
         // add a mapping so I can add a filter, else it will fail due to strict resolution of fields
-        createDoc(index, THE_TYPE, THE_ID);
+        createSimpleDoc(index, THE_TYPE, THE_ID);
         ensureSearchable(index);
 
         IndicesAliasesRequest request = new IndicesAliasesRequest();

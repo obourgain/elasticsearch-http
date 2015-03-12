@@ -41,5 +41,4 @@ public class ErrorHandler {
         }
         return Observable.just(response);
     }
-
 }

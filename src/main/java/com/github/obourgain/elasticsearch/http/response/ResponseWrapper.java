@@ -27,15 +27,12 @@ import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponseAccessor;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponseAccessor;
-import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResponse;
 import org.elasticsearch.action.admin.indices.template.get.GetIndexTemplatesResponseAccessor;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.GetResponseAccessor;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
-import org.elasticsearch.action.suggest.SuggestResponse;
-import org.elasticsearch.action.suggest.SuggestResponseAccessor;
 import org.elasticsearch.cluster.ClusterName;
 import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.block.ClusterBlock;
@@ -63,7 +60,6 @@ import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.jackson.core.JsonFactory;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.text.StringText;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.LocalTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -74,10 +70,7 @@ import org.elasticsearch.index.get.GetField;
 import org.elasticsearch.index.get.GetResult;
 import org.elasticsearch.index.shard.ShardId;
 import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.search.SearchShardTarget;
-import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.warmer.IndexWarmersMetaData;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -91,8 +84,6 @@ import com.google.common.io.ByteStreams;
 public class ResponseWrapper<Req> {
 
     private EntityWrapper entityWrapper;
-    //    private Response response;
-    private static final Joiner settingsJoiner = Joiner.on(".");
 
     private Req request;
 
@@ -128,18 +119,6 @@ public class ResponseWrapper<Req> {
         // note : this is also required for the explain request as version is not present in the get part when source is in query params
         Number version = getAsNumber(map, "_version");
         return version != null ? version.longValue() : null;
-    }
-
-    protected int getTotalShards() {
-        return (int) ((Map) entityWrapper.get("_shards")).get("total");
-    }
-
-    protected int getSuccessfulShards() {
-        return (int) ((Map) entityWrapper.get("_shards")).get("successful");
-    }
-
-    protected int getFailedShards() {
-        return (int) ((Map) entityWrapper.get("_shards")).get("failed");
     }
 
     protected boolean isFound(Map<String, Object> map) {
@@ -194,67 +173,6 @@ public class ResponseWrapper<Req> {
     public Map<String, GetField> getFields(Map<String, Object> fieldsAsMap) {
         Map<String, Object> fields = getAsStringObjectMap(fieldsAsMap, "fields");
         return getResultToMapOfGetFields(fields);
-    }
-
-    @Nullable
-    private Suggest processSuggestions(Map<String, Object> suggestAsMap) {
-        if (suggestAsMap == null) {
-            return null;
-        }
-        List<Suggest.Suggestion<? extends Suggest.Suggestion.Entry<? extends Suggest.Suggestion.Entry.Option>>> result = new ArrayList<>();
-        for (Map.Entry<String, Object> entry : suggestAsMap.entrySet()) {
-            List<Map<String, Object>> suggestions = (List<Map<String, Object>>) entry.getValue();
-            Suggest.Suggestion<Suggest.Suggestion.Entry<Suggest.Suggestion.Entry.Option>> suggestion = new Suggest.Suggestion<>(entry.getKey(), suggestions.size());
-            result.add(suggestion);
-
-            for (Map<String, Object> suggestionAsMap : suggestions) {
-                String text = getAsString(suggestionAsMap, "text");
-                int offset = getAsNumber(suggestionAsMap, "offset").intValue();
-                int length = getAsNumber(suggestionAsMap, "length").intValue();
-                List<Map<String, Object>> options = getAsListOfStringObjectMap(suggestionAsMap, "options");
-                Suggest.Suggestion.Entry<Suggest.Suggestion.Entry.Option> optionEntry = new Suggest.Suggestion.Entry<>(new StringText(text), offset, length);
-                for (Map<String, Object> option : options) {
-                    String optionText = getAsString(option, "text");
-                    float score = getAsNumber(option, "score").floatValue();
-                    // TODO handle all suggest types
-//                    int freq = getAsNumber(option, "freq").intValue();
-                    optionEntry.addOption(new Suggest.Suggestion.Entry.Option(new StringText(optionText), score));
-                }
-                suggestion.addTerm(optionEntry);
-            }
-        }
-        return new Suggest(result);
-    }
-
-    public SuggestResponse toSuggestResponse() {
-        List<Suggest.Suggestion> suggestions = new ArrayList<>();
-
-        // TODO each type of suggester is different from the other ...
-
-        for (Map.Entry<String, Object> entry : entityWrapper.entrySet()) {
-            if (entry.getKey().equals("_shards")) {
-                continue;
-            }
-            Object value = entry.getValue();
-            if (value instanceof Map) {
-                Map<String, Object> suggestAsMap = (Map<String, Object>) value;
-                String text = getAsString(suggestAsMap, "text");
-                int offset = getAsNumber(suggestAsMap, "offset").intValue();
-                int length = getAsNumber(suggestAsMap, "length").intValue();
-                List<Map<String, Object>> optionsAsMaps = getAsListOfStringObjectMap(suggestAsMap, "options");
-                Suggest.Suggestion suggestion = new Suggest.Suggestion();
-                for (Map<String, Object> optionAsMap : optionsAsMaps) {
-                    String optionText = (String) optionAsMap.get("text");
-                    float score = ((Number) suggestAsMap.get("score")).floatValue();
-                    Suggest.Suggestion.Entry.Option option = new Suggest.Suggestion.Entry.Option(new StringText(text), score);
-                    // TODO finish
-                }
-            }
-        }
-
-        Suggest suggest = new Suggest();
-        // TODO failures
-        return SuggestResponseAccessor.build(suggest, getTotalShards(), getSuccessfulShards(), getFailedShards(), null);
     }
 
     private GetResult toGetResult(Map<String, Object> metadataMap, Map<String, Object> fieldsMap) {

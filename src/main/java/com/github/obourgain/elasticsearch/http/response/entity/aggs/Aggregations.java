@@ -4,6 +4,7 @@ import static org.elasticsearch.common.xcontent.XContentParser.Token.END_OBJECT;
 import static org.elasticsearch.common.xcontent.XContentParser.Token.FIELD_NAME;
 import static org.elasticsearch.common.xcontent.XContentParser.Token.START_OBJECT;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
@@ -20,6 +21,10 @@ public class Aggregations {
 
     private final Map<String, Aggregation> parsed = new HashMap<>();
     private final Map<String, XContentBuilder> rawAggs = new HashMap<>();
+
+    public Collection<String> names() {
+        return rawAggs.keySet();
+    }
 
     public Terms getTerms(final String name) {
         return findOrCreate(name, new Converter<Terms>() {

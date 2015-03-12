@@ -32,7 +32,7 @@ public class SearchScrollActionHandlerTest extends AbstractTest {
     @Test
     public void should_scroll() throws Exception {
         for (int i = 0; i < 10; i++) {
-            createDoc(THE_INDEX, THE_TYPE, String.valueOf(i));
+            createSimpleDoc(THE_INDEX, THE_TYPE, String.valueOf(i));
         }
         ensureSearchable(THE_INDEX);
 

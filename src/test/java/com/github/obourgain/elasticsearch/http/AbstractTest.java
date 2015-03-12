@@ -1,7 +1,10 @@
 package com.github.obourgain.elasticsearch.http;
 
+import static java.nio.file.Files.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,10 +72,10 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
     }
 
     protected void createDoc() throws IOException {
-        createDoc(THE_INDEX, THE_TYPE, THE_ID);
+        createSimpleDoc(THE_INDEX, THE_TYPE, THE_ID);
     }
 
-    protected void createDoc(String index, String type, String id) throws IOException {
+    protected void createSimpleDoc(String index, String type, String id) throws IOException {
         transportClient.index(Requests.indexRequest().index(index).type(type).id(id).refresh(true)
                         .source(XContentFactory.jsonBuilder().startObject()
                                 .field("the_string_field", "the_string_value")
@@ -83,19 +86,17 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
         ).actionGet();
     }
 
-    protected void deleteDoc() {
-        transportClient.delete(Requests.deleteRequest(THE_INDEX).type(THE_TYPE).id(THE_ID).refresh(true)).actionGet();
+    protected void createDocFromClasspathFile(String index, String type, String id, String path) throws IOException {
+        String document = TestFilesUtils.readFromClasspath(path);
+        createDoc(index, type, id, document);
     }
 
-    protected void createAnOtherDoc() throws IOException {
-        transportClient.index(Requests.indexRequest().index(THE_INDEX).type(THE_TYPE).id(THE_ID + "_2").refresh(true)
-                        .source(XContentFactory.jsonBuilder().startObject()
-                                .field("the_string_field", "the_string_value")
-                                .field("the_integer_field", 42)
-                                .field("the_boolean_field", true)
-                                .field("the_long_array_field", new Long[]{42L, 53L})
-                                .endObject())
-        ).actionGet();
+    protected void createDoc(String index, String type, String id, String document) throws IOException {
+        transportClient.index(Requests.indexRequest().index(index).type(type).id(id).refresh(true).source(document)).actionGet();
+    }
+
+    protected void deleteDoc(String index, String type, String id) {
+        transportClient.delete(Requests.deleteRequest(index).type(type).id(id).refresh(true)).actionGet();
     }
 
     protected void createPercolatorQuery() throws IOException {

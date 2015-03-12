@@ -17,7 +17,6 @@ import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.suggest.SuggestRequest;
-import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.action.support.PlainActionFuture;
 import org.elasticsearch.action.termvector.TermVectorRequest;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -52,6 +51,7 @@ import com.github.obourgain.elasticsearch.http.handler.search.search.SearchActio
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchResponse;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchScrollActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.suggest.SuggestActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.search.suggest.SuggestResponse;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.RxNetty;
 
