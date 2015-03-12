@@ -25,7 +25,6 @@ public class Shards {
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != END_OBJECT) {
-                System.out.println("token = " + token + " " + parser.currentName() + " " + parser.text());
                 if (token == FIELD_NAME) {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
