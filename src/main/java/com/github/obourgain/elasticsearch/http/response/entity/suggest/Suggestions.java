@@ -28,6 +28,25 @@ public class Suggestions {
         });
     }
 
+    public Term getTerm(final String name) {
+        return findOrCreate(name, new Converter<Term>() {
+            @Override
+            public Term convert(XContentParser parser) {
+                return Term.parse(parser, name);
+            }
+        });
+    }
+
+
+    public Phrase getPhrase(final String name) {
+        return findOrCreate(name, new Converter<Phrase>() {
+            @Override
+            public Phrase convert(XContentParser parser) {
+                return Phrase.parse(parser, name);
+            }
+        });
+    }
+
     protected void addRawSuggestion(String name, XContentBuilder rawSuggestion) {
         rawSuggestions.put(name, rawSuggestion);
     }

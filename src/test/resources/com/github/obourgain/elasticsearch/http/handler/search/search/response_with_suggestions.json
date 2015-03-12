@@ -1,0 +1,109 @@
+{
+  "took": 23,
+  "timed_out": false,
+  "_shards": {
+    "total": 5,
+    "successful": 5,
+    "failed": 0
+  },
+  "hits": {
+    "total": 3,
+    "max_score": 1,
+    "hits": [
+      {
+        "_index": "music",
+        "_type": "song",
+        "_id": "1",
+        "_score": 1,
+        "_source": {
+          "name": "Nevermind",
+          "suggest": {
+            "input": [
+              "Nevermind",
+              "Nirvana"
+            ],
+            "output": "Nirvana - Nevermind",
+            "payload": {
+              "artistId": 2321
+            },
+            "weight": 34
+          }
+        }
+      },
+      {
+        "_index": "music",
+        "_type": "song",
+        "_id": "2",
+        "_score": 1,
+        "_source": {
+          "name": "Nothing is Everything",
+          "suggest": {
+            "input": [
+              "Nothing is Everything",
+              "Death"
+            ],
+            "output": "Death - Nothing is Everything",
+            "weight": 42
+          }
+        }
+      },
+      {
+        "_index": "music",
+        "_type": "song",
+        "_id": "3",
+        "_score": 1,
+        "_source": {
+          "name": "Nothing else Matters",
+          "suggest": {
+            "input": [
+              "Nothing else Matters",
+              "Metallica"
+            ],
+            "output": "Metallica - Nothing else Matters",
+            "weight": 56
+          }
+        }
+      }
+    ]
+  },
+  "suggest": {
+    "terms-suggest": [
+      {
+        "text": "everythign",
+        "offset": 0,
+        "length": 10,
+        "options": [
+          {
+            "text": "everything",
+            "score": 0.9,
+            "freq": 1
+          }
+        ]
+      }
+    ],
+    "song-suggest": [
+      {
+        "text": "n",
+        "offset": 0,
+        "length": 1,
+        "options": [
+          {
+            "text": "Metallica - Nothing else Matters",
+            "score": 56
+          },
+          {
+            "text": "Death - Nothing is Everything",
+            "score": 42
+          },
+          {
+            "text": "Nirvana - Nevermind",
+            "score": 34,
+            "payload": {
+              "artistId": 2321
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

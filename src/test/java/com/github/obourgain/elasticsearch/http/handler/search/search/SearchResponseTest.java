@@ -8,6 +8,9 @@ import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.TestFilesUtils;
 import com.github.obourgain.elasticsearch.http.response.entity.Hit;
 import com.github.obourgain.elasticsearch.http.response.entity.aggs.Terms;
+import com.github.obourgain.elasticsearch.http.response.entity.suggest.Completion;
+import com.github.obourgain.elasticsearch.http.response.entity.suggest.Suggestions;
+import com.github.obourgain.elasticsearch.http.response.entity.suggest.Term;
 
 public class SearchResponseTest {
 
@@ -128,5 +131,47 @@ public class SearchResponseTest {
 
         assertThat(searchResponse.getHits().getTotal()).isEqualTo(0);
         assertThat(searchResponse.getHits().getHits()).isEmpty();
+    }
+
+    @Test
+    public void should_parse_response_with_suggestions() throws Exception {
+        String json = TestFilesUtils.readFromClasspath("com/github/obourgain/elasticsearch/http/handler/search/search/response_with_suggestions.json");
+
+        SearchResponse searchResponse = new SearchResponse().parse(new BytesArray(json));
+
+        assertThat(searchResponse.getHits().getTotal()).isEqualTo(3);
+        assertThat(searchResponse.getHits().getHits()).isNotEmpty();
+
+        Suggestions suggestions = searchResponse.getSuggestions();
+        Assertions.assertThat(suggestions).isNotNull();
+
+        Term term = suggestions.getTerm("terms-suggest");
+        Assertions.assertThat(term.getText()).isEqualTo("everythign");
+        Assertions.assertThat(term.getOffset()).isEqualTo(0);
+        Assertions.assertThat(term.getLength()).isEqualTo(10);
+        Assertions.assertThat(term.getOptions()).hasSize(1);
+
+        Assertions.assertThat(term.getOptions().get(0).getFreq()).isEqualTo(1);
+        Assertions.assertThat(term.getOptions().get(0).getText()).isEqualTo("everything");
+        Assertions.assertThat(term.getOptions().get(0).getScore()).isEqualTo(0.9f);
+
+        Completion completion = suggestions.getCompletion("song-suggest");
+
+        Assertions.assertThat(completion.getText()).isEqualTo("n");
+        Assertions.assertThat(completion.getOffset()).isEqualTo(0);
+        Assertions.assertThat(completion.getLength()).isEqualTo(1);
+        Assertions.assertThat(completion.getOptions()).hasSize(3);
+
+        Assertions.assertThat(completion.getOptions().get(0).getPayload()).isNull();
+        Assertions.assertThat(completion.getOptions().get(0).getText()).isEqualTo("Metallica - Nothing else Matters");
+        Assertions.assertThat(completion.getOptions().get(0).getScore()).isEqualTo(56);
+
+        Assertions.assertThat(completion.getOptions().get(1).getPayload()).isNull();
+        Assertions.assertThat(completion.getOptions().get(1).getText()).isEqualTo("Death - Nothing is Everything");
+        Assertions.assertThat(completion.getOptions().get(1).getScore()).isEqualTo(42);
+
+        Assertions.assertThat(completion.getOptions().get(2).getPayload()).isEqualTo("{\"artistId\":2321}");
+        Assertions.assertThat(completion.getOptions().get(2).getText()).isEqualTo("Nirvana - Nevermind");
+        Assertions.assertThat(completion.getOptions().get(2).getScore()).isEqualTo(34);
     }
 }

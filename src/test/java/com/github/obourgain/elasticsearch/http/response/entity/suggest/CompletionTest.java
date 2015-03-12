@@ -11,7 +11,7 @@ public class CompletionTest {
 
     @Test
     public void should_parse_option() throws Exception {
-        String json = readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/suggest/option.json");
+        String json = readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/suggest/completion_option.json");
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
@@ -24,7 +24,7 @@ public class CompletionTest {
 
     @Test
     public void should_parse_options_array() throws Exception {
-        String json = readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/suggest/options_array.json");
+        String json = readFromClasspath("com/github/obourgain/elasticsearch/http/response/entity/suggest/completion_options_array.json");
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
