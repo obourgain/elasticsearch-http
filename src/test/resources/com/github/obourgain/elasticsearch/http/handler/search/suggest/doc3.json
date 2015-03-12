@@ -1,0 +1,8 @@
+{
+  "name" : "Nothing else Matters",
+  "suggest" : {
+    "input": [ "Nothing else Matters", "Metallica" ],
+    "output": "Metallica - Nothing else Matters",
+    "weight" : 56
+  }
+}

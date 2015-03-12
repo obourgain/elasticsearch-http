@@ -4,6 +4,7 @@ import static org.elasticsearch.common.xcontent.XContentParser.Token.END_OBJECT;
 import static org.elasticsearch.common.xcontent.XContentParser.Token.FIELD_NAME;
 import static org.elasticsearch.common.xcontent.XContentParser.Token.START_OBJECT;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
@@ -18,6 +19,10 @@ public class Suggestions {
 
     private final Map<String, Suggestion> parsed = new HashMap<>();
     private final Map<String, XContentBuilder> rawSuggestions = new HashMap<>();
+
+    public Collection<String> names() {
+        return rawSuggestions.keySet();
+    }
 
     public Completion getCompletion(final String name) {
         return findOrCreate(name, new Converter<Completion>() {
@@ -47,7 +52,7 @@ public class Suggestions {
         });
     }
 
-    protected void addRawSuggestion(String name, XContentBuilder rawSuggestion) {
+    public void addRawSuggestion(String name, XContentBuilder rawSuggestion) {
         rawSuggestions.put(name, rawSuggestion);
     }
 
@@ -119,7 +124,7 @@ public class Suggestions {
       }
 
      */
-    protected static Pair<String, XContentBuilder> parseInnerAgg(XContentParser parser, String aggregationName) {
+    protected static Pair<String, XContentBuilder> parseInnerSuggestion(XContentParser parser, String aggregationName) {
         try {
             assert parser.currentToken() == START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
             XContentBuilder docBuilder = XContentFactory.contentBuilder(XContentType.JSON);

@@ -1,0 +1,9 @@
+{
+  "name" : "Nevermind",
+  "suggest" : {
+    "input": [ "Nevermind", "Nirvana" ],
+    "output": "Nirvana - Nevermind",
+    "payload" : { "artistId" : 2321 },
+    "weight" : 34
+  }
+}

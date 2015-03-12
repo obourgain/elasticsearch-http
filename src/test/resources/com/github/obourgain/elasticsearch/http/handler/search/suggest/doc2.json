@@ -1,0 +1,8 @@
+{
+  "name" : "Nothing is Everything",
+  "suggest" : {
+    "input": [ "Nothing is Everything", "Death" ],
+    "output": "Death - Nothing is Everything",
+    "weight" : 42
+  }
+}
