@@ -36,7 +36,7 @@
         <jest.version>0.1.5</jest.version>
         <rxjava.version>1.0.8</rxjava.version>
         <netty.version>4.0.25.Final</netty.version>
-        <rxnetty.version>0.4.6</rxnetty.version>
+        <rxnetty.version>0.4.7</rxnetty.version>
     </properties>
 
     <dependencies>
