@@ -40,7 +40,6 @@ public class TermVectorsActionHandler {
             RequestUriBuilder uriBuilder = new RequestUriBuilder(request.index(), request.type(), URLEncoder.encode(request.id(), Charsets.UTF_8.displayName()))
                     .addEndpoint("_termvector");
 
-            // TODO test
             uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
             uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
 

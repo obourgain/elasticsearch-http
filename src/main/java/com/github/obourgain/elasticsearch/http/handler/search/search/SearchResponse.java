@@ -59,7 +59,6 @@ public class SearchResponse {
                         aggregations = Aggregations.parse(parser);
                     }
                 }
-                // TODO facets ? maybe not
             }
             return this;
         } catch (IOException e) {

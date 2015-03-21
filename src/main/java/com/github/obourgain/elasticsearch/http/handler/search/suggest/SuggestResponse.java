@@ -46,7 +46,6 @@ public class SuggestResponse {
                     }
                 }
             }
-            // TODO facets ? maybe not
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

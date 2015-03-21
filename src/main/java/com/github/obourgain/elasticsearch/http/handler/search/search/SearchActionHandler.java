@@ -37,7 +37,6 @@ public class SearchActionHandler {
     public void execute(SearchRequest request, final ActionListener<SearchResponse> listener) {
         logger.debug("search request {}", request);
         try {
-            // TODO http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search.html#stats-groups
             // TODO all options org.elasticsearch.rest.action.search.RestSearchAction.RestSearchAction()
 
             RequestUriBuilder uriBuilder;
