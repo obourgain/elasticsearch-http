@@ -31,38 +31,42 @@ public class SearchResponse {
 
     protected SearchResponse parse(BytesReference bytesReference) {
         try (XContentParser parser = XContentHelper.createParser(bytesReference)) {
-            XContentParser.Token token;
-            String currentFieldName = null;
-            while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
-                if (token == XContentParser.Token.FIELD_NAME) {
-                    currentFieldName = parser.currentName();
-                } else if (token.isValue()) {
-                    if ("took".equals(currentFieldName)) {
-                        tookInMillis = parser.longValue();
-                    } else if ("timed_out".equals(currentFieldName)) {
-                        timedOut = parser.booleanValue();
-                    } else if ("_scroll_id".equals(currentFieldName)) {
-                        scrollId = parser.text();
-                    } else if ("terminated_early".equals(currentFieldName)) {
-                        terminatedEarly = parser.booleanValue();
-                    } else {
-                        throw new IllegalStateException("unknown field " + currentFieldName);
-                    }
-                } else if (token == XContentParser.Token.START_OBJECT) {
-                    if ("_shards".equals(currentFieldName)) {
-                        shards = new Shards().parse(parser);
-                    } else if ("hits".equals(currentFieldName)) {
-                        hits = new Hits().parse(parser);
-                    } else if ("suggest".equals(currentFieldName)) {
-                        suggestions = Suggestions.parse(parser);
-                    } else if ("aggregations".equals(currentFieldName)) {
-                        aggregations = Aggregations.parse(parser);
-                    }
-                }
-            }
-            return this;
+            return parse(parser);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected SearchResponse parse(XContentParser parser) throws IOException {
+        XContentParser.Token token;
+        String currentFieldName = null;
+        while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
+            if (token == XContentParser.Token.FIELD_NAME) {
+                currentFieldName = parser.currentName();
+            } else if (token.isValue()) {
+                if ("took".equals(currentFieldName)) {
+                    tookInMillis = parser.longValue();
+                } else if ("timed_out".equals(currentFieldName)) {
+                    timedOut = parser.booleanValue();
+                } else if ("_scroll_id".equals(currentFieldName)) {
+                    scrollId = parser.text();
+                } else if ("terminated_early".equals(currentFieldName)) {
+                    terminatedEarly = parser.booleanValue();
+                } else {
+                    throw new IllegalStateException("unknown field " + currentFieldName);
+                }
+            } else if (token == XContentParser.Token.START_OBJECT) {
+                if ("_shards".equals(currentFieldName)) {
+                    shards = new Shards().parse(parser);
+                } else if ("hits".equals(currentFieldName)) {
+                    hits = new Hits().parse(parser);
+                } else if ("suggest".equals(currentFieldName)) {
+                    suggestions = Suggestions.parse(parser);
+                } else if ("aggregations".equals(currentFieldName)) {
+                    aggregations = Aggregations.parse(parser);
+                }
+            }
+        }
+        return this;
     }
 }

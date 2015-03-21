@@ -3,7 +3,6 @@ package com.github.obourgain.elasticsearch.http.handler.document.morelikethis;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.mlt.MoreLikeThisAction;
 import org.elasticsearch.action.mlt.MoreLikeThisRequest;
-import org.elasticsearch.action.support.IndicesOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
@@ -84,10 +83,7 @@ public class MoreLikeThisActionHandler {
                     throw new IllegalStateException("search_type " + request.searchType() + " is not supported");
             }
 
-            // can not use uriBuilder.addIndicesOptions() because MoreLikeThisRequest does not implement IndicesRequest
-            IndicesOptions indicesOptions = request.indicesOptions();
-            uriBuilder.addQueryParameter("ignore_unavailable", indicesOptions.ignoreUnavailable());
-            uriBuilder.addQueryParameter("allow_no_indices", indicesOptions.allowNoIndices());
+            uriBuilder.addIndicesOptions(request.indicesOptions());
 
             HttpClientRequest<ByteBuf> get = HttpClientRequest.createGet(uriBuilder.toString());
             if (request.searchSource() != null) {

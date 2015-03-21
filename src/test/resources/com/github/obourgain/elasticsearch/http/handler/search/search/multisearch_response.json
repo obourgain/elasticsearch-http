@@ -1,0 +1,161 @@
+{
+  "responses": [
+    {
+      "took": 2,
+      "timed_out": false,
+      "_shards": {
+        "total": 5,
+        "successful": 5,
+        "failed": 0
+      },
+      "hits": {
+        "total": 2,
+        "max_score": 1.0,
+        "hits": [
+          {
+            "_index": "twitter2",
+            "_type": "tweet",
+            "_id": "1",
+            "_score": 1.0,
+            "_source": {
+              "user": "foo",
+              "message": [
+                "the message",
+                "twice the message"
+              ],
+              "the_int": [
+                2,
+                3
+              ]
+            }
+          },
+          {
+            "_index": "twitter2",
+            "_type": "tweet",
+            "_id": "2",
+            "_score": 1.0,
+            "_source": {
+              "user": "foo",
+              "message": "the message",
+              "the_int": 12
+            }
+          }
+        ]
+      }
+    },
+    {
+      "took": 1,
+      "timed_out": false,
+      "_shards": {
+        "total": 5,
+        "successful": 5,
+        "failed": 0
+      },
+      "hits": {
+        "total": 5,
+        "max_score": 1.2,
+        "hits": []
+      }
+    },
+    {
+      "took": 6,
+      "timed_out": false,
+      "_shards": {
+        "total": 10,
+        "successful": 10,
+        "failed": 0
+      },
+      "hits": {
+        "total": 2,
+        "max_score": 1.0,
+        "hits": [
+          {
+            "_index": "twitter2",
+            "_type": "tweet",
+            "_id": "1",
+            "_score": 1.0,
+            "_source": {
+              "user": "foo",
+              "message": [
+                "the message",
+                "twice the message"
+              ],
+              "the_int": [
+                2,
+                3
+              ]
+            }
+          },
+          {
+            "_index": "twitter2",
+            "_type": "tweet",
+            "_id": "2",
+            "_score": 1.0,
+            "_source": {
+              "user": "foo",
+              "message": "the message",
+              "the_int": 12
+            }
+          }
+        ]
+      }
+    },
+    {
+      "took": 6,
+      "timed_out": false,
+      "_shards": {
+        "total": 10,
+        "successful": 10,
+        "failed": 0
+      },
+      "hits": {
+        "total": 2,
+        "max_score": 1.0,
+        "hits": [
+          {
+            "_index": "twitter2",
+            "_type": "tweet",
+            "_id": "1",
+            "_score": 1.0,
+            "_source": {
+              "user": "foo",
+              "message": [
+                "the message",
+                "twice the message"
+              ],
+              "the_int": [
+                2,
+                3
+              ]
+            }
+          },
+          {
+            "_index": "twitter2",
+            "_type": "tweet",
+            "_id": "2",
+            "_score": 1.0,
+            "_source": {
+              "user": "foo",
+              "message": "the message",
+              "the_int": 12
+            }
+          }
+        ]
+      }
+    },
+    {
+      "took": 1,
+      "timed_out": false,
+      "_shards": {
+        "total": 10,
+        "successful": 10,
+        "failed": 0
+      },
+      "hits": {
+        "total": 0,
+        "max_score": 0.0,
+        "hits": []
+      }
+    }
+  ]
+}

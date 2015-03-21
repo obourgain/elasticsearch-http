@@ -214,6 +214,19 @@ public class RequestUriBuilder {
         return this;
     }
 
+    public RequestUriBuilder addIndicesOptions(IndicesOptions indicesOptions) {
+        addQueryParameter("ignore_unavailable", indicesOptions.ignoreUnavailable());
+        addQueryParameter("allow_no_indices", indicesOptions.allowNoIndices());
+
+        // not used
+//        addQueryParameter("", indicesOptions.forbidClosedIndices());
+
+        // comment from IndicesOptions :
+        //note that allowAliasesToMultipleIndices is not exposed, always true (only for internal use)
+//        indicesOptions.allowAliasesToMultipleIndices();
+        return this;
+    }
+
     public RequestUriBuilder addQueryParameter(String name, String... values) {
         addQueryStringSeparator();
         for (String value : values) {

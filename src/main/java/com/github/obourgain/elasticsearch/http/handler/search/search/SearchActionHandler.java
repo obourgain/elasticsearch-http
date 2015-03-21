@@ -37,8 +37,6 @@ public class SearchActionHandler {
     public void execute(SearchRequest request, final ActionListener<SearchResponse> listener) {
         logger.debug("search request {}", request);
         try {
-            // TODO all options org.elasticsearch.rest.action.search.RestSearchAction.RestSearchAction()
-
             RequestUriBuilder uriBuilder;
             if (request.types() != null && request.types().length > 0) {
                 uriBuilder = new RequestUriBuilder(indicesOrAll(request), Strings.arrayToCommaDelimitedString(request.types()));

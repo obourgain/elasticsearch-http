@@ -1,6 +1,9 @@
 package com.github.obourgain.elasticsearch.http;
 
 import static java.nio.file.Files.*;
+import static org.elasticsearch.common.xcontent.XContentType.JSON;
+import static org.elasticsearch.common.xcontent.XContentType.SMILE;
+import static org.elasticsearch.common.xcontent.XContentType.YAML;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
@@ -19,6 +22,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.test.ElasticsearchIntegrationTest;
@@ -69,6 +73,21 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
     @After
     public void stopClient() {
         httpClient.close();
+    }
+
+
+    private XContentType initialContentType = null;
+
+    @Before
+    public void save_request_content_type() {
+        // this client only uses JSON, so set the content type used by ES on request generation, but also clean up stuff afterwards
+        initialContentType = Requests.CONTENT_TYPE;
+        Requests.CONTENT_TYPE = JSON;
+    }
+
+    @After
+    public void restore_request_content_type() {
+        Requests.CONTENT_TYPE = initialContentType;
     }
 
     protected void createDoc() throws IOException {
@@ -151,7 +170,7 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
             String key = entry.getKey();
             Assertions.assertThat(sourceAsMap.containsKey(key)).isTrue();
             Object actualValue = sourceAsMap.get(key);
-            if(entry.getValue() instanceof Map) {
+            if (entry.getValue() instanceof Map) {
                 assertMapContainsValues((Map) entry.getValue(), ((Map) sourceAsMap.get(entry.getKey())));
             } else {
                 Assertions.assertThat(actualValue).isEqualTo(entry.getValue());
@@ -159,7 +178,7 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
         }
     }
 
-    protected void assertMapContainsValues(Map<Object, Object> expectedValues, Map<Object, Object>  actual) {
+    protected void assertMapContainsValues(Map<Object, Object> expectedValues, Map<Object, Object> actual) {
         for (Map.Entry entry : expectedValues.entrySet()) {
             Assertions.assertThat(actual.containsKey(entry.getKey())).isTrue();
             Assertions.assertThat(actual.get(entry.getKey())).isEqualTo(entry.getValue());

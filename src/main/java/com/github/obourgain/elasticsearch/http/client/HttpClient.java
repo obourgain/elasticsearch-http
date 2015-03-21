@@ -14,6 +14,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.mlt.MoreLikeThisRequest;
 import org.elasticsearch.action.percolate.PercolateRequest;
 import org.elasticsearch.action.search.ClearScrollRequest;
+import org.elasticsearch.action.search.MultiSearchRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.suggest.SuggestRequest;
@@ -47,6 +48,8 @@ import com.github.obourgain.elasticsearch.http.handler.search.explain.ExplainAct
 import com.github.obourgain.elasticsearch.http.handler.search.explain.ExplainResponse;
 import com.github.obourgain.elasticsearch.http.handler.search.percolate.PercolateActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.percolate.PercolateResponse;
+import com.github.obourgain.elasticsearch.http.handler.search.search.MultiSearchActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.search.search.MultiSearchResponse;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchResponse;
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchScrollActionHandler;
@@ -78,6 +81,7 @@ public class HttpClient {
     DeleteByQueryActionHandler deleteByQueryActionHandler = new DeleteByQueryActionHandler(this);
     TermVectorsActionHandler termVectorActionHandler = new TermVectorsActionHandler(this);
     SearchActionHandler searchActionHandler = new SearchActionHandler(this);
+    MultiSearchActionHandler multiSearchActionHandler = new MultiSearchActionHandler(this);
     CountActionHandler countActionHandler = new CountActionHandler(this);
     ExistsActionHandler existsActionHandler = new ExistsActionHandler(this);
     ExplainActionHandler explainActionHandler = new ExplainActionHandler(this);
@@ -180,6 +184,16 @@ public class HttpClient {
     public Future<SearchResponse> search(SearchRequest request) {
         PlainActionFuture<SearchResponse> future = PlainActionFuture.newFuture();
         search(request, future);
+        return future;
+    }
+
+    public void multiSearch(MultiSearchRequest request, ActionListener<MultiSearchResponse> listener) {
+        multiSearchActionHandler.execute(request, listener);
+    }
+
+    public Future<MultiSearchResponse> multiSearch(MultiSearchRequest request) {
+        PlainActionFuture<MultiSearchResponse> future = PlainActionFuture.newFuture();
+        multiSearch(request, future);
         return future;
     }
 

@@ -33,28 +33,7 @@ import com.github.obourgain.elasticsearch.http.handler.search.search.SearchRespo
 @SuppressWarnings("LongLiteralLowerCaseSuffix")
 public class MoreLikeThisActionHandlerTest extends AbstractTest {
 
-    @Test
-    public void should_() throws Exception {
-        BytesReference source = source().bytes();
-        Map<String, Object> expected = SourceLookup.sourceAsMap(source);
-        index(THE_INDEX, THE_TYPE, THE_ID, expected);
-
-        refresh();
-
-        MoreLikeThisRequest request = new MoreLikeThisRequest(THE_INDEX).type(THE_TYPE).id(THE_ID).searchSource(new SearchSourceBuilder().query(matchAllQuery()));
-        long start = System.currentTimeMillis();
-        SearchResponse searchResponse = httpClient.moreLikeThis(request).get();
-        long end = System.currentTimeMillis();
-
-        Assertions.assertThat(searchResponse.getTookInMillis()).isLessThan(end - start);
-        Assertions.assertThat(searchResponse.getScrollId()).isNull();
-
-        assertShardsSuccessfulForIT(searchResponse.getShards(), THE_INDEX);
-
-        // TODO generate a dataset and match those docs
-    }
-
-    // TODO maintain these tests, taken from org.elasticsearch.mlt.MoreLikeThisActionTests
+    // remember maintain these tests, taken from org.elasticsearch.mlt.MoreLikeThisActionTests
 
     @Test
     public void testSimpleMoreLikeThis() throws Exception {
