@@ -37,9 +37,8 @@ public class PercolateActionHandler {
 
     public void execute(PercolateRequest request, final ActionListener<PercolateResponse> listener) {
         logger.debug("percolate request {}", request);
-        // TODO percolate_format
-        // TODO percolate count
-        // TODO percolate existing doc
+        // percolate_format does not exist in PercolateRequest, only in REST API
+        // TODO percolate existing doc, we do not have the id in the PercolateRequest :(
         // TODO multi percolate
         RequestUriBuilder uriBuilder;
 
@@ -54,7 +53,6 @@ public class PercolateActionHandler {
             } else {
                 uriBuilder = new RequestUriBuilder(HttpRequestUtils.indicesOrAll(request), request.documentType());
             }
-
 
             if (request.onlyCount()) {
                 uriBuilder.addEndpoint("/_percolate/count");

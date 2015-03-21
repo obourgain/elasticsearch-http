@@ -57,6 +57,32 @@ public class PercolateActionHandlerTest extends AbstractTest {
     }
 
     @Test
+    public void should_percolate_with_count_only() throws IOException, ExecutionException, InterruptedException {
+        createMapping();
+
+        XContentBuilder query = XContentFactory.jsonBuilder()
+                .startObject()
+                .field("query", matchQuery("message", "bonsai tree"))
+                .endObject();
+
+        transportClient.index(Requests.indexRequest(THE_INDEX).type(".percolator").source(query)).actionGet();
+
+        refresh();
+
+        PercolateSourceBuilder.DocBuilder doc = new PercolateSourceBuilder.DocBuilder()
+                .setDoc(XContentFactory.jsonBuilder().startObject().field("message", "A new bonsai tree in the office").endObject());
+        PercolateRequest request = new PercolateRequest().indices(THE_INDEX).documentType("my-type")
+                .source(new PercolateSourceBuilder().setTrackScores(true).setDoc(doc)).onlyCount(true);
+
+        PercolateResponse response = httpClient.percolate(request).get();
+
+        assertShardsSuccessfulForIT(response.getShards(), THE_INDEX);
+
+        Assertions.assertThat(response.getTotal()).isEqualTo(1);
+        Assertions.assertThat(response.getMatches()).isNull();
+    }
+
+    @Test
     public void should_percolate_with_highlight() throws IOException, ExecutionException, InterruptedException {
         createMapping();
 
