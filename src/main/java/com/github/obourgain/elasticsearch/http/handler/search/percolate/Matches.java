@@ -5,32 +5,29 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.elasticsearch.common.xcontent.XContentParser;
-import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
 public class Matches implements Iterable<Match> {
 
-    private List<Match> matches;
+    private List<Match> matches = new ArrayList<>();
 
     @Override
     public Iterator<Match> iterator() {
         return matches.iterator();
     }
 
-    public static Matches parse(XContentParser parser) {
+    public Matches parse(XContentParser parser) {
         try {
-            List<Match> parsedMatches = new ArrayList<>();
             assert parser.currentToken() == XContentParser.Token.START_ARRAY : "expected a START_ARRAY token but was " + parser.currentToken();
             XContentParser.Token token;
             while ((token = parser.nextToken()) != XContentParser.Token.END_ARRAY) {
                 if (token == XContentParser.Token.START_OBJECT) {
-                    Match match = Match.parse(parser);
-                    parsedMatches.add(match);
+                    Match match = new Match().parse(parser);
+                    matches.add(match);
                 }
             }
-            return builder().matches(parsedMatches).build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -1,0 +1,9 @@
+{
+  "_index": "my-index",
+  "_id": "1",
+  "highlight": {
+    "body": [
+      "The quick <em>brown</em> <em>fox</em> jumps over the lazy dog"
+    ]
+  }
+}

@@ -63,7 +63,7 @@ public class Hit {
             } else if (token == START_OBJECT && "fields".equals(currentFieldName)) {
                 fields = parseSearchHitFields(parser);
             } else if (token == START_OBJECT && "highlight".equals(currentFieldName)) {
-                highlights = parseHighlights(parser);
+                highlights = Highlight.parseHighlights(parser);
             } else if (token == START_OBJECT && "_explanation".equals(currentFieldName)) {
                 explanation = new Explanation().parse(parser);
             } else if (token == START_ARRAY && "sort".equals(currentFieldName)) {
@@ -115,21 +115,6 @@ public class Hit {
             while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
                 SearchHitField field = new SearchHitField().parse(parser);
                 result.put(field.getName(), field);
-            }
-            return result;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Map<String, Highlight> parseHighlights(XContentParser parser) {
-        try {
-            assert parser.currentToken() == START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
-            assert parser.currentName().equals("highlight") : "expected a current name to be 'highlight' but was " + parser.currentName();
-            Map<String, Highlight> result = new HashMap<>();
-            while (parser.nextToken() != XContentParser.Token.END_OBJECT) {
-                Highlight highlight = new Highlight().parse(parser);
-                result.put(highlight.getName(), highlight);
             }
             return result;
         } catch (IOException e) {

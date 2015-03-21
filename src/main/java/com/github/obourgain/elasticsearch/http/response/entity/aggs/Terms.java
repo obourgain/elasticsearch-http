@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Terms extends AbstractAggregation {
 
-    private long sumOtherDocCount;
-    private long docCountErrorUpperBound;
+    private long sumOtherDocCount = -1;
+    private long docCountErrorUpperBound = -1;
     private List<Bucket> buckets;
 
     public Terms(String name) {

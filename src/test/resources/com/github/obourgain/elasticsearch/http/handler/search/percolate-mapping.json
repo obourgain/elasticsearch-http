@@ -3,6 +3,20 @@
     "properties": {
       "message": {
         "type": "string"
+      },
+      "field1": {
+        "type": "string"
+      }
+    }
+  },
+  ".percolator" : {
+    "properties" : {
+      "query" : {
+        "type" : "object",
+        "enabled" : false
+      },
+      "some_metadata" : {
+        "type" : "string"
       }
     }
   }

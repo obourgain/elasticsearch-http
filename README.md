@@ -56,3 +56,6 @@ The order of fields in a `Map` may differ too as it is implementation-dependent.
 Serializing the responses using Elasticsearch's binary format may not work because some classes are new implementations of interfaces.
 
 Histogram aggs may have a different length as the TransportClient does not deduplicate ranges if the same range is asked several times.
+
+
+Facets will not be supported as they will be removed in elasticsearch 2.0

@@ -6,6 +6,7 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import com.github.obourgain.elasticsearch.http.buffer.ByteBufBytesReference;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
+import com.github.obourgain.elasticsearch.http.response.entity.aggs.Aggregations;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import rx.Observable;
@@ -17,8 +18,7 @@ public class PercolateResponse {
     private long tookInMillis;
     private long total;
     private Matches matches;
-    // TODO facet ?
-    // TODO aggs ?
+    private Aggregations aggregations;
 
     public static Observable<PercolateResponse> parse(ByteBuf content) {
         return Observable.just(new PercolateResponse().parse(new ByteBufBytesReference(content)));
@@ -42,10 +42,12 @@ public class PercolateResponse {
                 } else if (token == XContentParser.Token.START_OBJECT) {
                     if ("_shards".equals(currentFieldName)) {
                         shards = new Shards().parse(parser);
+                    } else if ("aggregations".equals(currentFieldName)) {
+                        aggregations = Aggregations.parse(parser);
                     }
                 } else if (token == XContentParser.Token.START_ARRAY) {
                     if ("matches".equals(currentFieldName)) {
-                        matches = Matches.parse(parser);
+                        matches = new Matches().parse(parser);
                     }
                 }
             }

@@ -39,7 +39,6 @@ public class PercolateActionHandler {
         logger.debug("percolate request {}", request);
         // TODO percolate_format
         // TODO percolate count
-        // TODO highlight
         // TODO percolate existing doc
         // TODO multi percolate
         RequestUriBuilder uriBuilder;
@@ -83,6 +82,7 @@ public class PercolateActionHandler {
             }
             uriBuilder.addIndicesOptions(request);
 
+            uriBuilder.addQueryParameter("pretty", true);
             HttpClientRequest<ByteBuf> httpRequest = HttpClientRequest.createGet(uriBuilder.toString());
 
             if (request.source() != null) {

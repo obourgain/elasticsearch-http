@@ -1,22 +1,24 @@
 package com.github.obourgain.elasticsearch.http.handler.search.percolate;
 
+import static org.elasticsearch.common.xcontent.XContentParser.Token.START_OBJECT;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.elasticsearch.common.xcontent.XContentParser;
-import lombok.Builder;
+import com.github.obourgain.elasticsearch.http.response.entity.Highlight;
 import lombok.Getter;
 
-@Builder
 @Getter
 public class Match {
 
     private String index;
     private String id;
     private Float score;
+    private Map<String, Highlight> highlights;
 
-    public static Match parse(XContentParser parser) {
+    public Match parse(XContentParser parser) {
         try {
             assert parser.currentToken() == XContentParser.Token.START_OBJECT : "expected a START_OBJECT token but was " + parser.currentToken();
-            MatchBuilder builder = builder();
             XContentParser.Token token;
             String currentFieldName = null;
             while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
@@ -24,18 +26,19 @@ public class Match {
                     currentFieldName = parser.currentName();
                 } else if (token.isValue()) {
                     if ("_index".equals(currentFieldName)) {
-                        builder.index(parser.text());
+                        index = parser.text();
                     } else if ("_id".equals(currentFieldName)) {
-                        builder.id(parser.text());
+                        id=parser.text();
                     } else if ("_score".equals(currentFieldName)) {
-                        builder.score(parser.floatValue());
+                        score=parser.floatValue();
                     }
+                } else if (token == START_OBJECT && "highlight".equals(currentFieldName)) {
+                    highlights = Highlight.parseHighlights(parser);
                 }
             }
-            return builder.build();
+            return this;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
 }

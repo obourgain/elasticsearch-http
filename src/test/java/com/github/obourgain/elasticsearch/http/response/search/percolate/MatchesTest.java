@@ -17,7 +17,7 @@ public class MatchesTest {
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
-        Matches matches = Matches.parse(parser);
+        Matches matches = new Matches().parse(parser);
 
         assertMatches(matches);
     }
