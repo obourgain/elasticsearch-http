@@ -6,9 +6,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Arrays;
 import java.util.Collections;
 import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeBuilder;
 import org.junit.Test;
 import com.github.obourgain.elasticsearch.http.handler.document.bulk.BulkActionMarshaller;
 import rx.Observable;
@@ -18,7 +21,6 @@ public class BulkActionMarshallerTest {
     @Test
     public void should_marshall_index_request() throws Exception {
         IndexRequest request = new IndexRequest();
-        // TODO transportClient w/o source ?
         request.source("foo", "bar");
         request.index("the_index");
         request.type("the_type");
