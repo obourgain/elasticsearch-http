@@ -9,9 +9,6 @@ import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.MapEntry;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
-import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequest;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
@@ -24,10 +21,8 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.node.Node;
 import org.elasticsearch.node.internal.InternalNode;
 import org.elasticsearch.test.ElasticsearchIntegrationTest;
-import org.elasticsearch.test.SettingsSource;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -66,11 +61,6 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
         ensureGreen();
 
         transportClient = (TransportClient) cluster().client();
-//        transportClient.admin().cluster()
-//                .updateSettings(new ClusterUpdateSettingsRequest().persistentSettings(ImmutableSettings.builder().put(InternalNode.HTTP_ENABLED, true).put(nodeSettings(0)).build())).actionGet();
-
-//        NodesInfoResponse nodeInfos = transportClient.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet();
-//        System.out.println(nodeInfos);
 
         NodeInfo[] nodes = admin().cluster().nodesInfo(Requests.nodesInfoRequest()).actionGet().getNodes();
         Assert.assertThat(nodes.length, Matchers.greaterThanOrEqualTo(1));
