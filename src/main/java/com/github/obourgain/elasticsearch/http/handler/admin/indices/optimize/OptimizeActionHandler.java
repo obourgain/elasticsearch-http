@@ -45,8 +45,7 @@ public class OptimizeActionHandler {
                     .addQueryParameter("upgrade", request.upgrade())
                     .addQueryParameter("flush", request.flush())
                     .addQueryParameter("max_num_segments", request.maxNumSegments())
-                    .addQueryParameter("only_expunge_deletes", request.onlyExpungeDeletes())
-                    .addQueryParameter("wait_for_merge", request.waitForMerge());
+                    .addQueryParameter("only_expunge_deletes", request.onlyExpungeDeletes());
 
             indicesAdminClient.getHttpClient().submit(HttpClientRequest.createPost(uriBuilder.toString()))
                     .flatMap(HANDLES_404)

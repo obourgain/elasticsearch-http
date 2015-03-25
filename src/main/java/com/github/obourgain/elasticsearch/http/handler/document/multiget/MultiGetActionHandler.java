@@ -1,10 +1,14 @@
 package com.github.obourgain.elasticsearch.http.handler.document.multiget;
 
+import java.io.IOException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.get.GetAction;
 import org.elasticsearch.action.get.MultiGetRequest;
+import org.elasticsearch.common.lucene.uid.Versions;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.VersionType;
+import org.elasticsearch.search.fetch.source.FetchSourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
@@ -37,51 +41,22 @@ public class MultiGetActionHandler {
     public void execute(final MultiGetRequest request, final ActionListener<MultiGetResponse> listener) {
         logger.debug("multi get request {}", request);
         try {
-            RequestUriBuilder uriBuilder = uriBuilder = new RequestUriBuilder()
-                    .addEndpoint("_mget");
-
-            XContentBuilder builder = XContentFactory.jsonBuilder();
+            RequestUriBuilder uriBuilder = new RequestUriBuilder().addEndpoint("_mget");
 
             uriBuilder.addQueryParameter("ignore_errors_on_generated_fields", request.ignoreErrorsOnGeneratedFields);
             uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
             uriBuilder.addQueryParameterIfNotNull("refresh", request.refresh());
             uriBuilder.addQueryParameterIfNotNull("realtime", request.realtime());
 
-//            request.subRequests();
-//
-//            request.getItems();
-//
-//                    FetchSourceContext fetchSourceContext = request.fetchSourceContext();
-//            if (fetchSourceContext != null) {
-//                uriBuilder.addQueryParameter("_source", fetchSourceContext.fetchSource());
-//                if (fetchSourceContext.transformSource()) {
-//                    uriBuilder.addQueryParameter("_source_transform", true);
-//                }
-//                // excludes & includes defaults to empty String array
-//                if (fetchSourceContext.excludes().length > 0) {
-//                    uriBuilder.addQueryParameterArrayAsCommaDelimited("_source_exclude", fetchSourceContext.excludes());
-//                }
-//                if (fetchSourceContext.includes().length > 0) {
-//                    uriBuilder.addQueryParameterArrayAsCommaDelimited("_source_include", fetchSourceContext.includes());
-//                }
-//            }
-//
-//            if (request.version() != Versions.MATCH_ANY) {
-//                uriBuilder.addQueryParameter("version", request.version());
-//                uriBuilder.addQueryParameter("version_type", request.versionType().toString().toLowerCase());
-//            }
-//            if (request.fields() != null) {
-//                uriBuilder.addQueryParameterArrayAsCommaDelimited("fields", request.fields());
-//            }
-//            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
-//            uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
-//            if (request.refresh()) {
-//                uriBuilder.addQueryParameter("refresh", request.refresh());
-//            }
-//            if (request.realtime()) {
-//                uriBuilder.addQueryParameter("realtime", request.realtime());
-//            }
-            httpClient.client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
+            XContentBuilder builder = XContentFactory.jsonBuilder();
+            builder.startObject().field("docs").startArray();
+            for (MultiGetRequest.Item item : request.getItems()) {
+                writeItem(builder, item);
+            }
+            builder.endArray().endObject();
+
+            httpClient.client.submit(HttpClientRequest.createPost(uriBuilder.toString())
+            .withContent(builder.bytes().toBytes()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<MultiGetResponse>>() {
                         @Override
@@ -100,5 +75,48 @@ public class MultiGetActionHandler {
         } catch (Exception e) {
             listener.onFailure(e);
         }
+    }
+
+    private void writeItem(XContentBuilder builder, MultiGetRequest.Item item) throws IOException {
+        builder.startObject();
+        builder.field("_index", item.index());
+        builder.field("_type", item.type());
+        builder.field("_id", item.id());
+        FetchSourceContext fetchSourceContext = item.fetchSourceContext();
+        if(fetchSourceContext != null) {
+            if(fetchSourceContext.fetchSource()) {
+                if(fetchSourceContext.includes().length != 0 | fetchSourceContext.excludes().length != 0) {
+                    builder.startObject("_source");
+                    if(fetchSourceContext.includes().length != 0) {
+                        builder.array("include", fetchSourceContext.includes());
+                    }
+                    if(fetchSourceContext.excludes().length != 0) {
+                        builder.array("exclude", fetchSourceContext.excludes());
+
+                    }
+                    builder.endObject();
+                }
+            } else {
+                builder.field("_source", false);
+            }
+        }
+        if(item.fields() != null && item.fields().length != 0) {
+            builder.array("fields", item.fields());
+        }
+        if(item.routing() != null) {
+            builder.array("_routing", item.routing());
+        }
+
+        if(item.indicesOptions() != null) {
+            builder.array("_routing", item.routing());
+        }
+        if(item.versionType() != VersionType.INTERNAL) {
+            builder.array("_version_type", item.versionType().name().toLowerCase());
+        }
+        if(item.version() != Versions.MATCH_ANY) {
+            builder.array("_version", item.version());
+        }
+
+        builder.endObject();
     }
 }

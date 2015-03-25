@@ -11,7 +11,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.test.ElasticsearchIntegrationTest;
-import org.elasticsearch.test.ElasticsearchThreadFilter;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -22,7 +21,7 @@ import com.github.obourgain.elasticsearch.http.RxNettyThreadFilter;
 import com.github.obourgain.elasticsearch.http.client.HttpClient;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.DeleteIndexResponse;
 
-@ThreadLeakFilters(defaultFilters = true, filters = {ElasticsearchThreadFilter.class, RxNettyThreadFilter.class})
+@ThreadLeakFilters(defaultFilters = true, filters = {RxNettyThreadFilter.class})
 @ElasticsearchIntegrationTest.ClusterScope(transportClientRatio = 1, numClientNodes = 1, numDataNodes = 1, scope = ElasticsearchIntegrationTest.Scope.TEST)
 public class DeleteIndexActionHandlerTest extends ElasticsearchIntegrationTest {
 

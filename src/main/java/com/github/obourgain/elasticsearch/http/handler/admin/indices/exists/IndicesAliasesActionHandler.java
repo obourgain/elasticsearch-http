@@ -60,7 +60,7 @@ public class IndicesAliasesActionHandler {
             uriBuilder.addQueryParameter("timeout", request.timeout().toString());
             uriBuilder.addQueryParameter("master_timeout", request.masterNodeTimeout().toString());
 
-            uriBuilder.addIndicesOptions(request);
+            uriBuilder.addIndicesOptions(request.indicesOptions());
 
             byte[] body = jsonBuilder.bytes().toBytes();
 

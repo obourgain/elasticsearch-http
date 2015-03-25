@@ -42,7 +42,6 @@ public class FlushActionHandler {
 
             uriBuilder.addIndicesOptions(request);
             uriBuilder.addQueryParameter("force", request.force());
-            uriBuilder.addQueryParameter("full", request.full());
             uriBuilder.addQueryParameter("wait_if_ongoing", request.waitIfOngoing());
 
             indicesAdminClient.getHttpClient().submit(HttpClientRequest.createPost(uriBuilder.toString()))

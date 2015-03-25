@@ -46,7 +46,7 @@ public class SearchActionHandlerTest extends AbstractTest {
 
         refresh();
 
-        ImmutableMap<String, String> params = ImmutableMap.<String, String>builder()
+        ImmutableMap<String, Object> params = ImmutableMap.<String, Object>builder()
                 .put("the_string_field", "the_string_value")
                 .put("the_integer_field", "42")
                 .put("my_size", "5").build();

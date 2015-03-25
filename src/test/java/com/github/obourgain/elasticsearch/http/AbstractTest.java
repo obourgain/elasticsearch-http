@@ -1,22 +1,21 @@
 package com.github.obourgain.elasticsearch.http;
 
-import static java.nio.file.Files.*;
 import static org.elasticsearch.common.xcontent.XContentType.JSON;
-import static org.elasticsearch.common.xcontent.XContentType.SMILE;
-import static org.elasticsearch.common.xcontent.XContentType.YAML;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.MapEntry;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
+import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
+import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
+import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequest;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -25,8 +24,10 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.node.Node;
+import org.elasticsearch.node.internal.InternalNode;
 import org.elasticsearch.test.ElasticsearchIntegrationTest;
-import org.elasticsearch.test.ElasticsearchThreadFilter;
+import org.elasticsearch.test.SettingsSource;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -40,8 +41,8 @@ import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 /**
  * @author olivier bourgain
  */
-@ThreadLeakFilters(defaultFilters = true, filters = {ElasticsearchThreadFilter.class, RxNettyThreadFilter.class})
-@ElasticsearchIntegrationTest.ClusterScope(transportClientRatio = 1, numClientNodes = 1, numDataNodes = 1, scope = ElasticsearchIntegrationTest.Scope.GLOBAL)
+@ThreadLeakFilters(defaultFilters = true, filters = {RxNettyThreadFilter.class})
+@ElasticsearchIntegrationTest.ClusterScope(transportClientRatio = 1, numClientNodes = 1, numDataNodes = 1, scope = ElasticsearchIntegrationTest.Scope.SUITE)
 public abstract class AbstractTest extends ElasticsearchIntegrationTest {
 
     public static final String THE_INDEX = "the_index";
@@ -51,12 +52,25 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
     protected TransportClient transportClient;
     protected HttpClient httpClient;
 
+    @Override
+    protected Settings nodeSettings(int nodeOrdinal) {
+        return ImmutableSettings.settingsBuilder()
+                .put(super.nodeSettings(nodeOrdinal))
+                .put(InternalNode.HTTP_ENABLED, true)
+                .build();
+    }
+
     @Before
     public void setUpClient() throws IOException, InterruptedException, NoSuchFieldException, IllegalAccessException {
         createIndex(THE_INDEX);
         ensureGreen();
 
         transportClient = (TransportClient) cluster().client();
+//        transportClient.admin().cluster()
+//                .updateSettings(new ClusterUpdateSettingsRequest().persistentSettings(ImmutableSettings.builder().put(InternalNode.HTTP_ENABLED, true).put(nodeSettings(0)).build())).actionGet();
+
+//        NodesInfoResponse nodeInfos = transportClient.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet();
+//        System.out.println(nodeInfos);
 
         NodeInfo[] nodes = admin().cluster().nodesInfo(Requests.nodesInfoRequest()).actionGet().getNodes();
         Assert.assertThat(nodes.length, Matchers.greaterThanOrEqualTo(1));

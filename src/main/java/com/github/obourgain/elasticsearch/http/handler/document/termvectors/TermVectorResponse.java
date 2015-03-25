@@ -18,6 +18,7 @@ public class TermVectorResponse {
     private String id;
     private long version;
     private boolean found;
+    private long took;
     private TermVector termVector;
 
     protected static Observable<TermVectorResponse> parse(ByteBuf content) {
@@ -48,6 +49,9 @@ public class TermVectorResponse {
                             break;
                         case "found":
                             found = parser.booleanValue();
+                            break;
+                        case "took":
+                            took = parser.longValue();
                             break;
                         default:
                             throw new IllegalStateException("unknown field " + currentFieldName);
