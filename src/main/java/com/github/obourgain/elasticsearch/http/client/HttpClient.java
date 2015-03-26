@@ -10,6 +10,7 @@ import org.elasticsearch.action.deletebyquery.DeleteByQueryRequest;
 import org.elasticsearch.action.exists.ExistsRequest;
 import org.elasticsearch.action.explain.ExplainRequest;
 import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.mlt.MoreLikeThisRequest;
 import org.elasticsearch.action.percolate.PercolateRequest;
@@ -34,6 +35,8 @@ import com.github.obourgain.elasticsearch.http.handler.document.get.GetResponse;
 import com.github.obourgain.elasticsearch.http.handler.document.index.IndexActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.index.IndexResponse;
 import com.github.obourgain.elasticsearch.http.handler.document.morelikethis.MoreLikeThisActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.document.multiget.MultiGetActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.document.multiget.MultiGetResponse;
 import com.github.obourgain.elasticsearch.http.handler.document.termvectors.TermVectorResponse;
 import com.github.obourgain.elasticsearch.http.handler.document.termvectors.TermVectorsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.update.UpdateActionHandler;
@@ -76,6 +79,7 @@ public class HttpClient {
 
     IndexActionHandler indexActionHandler = new IndexActionHandler(this);
     GetActionHandler getActionHandler = new GetActionHandler(this);
+    MultiGetActionHandler multiGetActionHandler = new MultiGetActionHandler(this);
     DeleteActionHandler deleteActionHandler = new DeleteActionHandler(this);
     UpdateActionHandler updateActionHandler = new UpdateActionHandler(this);
     DeleteByQueryActionHandler deleteByQueryActionHandler = new DeleteByQueryActionHandler(this);
@@ -134,6 +138,16 @@ public class HttpClient {
     public Future<GetResponse> get(GetRequest request) {
         PlainActionFuture<GetResponse> future = PlainActionFuture.newFuture();
         get(request, future);
+        return future;
+    }
+
+    public void multiGet(MultiGetRequest request, ActionListener<MultiGetResponse> listener) {
+        multiGetActionHandler.execute(request, listener);
+    }
+
+    public Future<MultiGetResponse> multiGet(MultiGetRequest request) {
+        PlainActionFuture<MultiGetResponse> future = PlainActionFuture.newFuture();
+        multiGet(request, future);
         return future;
     }
 
