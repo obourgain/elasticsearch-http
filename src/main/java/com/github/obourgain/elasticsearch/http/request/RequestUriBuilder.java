@@ -208,6 +208,14 @@ public class RequestUriBuilder {
         addQueryParameter("ignore_unavailable", indicesOptions.ignoreUnavailable());
         addQueryParameter("allow_no_indices", indicesOptions.allowNoIndices());
 
+        if(indicesOptions.expandWildcardsClosed() & indicesOptions.expandWildcardsOpen()) {
+            addQueryParameter("expand_wildcards", "open,closed");
+        } else if(indicesOptions.expandWildcardsClosed()) {
+            addQueryParameter("expand_wildcards", "closed");
+        } else if(indicesOptions.expandWildcardsOpen()) {
+            addQueryParameter("expand_wildcards", "open");
+        }
+
         // not used
 //        addQueryParameter("", indicesOptions.forbidClosedIndices());
 
