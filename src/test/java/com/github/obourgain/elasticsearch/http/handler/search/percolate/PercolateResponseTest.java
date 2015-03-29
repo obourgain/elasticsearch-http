@@ -7,7 +7,6 @@ import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.junit.Test;
-import com.github.obourgain.elasticsearch.http.handler.search.percolate.PercolateResponse;
 import com.github.obourgain.elasticsearch.http.response.entity.Shards;
 
 public class PercolateResponseTest {
@@ -18,7 +17,7 @@ public class PercolateResponseTest {
         XContentParser parser = XContentHelper.createParser(json.getBytes(), 0, json.length());
         parser.nextToken();
 
-        PercolateResponse response = new PercolateResponse().parse(new BytesArray(json.getBytes()));
+        PercolateResponse response = PercolateResponse.parse(new BytesArray(json.getBytes()));
 
         Shards shards = response.getShards();
         assertThat(shards.getTotal()).isEqualTo(5);

@@ -6,7 +6,10 @@ import org.elasticsearch.common.Strings;
 public class HttpRequestUtils {
 
     public static String indicesOrAll(IndicesRequest request) {
-        String[] indices = request.indices();
+        return indicesOrAll(request.indices());
+    }
+
+    public static String indicesOrAll(String[] indices) {
         if (indices == null || indices.length == 0) {
             return "_all";
         }

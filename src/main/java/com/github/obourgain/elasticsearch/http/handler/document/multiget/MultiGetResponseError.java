@@ -16,4 +16,14 @@ public class MultiGetResponseError {
         this.id = id;
         this.error = error;
     }
+
+    @Override
+    public String toString() {
+        return "MultiGetResponseError{" +
+                "index='" + index + '\'' +
+                ", type='" + type + '\'' +
+                ", id='" + id + '\'' +
+                ", error='" + error + '\'' +
+                '}';
+    }
 }

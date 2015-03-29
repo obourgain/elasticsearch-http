@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.assertj.core.api.Assertions;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.percolate.PercolateRequest;
 import org.elasticsearch.action.percolate.PercolateRequestBuilder;
 import org.elasticsearch.action.percolate.PercolateSourceBuilder;
@@ -51,6 +53,32 @@ public class PercolateActionHandlerTest extends AbstractTest {
 
         assertShardsSuccessfulForIT(response.getShards(), THE_INDEX);
         Assertions.assertThat(response.getTookInMillis()).isLessThan(end - start);
+
+        Assertions.assertThat(response.getTotal()).isEqualTo(1);
+        Assertions.assertThat(response.getMatches()).hasSize(1);
+    }
+
+    @Test
+    public void should_percolate_existing_doc() throws IOException, ExecutionException, InterruptedException {
+        createMapping();
+
+        XContentBuilder query = XContentFactory.jsonBuilder()
+                .startObject()
+                .field("query", matchQuery("message", "bonsai tree"))
+                .endObject();
+
+        transportClient.index(Requests.indexRequest(THE_INDEX).type(".percolator").source(query)).actionGet();
+
+        transportClient.index(new IndexRequest(THE_INDEX, THE_TYPE, THE_ID)
+                .source(XContentFactory.jsonBuilder().startObject().field("message", "A new bonsai tree in the office").endObject())).actionGet();
+
+        refresh();
+
+        PercolateRequest request = new PercolateRequest().indices(THE_INDEX).documentType("my-type").getRequest(new GetRequest(THE_INDEX, THE_TYPE, THE_ID));
+
+        PercolateResponse response = httpClient.percolate(request).get();
+
+        assertShardsSuccessfulForIT(response.getShards(), THE_INDEX);
 
         Assertions.assertThat(response.getTotal()).isEqualTo(1);
         Assertions.assertThat(response.getMatches()).hasSize(1);

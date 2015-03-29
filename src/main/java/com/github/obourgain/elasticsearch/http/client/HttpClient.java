@@ -13,6 +13,7 @@ import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.mlt.MoreLikeThisRequest;
+import org.elasticsearch.action.percolate.MultiPercolateRequest;
 import org.elasticsearch.action.percolate.PercolateRequest;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.MultiSearchRequest;
@@ -49,6 +50,8 @@ import com.github.obourgain.elasticsearch.http.handler.search.exists.ExistsActio
 import com.github.obourgain.elasticsearch.http.handler.search.exists.ExistsResponse;
 import com.github.obourgain.elasticsearch.http.handler.search.explain.ExplainActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.explain.ExplainResponse;
+import com.github.obourgain.elasticsearch.http.handler.search.multipercolate.MultiPercolateActionHandler;
+import com.github.obourgain.elasticsearch.http.handler.search.multipercolate.MultiPercolateResponse;
 import com.github.obourgain.elasticsearch.http.handler.search.percolate.PercolateActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.percolate.PercolateResponse;
 import com.github.obourgain.elasticsearch.http.handler.search.search.MultiSearchActionHandler;
@@ -90,6 +93,7 @@ public class HttpClient {
     ExistsActionHandler existsActionHandler = new ExistsActionHandler(this);
     ExplainActionHandler explainActionHandler = new ExplainActionHandler(this);
     PercolateActionHandler percolateActionHandler = new PercolateActionHandler(this);
+    MultiPercolateActionHandler multiPercolateActionHandler = new MultiPercolateActionHandler(this);
     MoreLikeThisActionHandler moreLikeThisActionHandler = new MoreLikeThisActionHandler(this);
     ClearScrollActionHandler clearScrollActionHandler = new ClearScrollActionHandler(this);
     SearchScrollActionHandler searchScrollActionHandler = new SearchScrollActionHandler(this);
@@ -248,6 +252,16 @@ public class HttpClient {
     public Future<PercolateResponse> percolate(PercolateRequest request) {
         PlainActionFuture<PercolateResponse> future = PlainActionFuture.newFuture();
         percolate(request, future);
+        return future;
+    }
+
+    public void multiPercolate(MultiPercolateRequest request, ActionListener<MultiPercolateResponse> listener) {
+        multiPercolateActionHandler.execute(request, listener);
+    }
+
+    public Future<MultiPercolateResponse> multiPercolate(MultiPercolateRequest request) {
+        PlainActionFuture<MultiPercolateResponse> future = PlainActionFuture.newFuture();
+        multiPercolate(request, future);
         return future;
     }
 

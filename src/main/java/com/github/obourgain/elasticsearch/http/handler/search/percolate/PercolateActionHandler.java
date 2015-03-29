@@ -38,8 +38,6 @@ public class PercolateActionHandler {
     public void execute(PercolateRequest request, final ActionListener<PercolateResponse> listener) {
         logger.debug("percolate request {}", request);
         // percolate_format does not exist in PercolateRequest, only in REST API
-        // TODO percolate existing doc, we do not have the id in the PercolateRequest :(
-        // TODO multi percolate
         RequestUriBuilder uriBuilder;
 
         GetRequest getRequest = request.getRequest();
