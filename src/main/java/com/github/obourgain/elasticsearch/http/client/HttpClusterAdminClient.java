@@ -7,8 +7,10 @@ import com.github.obourgain.elasticsearch.http.handler.admin.cluster.ClusterStat
 import com.github.obourgain.elasticsearch.http.handler.admin.cluster.node.hotthreads.NodesHotThreadsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.cluster.settings.ClusterUpdateSettingsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.cluster.stats.ClusterStatsActionHandler;
+import com.google.common.base.Supplier;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.*;
+import io.reactivex.netty.protocol.http.client.HttpClient;
 
 /**
  * @author olivier bourgain
@@ -17,7 +19,7 @@ public class HttpClusterAdminClient {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClusterAdminClient.class);
 
-    private final io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> httpClient;
+    private final Supplier<HttpClient<ByteBuf, ByteBuf>> httpClient;
 
     private ClusterStateActionHandler clusterStateActionHandler = new ClusterStateActionHandler(this);
     private ClusterStatsActionHandler clusterStatsActionHandler = new ClusterStatsActionHandler(this);
@@ -25,11 +27,11 @@ public class HttpClusterAdminClient {
     private ClusterUpdateSettingsActionHandler clusterUpdateSettingsActionHandler = new ClusterUpdateSettingsActionHandler(this);
     private NodesHotThreadsActionHandler nodesHotThreadsActionHandler = new NodesHotThreadsActionHandler(this);
 
-    public HttpClusterAdminClient(io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> httpClient) {
+    public HttpClusterAdminClient(Supplier<HttpClient<ByteBuf, ByteBuf>> httpClient) {
         this.httpClient = httpClient;
     }
 
     public io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> getHttpClient() {
-        return httpClient;
+        return httpClient.get();
     }
 }

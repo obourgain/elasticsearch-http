@@ -51,7 +51,7 @@ public class TermVectorsActionHandler {
             uriBuilder.addQueryParameter("term_statistics", request.termStatistics());
             uriBuilder.addQueryParameter("field_statistics", request.fieldStatistics());
 
-            httpClient.client.submit(HttpClientRequest.createGet(uriBuilder.toString()))
+            httpClient.getHttpClient().submit(HttpClientRequest.createGet(uriBuilder.toString()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<TermVectorResponse>>() {
                         @Override

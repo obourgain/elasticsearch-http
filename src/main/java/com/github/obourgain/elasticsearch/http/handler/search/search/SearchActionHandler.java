@@ -63,7 +63,7 @@ public class SearchActionHandler {
                 get.withContent(request.source().toBytes());
             }
 
-            httpClient.client.submit(get)
+            httpClient.getHttpClient().submit(get)
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<SearchResponse>>() {
                         @Override

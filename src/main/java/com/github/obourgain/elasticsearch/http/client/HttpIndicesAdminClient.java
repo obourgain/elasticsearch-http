@@ -39,13 +39,13 @@ import com.github.obourgain.elasticsearch.http.handler.admin.indices.settings.Ge
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.settings.UpdateSettingsActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.validate.ValidateQueryActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.admin.indices.validate.ValidateQueryResponse;
+import com.github.obourgain.elasticsearch.http.response.admin.indices.aliases.GetAliasesResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.aliases.IndicesAliasesResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.close.CloseIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.create.CreateIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.delete.DeleteIndexResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.exists.IndicesExistsResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.flush.FlushResponse;
-import com.github.obourgain.elasticsearch.http.response.admin.indices.aliases.GetAliasesResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.GetMappingsResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.mapping.PutMappingResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.open.OpenIndexResponse;
@@ -54,7 +54,9 @@ import com.github.obourgain.elasticsearch.http.response.admin.indices.refresh.Re
 import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.GetSettingsResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.settings.UpdateSettingsResponse;
 import com.github.obourgain.elasticsearch.http.response.admin.indices.template.put.PutIndexTemplateResponse;
+import com.google.common.base.Supplier;
 import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.client.HttpClient;
 
 /**
  * @author olivier bourgain
@@ -63,7 +65,7 @@ public class HttpIndicesAdminClient {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpIndicesAdminClient.class);
 
-    private final io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> httpClient;
+    private final Supplier<HttpClient<ByteBuf, ByteBuf>> httpClient;
     private ValidateQueryActionHandler validateQueryActionHandler = new ValidateQueryActionHandler(this);
 
     private CreateIndexActionHandler createIndexActionHandler = new CreateIndexActionHandler(this);
@@ -83,12 +85,12 @@ public class HttpIndicesAdminClient {
     private IndicesAliasesActionHandler indicesAliasesActionHandler = new IndicesAliasesActionHandler(this);
     private GetAliasesActionHandler getAliasesActionHandler = new GetAliasesActionHandler(this);
 
-    public HttpIndicesAdminClient(io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> httpClient) {
+    public HttpIndicesAdminClient(Supplier<io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf>> httpClient) {
         this.httpClient = httpClient;
     }
 
     public io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> getHttpClient() {
-        return httpClient;
+        return httpClient.get();
     }
 
     public void validateQuery(ValidateQueryRequest request, ActionListener<ValidateQueryResponse> listener) {

@@ -54,7 +54,7 @@ public class MultiPercolateActionHandler {
             HttpClientRequest<ByteBuf> httpRequest = HttpClientRequest.createGet(uriBuilder.toString());
             httpRequest.withContentSource(Observable.create(new ByteBufOnSubscribe(request)));
 
-            httpClient.client.submit(httpRequest)
+            httpClient.getHttpClient().submit(httpRequest)
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<MultiPercolateResponse>>() {
                         @Override

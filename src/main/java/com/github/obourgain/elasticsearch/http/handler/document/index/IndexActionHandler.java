@@ -79,7 +79,7 @@ public class IndexActionHandler {
             } else {
                 httpClientRequest = HttpClientRequest.createPut(uriBuilder.toString());
             }
-            httpClient.client.submit(httpClientRequest.withContent(request.source().toBytes()))
+            httpClient.getHttpClient().submit(httpClientRequest.withContent(request.source().toBytes()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<IndexResponse>>() {
                         @Override

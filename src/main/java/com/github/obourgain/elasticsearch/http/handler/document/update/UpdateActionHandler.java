@@ -45,7 +45,7 @@ public class UpdateActionHandler {
 
             buildRequest(request, uriBuilder);
 
-            httpClient.client.submit(
+            httpClient.getHttpClient().submit(
                     HttpClientRequest.createPost(uriBuilder.toString())
                             .withContent(UpdateHelper.buildRequestBody(request)))
                     .flatMap(ErrorHandler.AS_FUNC)

@@ -67,7 +67,7 @@ public class CountActionHandler {
                 httpRequest.withContent(source.toBytes());
             }
 
-            httpClient.client.submit(httpRequest)
+            httpClient.getHttpClient().submit(httpRequest)
                     .flatMap(HANDLES_404)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<CountResponse>>() {
                         @Override

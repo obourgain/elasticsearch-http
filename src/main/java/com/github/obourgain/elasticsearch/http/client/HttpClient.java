@@ -1,6 +1,9 @@
 package com.github.obourgain.elasticsearch.http.client;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Future;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -25,6 +28,7 @@ import org.elasticsearch.action.termvector.TermVectorRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.github.obourgain.elasticsearch.http.concurrent.SnapshotableCopyOnWriteArray;
 import com.github.obourgain.elasticsearch.http.handler.document.bulk.BulkActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.document.bulk.BulkResponse;
 import com.github.obourgain.elasticsearch.http.handler.document.delete.DeleteActionHandler;
@@ -61,8 +65,11 @@ import com.github.obourgain.elasticsearch.http.handler.search.search.SearchRespo
 import com.github.obourgain.elasticsearch.http.handler.search.search.SearchScrollActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.suggest.SuggestActionHandler;
 import com.github.obourgain.elasticsearch.http.handler.search.suggest.SuggestResponse;
+import com.google.common.base.Supplier;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.RxNetty;
+import io.reactivex.netty.client.RxClient;
+import io.reactivex.netty.protocol.http.client.HttpClientBuilder;
 
 /**
  * @author olivier bourgain
@@ -71,12 +78,14 @@ public class HttpClient {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
 
+    private static final int DEFAULT_MAX_CONNECTIONS = 10;
     private static final int DEFAULT_MAX_RETRIES = 0;
     private static final int DEFAULT_TIMEOUT_MILLIS = 30 * 1000 * 1000;
 
-    public io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> client;
+    private SnapshotableCopyOnWriteArray<io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf>> clients;
+    private Supplier<io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf>> clientSupplier;
 
-    private int maxRetries = DEFAULT_MAX_RETRIES;
+    private int maxConnections = DEFAULT_MAX_CONNECTIONS;
     private int timeOut = DEFAULT_TIMEOUT_MILLIS;
     private HttpAdminClient httpAdminClient;
 
@@ -100,29 +109,43 @@ public class HttpClient {
     BulkActionHandler bulkActionHandler = new BulkActionHandler(this);
     SuggestActionHandler suggestActionHandler = new SuggestActionHandler(this);
 
-    public HttpClient(Collection<String> hosts) {
-        // client
+    public HttpClient(Collection<String> nodes) {
         // searchShard
         // search template
-////        tempActionHandlers.put(MultiGetAction.INSTANCE, new MultiGetActionHandler(this));
 
-        // assume only one for now, like "http://%s:%d"
-        String[] next = hosts.iterator().next().split(":");
+        List<io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf>> clientsTemp = new ArrayList<>();
+        // expect something like "http://%s:%d"
+        for (String node : nodes) {
+            String[] next = node.split(":");
+            // indices admin
+            String host = next[1].substring(2); // remove the // of http://
+            int port = Integer.parseInt(next[2]);
+            HttpClientBuilder<ByteBuf, ByteBuf> clientBuilder = RxNetty.newHttpClientBuilder(host, port);
+            clientBuilder.config(new RxClient.ClientConfig.Builder().readTimeout(timeOut, MILLISECONDS).build());
+            clientBuilder.withMaxConnections(maxConnections);
+            clientsTemp.add(clientBuilder.build());
+            logger.info("adding host {}:{}", host, port);
+        }
+        this.clients = new SnapshotableCopyOnWriteArray<>(clientsTemp);
 
-        // indices admin
-        String host = next[1].substring(2); // remove the // of http://
-        int port = Integer.parseInt(next[2]);
-        logger.info("using host {}:{}", host, port);
-        client = RxNetty.<ByteBuf, ByteBuf>newHttpClientBuilder(host, port).build();
-        this.httpAdminClient = new HttpAdminClient(client);
+        clientSupplier = new RoundRobinSupplier<>(clients);
+
+        this.httpAdminClient = new HttpAdminClient(clientSupplier);
     }
 
     public void close() {
-        client.shutdown();
+        // TODO prevent servers to be added while here
+        for (io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> client : clients.snapshot()) {
+            client.shutdown();
+        }
     }
 
     public HttpAdminClient admin() {
         return httpAdminClient;
+    }
+
+    public io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf> getHttpClient() {
+        return clientSupplier.get();
     }
 
     public void index(IndexRequest request, ActionListener<IndexResponse> listener) {

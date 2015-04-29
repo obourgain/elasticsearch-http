@@ -54,7 +54,7 @@ public class DeleteActionHandler {
                 uriBuilder.addQueryParameter("timeout", request.timeout().toString());
             }
 
-            httpClient.client.submit(HttpClientRequest.createDelete(uriBuilder.toString()))
+            httpClient.getHttpClient().submit(HttpClientRequest.createDelete(uriBuilder.toString()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<DeleteResponse>>() {
                         @Override

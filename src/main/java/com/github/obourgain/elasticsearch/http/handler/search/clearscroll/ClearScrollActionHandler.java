@@ -41,7 +41,7 @@ public class ClearScrollActionHandler {
                     .addEndpoint("_search/scroll");
 
             uriBuilder.addQueryParameter("scroll_id", Strings.collectionToCommaDelimitedString(request.getScrollIds()));
-            httpClient.client.submit(HttpClientRequest.createDelete(uriBuilder.toString()))
+            httpClient.getHttpClient().submit(HttpClientRequest.createDelete(uriBuilder.toString()))
                     .flatMap(HANDLES_404)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<ClearScrollResponse>>() {
                         @Override

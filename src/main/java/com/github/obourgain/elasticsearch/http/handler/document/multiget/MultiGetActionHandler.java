@@ -55,7 +55,7 @@ public class MultiGetActionHandler {
             }
             builder.endArray().endObject();
 
-            httpClient.client.submit(HttpClientRequest.createPost(uriBuilder.toString())
+            httpClient.getHttpClient().submit(HttpClientRequest.createPost(uriBuilder.toString())
             .withContent(builder.bytes().toBytes()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<MultiGetResponse>>() {

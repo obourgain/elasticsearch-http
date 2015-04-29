@@ -53,7 +53,7 @@ public class BulkActionHandler {
             uriBuilder.addConsistencyLevel(request.consistencyLevel());
             uriBuilder.addReplicationType(request.replicationType());
 
-            httpClient.client.submit(HttpClientRequest.createPost(uriBuilder.toString())
+            httpClient.getHttpClient().submit(HttpClientRequest.createPost(uriBuilder.toString())
                     .withContentSource(Observable.create(new ByteBufOnSubscribe(request))))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<BulkResponse>>() {

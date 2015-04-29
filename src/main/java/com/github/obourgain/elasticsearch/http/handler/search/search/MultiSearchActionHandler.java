@@ -55,7 +55,7 @@ public class MultiSearchActionHandler {
                 outputStream.write(LINE_FEED);
             }
 
-            httpClient.client.submit(HttpClientRequest.createPost(uriBuilder.toString())
+            httpClient.getHttpClient().submit(HttpClientRequest.createPost(uriBuilder.toString())
                     .withContent(outputStream.toByteArray()))
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<MultiSearchResponse>>() {

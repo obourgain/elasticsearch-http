@@ -90,7 +90,7 @@ public class MoreLikeThisActionHandler {
                 get.withContent(request.searchSource().toBytes());
             }
 
-            httpClient.client.submit(get)
+            httpClient.getHttpClient().submit(get)
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<SearchResponse>>() {
                         @Override

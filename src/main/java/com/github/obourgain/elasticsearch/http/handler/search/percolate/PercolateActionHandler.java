@@ -85,7 +85,7 @@ public class PercolateActionHandler {
                 httpRequest.withContent(request.source().toBytes());
             }
 
-            httpClient.client.submit(httpRequest)
+            httpClient.getHttpClient().submit(httpRequest)
                     .flatMap(ErrorHandler.AS_FUNC)
                     .flatMap(new Func1<HttpClientResponse<ByteBuf>, Observable<PercolateResponse>>() {
                         @Override
