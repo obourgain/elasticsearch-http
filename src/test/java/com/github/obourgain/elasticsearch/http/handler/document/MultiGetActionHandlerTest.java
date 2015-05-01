@@ -111,7 +111,7 @@ public class MultiGetActionHandlerTest extends AbstractTest {
         Assertions.assertThat(errors.get(0).getIndex()).isEqualTo(THE_INDEX);
         Assertions.assertThat(errors.get(0).getType()).isEqualTo(THE_TYPE);
         Assertions.assertThat(errors.get(0).getId()).isEqualTo(THE_ID);
-        Assertions.assertThat(errors.get(0).getError()).isEqualTo("VersionConflictEngineException[[the_index][2] [the_type][the_id]: version conflict, current [2], provided [1]]");
+        Assertions.assertThat(errors.get(0).getError()).contains("VersionConflictEngineException").contains("version conflict, current [2], provided [1]]");
     }
 
 }
