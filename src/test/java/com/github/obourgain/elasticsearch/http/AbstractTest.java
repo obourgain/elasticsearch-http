@@ -52,13 +52,14 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
         return ImmutableSettings.settingsBuilder()
                 .put(super.nodeSettings(nodeOrdinal))
                 .put(InternalNode.HTTP_ENABLED, true)
+                .put(InternalNode.HTTP_ENABLED, true)
                 .build();
     }
 
     @Before
     public void setUpClient() throws IOException, InterruptedException, NoSuchFieldException, IllegalAccessException {
         createIndex(THE_INDEX);
-        ensureGreen();
+        ensureSearchable(THE_INDEX);
 
         transportClient = (TransportClient) cluster().client();
 
