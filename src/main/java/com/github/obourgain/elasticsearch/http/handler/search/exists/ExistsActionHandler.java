@@ -2,6 +2,7 @@ package com.github.obourgain.elasticsearch.http.handler.search.exists;
 
 import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.indicesOrAll;
 import static com.github.obourgain.elasticsearch.http.response.ErrorHandler.HANDLES_404;
+import java.nio.charset.Charset;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.exists.ExistsAction;
 import org.elasticsearch.action.exists.ExistsRequest;
@@ -68,6 +69,7 @@ public class ExistsActionHandler {
                             return response.getContent().flatMap(new Func1<ByteBuf, Observable<ExistsResponse>>() {
                                 @Override
                                 public Observable<ExistsResponse> call(ByteBuf byteBuf) {
+                                    System.out.println(byteBuf.toString(Charset.defaultCharset()));
                                     return ExistsResponse.parse(byteBuf);
                                 }
                             });

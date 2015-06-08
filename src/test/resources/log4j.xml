@@ -23,7 +23,7 @@
     </logger>
 
     <logger name="org.elasticsearch" additivity="false">
-        <level value="INFO"/>
+        <level value="ERROR"/>
         <appender-ref ref="CONSOLE" />
     </logger>
 
