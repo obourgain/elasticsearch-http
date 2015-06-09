@@ -50,11 +50,11 @@ public class ExistsActionHandler {
             }
             uriBuilder.addEndpoint("/_search/exists");
 
-            uriBuilder.addQueryParameter("routing", request.routing());
-            uriBuilder.addQueryParameter("preference", request.preference());
+            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
+            uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
 
             float minScore = ExistsRequestAccessor.minScore(request);
-            uriBuilder.addQueryParameter("min_score", minScore);
+            uriBuilder.addQueryParameterIfNotMinusOne("min_score", (long) minScore);
             uriBuilder.addIndicesOptions(request);
 
             HttpClientRequest<ByteBuf> httpRequest = HttpClientRequest.createGet(uriBuilder.toString());
