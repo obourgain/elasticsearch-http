@@ -45,13 +45,9 @@ public class SuggestActionHandler {
             String indices = HttpRequestUtils.indicesOrAll(request);
             RequestUriBuilder uriBuilder = new RequestUriBuilder(indices, "_suggest");
 
-            if (request.routing() != null) {
-                // for Suggest requests, this can be a String[] but the SuggestRequests does the conversion to comma delimited string
-                uriBuilder.addQueryParameter("routing", request.routing());
-            }
-            if (request.preference() != null) {
-                uriBuilder.addQueryParameter("preference", request.preference());
-            }
+            // for Suggest requests, this can be a String[] but the SuggestRequests does the conversion to comma delimited string
+            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
+            uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
 
             uriBuilder.addIndicesOptions(request);
 
@@ -63,9 +59,6 @@ public class SuggestActionHandler {
                 builder.startObject()
                         .copyCurrentStructure(parser)
                         .endObject();
-                System.out.println(builder.string());
-                System.out.println(builder.string());
-                System.out.println(builder.string());
                 httpRequest.withContent(builder.bytes().toBytes());
             }
 
