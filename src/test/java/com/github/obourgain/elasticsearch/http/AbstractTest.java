@@ -107,7 +107,7 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
                                 .field("the_string_field", "the_string_value")
                                 .field("the_integer_field", 42)
                                 .field("the_boolean_field", true)
-                                .field("the_long_array_field", new Long[]{42L, 53L})
+                                .field("the_long_array_field", new long[]{42L, 53L})
                                 .endObject())
         ).actionGet();
     }
@@ -149,7 +149,7 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
                 .field("the_string_field", "the_string_value")
                 .field("the_integer_field", 42)
                 .field("the_boolean_field", true)
-                .field("the_long_array_field", new Long[]{42L, 53L})
+                .field("the_long_array_field", new long[]{42L, 53L})
                 .endObject();
     }
 
