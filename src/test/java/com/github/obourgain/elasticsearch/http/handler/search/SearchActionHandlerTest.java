@@ -36,6 +36,7 @@ public class SearchActionHandlerTest extends AbstractTest {
         Assertions.assertThat(searchResponse.getScrollId()).isNull();
 
         assertShardsSuccessfulForIT(searchResponse.getShards(), THE_INDEX);
+        Assertions.assertThat(searchResponse.getHits()).hasSize(1);
     }
 
     @Test
