@@ -46,6 +46,9 @@ Create an instance of _HttpClient_ and give it the URLs of your nodes.
 
 ```
 HttpClient client = new HttpClient("localhost:9200");
+SearchRequest searchRequest = new SearchRequest("the_index").types("the_type").source(new SearchSourceBuilder().query(matchAllQuery()));
+SearchResponse searchResponse = httpClient.search(searchRequest).get();
+Hits hits = searchResponse.getHits();
 ```
 
 Remember to ```close()``` when you are done.
