@@ -2,6 +2,7 @@ package com.github.obourgain.elasticsearch.http.client;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -79,7 +80,6 @@ public class HttpClient {
     private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
 
     private static final int DEFAULT_MAX_CONNECTIONS = 10;
-    private static final int DEFAULT_MAX_RETRIES = 0;
     private static final int DEFAULT_TIMEOUT_MILLIS = 30 * 1000 * 1000;
 
     private SnapshotableCopyOnWriteArray<io.reactivex.netty.protocol.http.client.HttpClient<ByteBuf, ByteBuf>> clients;
@@ -108,6 +108,10 @@ public class HttpClient {
     SearchScrollActionHandler searchScrollActionHandler = new SearchScrollActionHandler(this);
     BulkActionHandler bulkActionHandler = new BulkActionHandler(this);
     SuggestActionHandler suggestActionHandler = new SuggestActionHandler(this);
+
+    public HttpClient(String ... nodes) {
+        this(Arrays.asList(nodes));
+    }
 
     public HttpClient(Collection<String> nodes) {
         // searchShard

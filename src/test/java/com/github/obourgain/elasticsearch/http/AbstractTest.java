@@ -1,6 +1,7 @@
 package com.github.obourgain.elasticsearch.http;
 
 import static org.elasticsearch.common.xcontent.XContentType.JSON;
+import static org.elasticsearch.node.internal.InternalNode.HTTP_ENABLED;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -21,7 +22,6 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.node.internal.InternalNode;
 import org.elasticsearch.test.ElasticsearchIntegrationTest;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -51,8 +51,7 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
     protected Settings nodeSettings(int nodeOrdinal) {
         return ImmutableSettings.settingsBuilder()
                 .put(super.nodeSettings(nodeOrdinal))
-                .put(InternalNode.HTTP_ENABLED, true)
-                .put(InternalNode.HTTP_ENABLED, true)
+                .put(HTTP_ENABLED, true)
                 .build();
     }
 
@@ -62,7 +61,11 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
         ensureSearchable(THE_INDEX);
 
         transportClient = (TransportClient) cluster().client();
+        String url = getUrlOfOneNode();
+        httpClient = new HttpClient(Collections.singleton(url));
+    }
 
+    protected String getUrlOfOneNode() {
         NodeInfo[] nodes = admin().cluster().nodesInfo(Requests.nodesInfoRequest()).actionGet().getNodes();
         Assert.assertThat(nodes.length, Matchers.greaterThanOrEqualTo(1));
 
@@ -71,8 +74,7 @@ public abstract class AbstractTest extends ElasticsearchIntegrationTest {
         InetSocketTransportAddress inetSocketTransportAddress = (InetSocketTransportAddress) transportAddress;
         InetSocketAddress socketAddress = inetSocketTransportAddress.address();
 
-        String url = String.format("http://%s:%d", socketAddress.getHostName(), socketAddress.getPort());
-        httpClient = new HttpClient(Collections.singleton(url));
+        return String.format("http://%s:%d", socketAddress.getHostName(), socketAddress.getPort());
     }
 
     @After
