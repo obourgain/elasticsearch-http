@@ -2,6 +2,7 @@ package com.github.obourgain.elasticsearch.http.handler.search.exists;
 
 import static com.github.obourgain.elasticsearch.http.request.HttpRequestUtils.indicesOrAll;
 import static com.github.obourgain.elasticsearch.http.response.ErrorHandler.HANDLES_404;
+import java.nio.charset.Charset;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.exists.ExistsAction;
 import org.elasticsearch.action.exists.ExistsRequest;
@@ -49,11 +50,11 @@ public class ExistsActionHandler {
             }
             uriBuilder.addEndpoint("/_search/exists");
 
-            uriBuilder.addQueryParameter("routing", request.routing());
-            uriBuilder.addQueryParameter("preference", request.preference());
+            uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
+            uriBuilder.addQueryParameterIfNotNull("preference", request.preference());
 
             float minScore = ExistsRequestAccessor.minScore(request);
-            uriBuilder.addQueryParameter("min_score", minScore);
+            uriBuilder.addQueryParameterIfNotMinusOne("min_score", (long) minScore);
             uriBuilder.addIndicesOptions(request);
 
             HttpClientRequest<ByteBuf> httpRequest = HttpClientRequest.createGet(uriBuilder.toString());
@@ -68,6 +69,7 @@ public class ExistsActionHandler {
                             return response.getContent().flatMap(new Func1<ByteBuf, Observable<ExistsResponse>>() {
                                 @Override
                                 public Observable<ExistsResponse> call(ByteBuf byteBuf) {
+                                    System.out.println(byteBuf.toString(Charset.defaultCharset()));
                                     return ExistsResponse.parse(byteBuf);
                                 }
                             });
