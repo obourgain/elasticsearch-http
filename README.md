@@ -31,7 +31,7 @@ Clone the repository and run ```mvn package``` to build it and run tests or ```m
 These features are either not implemented or too work-in-progress to be used with the http client
 * suggests : still work to do
 * facets : Those will be removed in 2.0 so I will not bother to implement support for those
-* admin apis
+* admin apis : do NOT use it, some method are defined but not implemented or parsing responses may not be implemented.
 * search shard
 * search template
 * _analyze : not implemented
