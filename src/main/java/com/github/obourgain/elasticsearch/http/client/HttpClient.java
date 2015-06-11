@@ -89,25 +89,25 @@ public class HttpClient {
     private int timeOut = DEFAULT_TIMEOUT_MILLIS;
     private HttpAdminClient httpAdminClient;
 
-    IndexActionHandler indexActionHandler = new IndexActionHandler(this);
-    GetActionHandler getActionHandler = new GetActionHandler(this);
-    MultiGetActionHandler multiGetActionHandler = new MultiGetActionHandler(this);
-    DeleteActionHandler deleteActionHandler = new DeleteActionHandler(this);
-    UpdateActionHandler updateActionHandler = new UpdateActionHandler(this);
-    DeleteByQueryActionHandler deleteByQueryActionHandler = new DeleteByQueryActionHandler(this);
-    TermVectorsActionHandler termVectorActionHandler = new TermVectorsActionHandler(this);
-    SearchActionHandler searchActionHandler = new SearchActionHandler(this);
-    MultiSearchActionHandler multiSearchActionHandler = new MultiSearchActionHandler(this);
-    CountActionHandler countActionHandler = new CountActionHandler(this);
-    ExistsActionHandler existsActionHandler = new ExistsActionHandler(this);
-    ExplainActionHandler explainActionHandler = new ExplainActionHandler(this);
-    PercolateActionHandler percolateActionHandler = new PercolateActionHandler(this);
-    MultiPercolateActionHandler multiPercolateActionHandler = new MultiPercolateActionHandler(this);
-    MoreLikeThisActionHandler moreLikeThisActionHandler = new MoreLikeThisActionHandler(this);
-    ClearScrollActionHandler clearScrollActionHandler = new ClearScrollActionHandler(this);
-    SearchScrollActionHandler searchScrollActionHandler = new SearchScrollActionHandler(this);
-    BulkActionHandler bulkActionHandler = new BulkActionHandler(this);
-    SuggestActionHandler suggestActionHandler = new SuggestActionHandler(this);
+    private IndexActionHandler indexActionHandler = new IndexActionHandler(this);
+    private GetActionHandler getActionHandler = new GetActionHandler(this);
+    private MultiGetActionHandler multiGetActionHandler = new MultiGetActionHandler(this);
+    private DeleteActionHandler deleteActionHandler = new DeleteActionHandler(this);
+    private UpdateActionHandler updateActionHandler = new UpdateActionHandler(this);
+    private DeleteByQueryActionHandler deleteByQueryActionHandler = new DeleteByQueryActionHandler(this);
+    private TermVectorsActionHandler termVectorActionHandler = new TermVectorsActionHandler(this);
+    private SearchActionHandler searchActionHandler = new SearchActionHandler(this);
+    private MultiSearchActionHandler multiSearchActionHandler = new MultiSearchActionHandler(this);
+    private CountActionHandler countActionHandler = new CountActionHandler(this);
+    private ExistsActionHandler existsActionHandler = new ExistsActionHandler(this);
+    private ExplainActionHandler explainActionHandler = new ExplainActionHandler(this);
+    private PercolateActionHandler percolateActionHandler = new PercolateActionHandler(this);
+    private MultiPercolateActionHandler multiPercolateActionHandler = new MultiPercolateActionHandler(this);
+    private MoreLikeThisActionHandler moreLikeThisActionHandler = new MoreLikeThisActionHandler(this);
+    private ClearScrollActionHandler clearScrollActionHandler = new ClearScrollActionHandler(this);
+    private SearchScrollActionHandler searchScrollActionHandler = new SearchScrollActionHandler(this);
+    private BulkActionHandler bulkActionHandler = new BulkActionHandler(this);
+    private SuggestActionHandler suggestActionHandler = new SuggestActionHandler(this);
 
     public HttpClient(String ... nodes) {
         this(Arrays.asList(nodes));
