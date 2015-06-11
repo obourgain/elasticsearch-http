@@ -6,7 +6,6 @@ import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.Strings;
@@ -54,7 +53,7 @@ public class BulkActionMarshaller {
         try (XContentBuilder builder = XContentFactory.jsonBuilder().startObject()) {
             addCommonOptions(builder, "index", indexRequest.index(), indexRequest.type(), indexRequest.id(),
                     indexRequest.version(), indexRequest.versionType(), indexRequest.routing(),
-                    indexRequest.consistencyLevel(), indexRequest.refresh(), indexRequest.replicationType());
+                    indexRequest.consistencyLevel(), indexRequest.refresh());
             String parent = indexRequest.parent();
             String timestamp = indexRequest.timestamp();
             long ttl = indexRequest.ttl();
@@ -81,7 +80,7 @@ public class BulkActionMarshaller {
         try(XContentBuilder builder = XContentFactory.jsonBuilder().startObject()) {
             addCommonOptions(builder, "delete", deleteRequest.index(), deleteRequest.type(), deleteRequest.id(),
                     deleteRequest.version(), deleteRequest.versionType(), deleteRequest.routing(),
-                    deleteRequest.consistencyLevel(), deleteRequest.refresh(), deleteRequest.replicationType());
+                    deleteRequest.consistencyLevel(), deleteRequest.refresh());
             return builder.bytes().toBytes();
         }
     }
@@ -91,7 +90,7 @@ public class BulkActionMarshaller {
         try (XContentBuilder builder = XContentFactory.jsonBuilder().startObject()) {
             addCommonOptions(builder, "update", updateRequest.index(), updateRequest.type(), updateRequest.id(),
                     updateRequest.version(), updateRequest.versionType(), updateRequest.routing(),
-                    updateRequest.consistencyLevel(), updateRequest.refresh(), updateRequest.replicationType());
+                    updateRequest.consistencyLevel(), updateRequest.refresh());
 
             String timestamp = updateRequest.doc() != null ? updateRequest.doc().timestamp() : null;
             long ttl = updateRequest.doc() != null ? updateRequest.doc().ttl() : -1;
@@ -121,8 +120,7 @@ public class BulkActionMarshaller {
                                          @Nullable long version, VersionType versionType, // may be Versions.MATCH_ANY and null
                                          @Nullable String routing,
                                          @Nullable WriteConsistencyLevel consistencyLevel,
-                                         boolean refresh,
-                                         @Nullable ReplicationType replicationType
+                                         boolean refresh
 
     ) throws IOException {
         builder.startObject(command)
@@ -141,9 +139,6 @@ public class BulkActionMarshaller {
         }
         if (refresh) {
             builder.field("_refresh", true);
-        }
-        if (replicationType != null) {
-            builder.field("replication", replicationType.toString().toLowerCase());
         }
     }
 

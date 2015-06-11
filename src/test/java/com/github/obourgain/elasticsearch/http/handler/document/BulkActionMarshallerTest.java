@@ -30,7 +30,7 @@ public class BulkActionMarshallerTest {
         assertHasSize(observable, 4);
 
         byte[] bytes = takeNth(observable, 0);
-        assertThat(new String(bytes)).isEqualTo("{\"index\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"op_type\":\"index\"}}");
+        assertThat(new String(bytes)).isEqualTo("{\"index\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"op_type\":\"index\"}}");
 
         bytes = takeNth(observable, 1);
         assertThat(new String(bytes)).isEqualTo("\n");
@@ -53,7 +53,7 @@ public class BulkActionMarshallerTest {
 
         byte[] bytes = takeNth(observable, 0);
         String actionAsString = new String(bytes);
-        assertThat(actionAsString).isEqualTo("{\"delete\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\"}}");
+        assertThat(actionAsString).isEqualTo("{\"delete\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\"}}");
 
         bytes = takeNth(observable, 1);
         assertThat(new String(bytes)).isEqualTo("\n");
@@ -70,7 +70,7 @@ public class BulkActionMarshallerTest {
         assertHasSize(observable, 4);
 
         byte[] bytes = takeNth(observable, 0);
-        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
+        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"_retry_on_conflict\":0}}");
         bytes = takeNth(observable, 1);
         assertThat(new String(bytes)).isEqualTo("\n");
         bytes = takeNth(observable, 2);
@@ -90,7 +90,7 @@ public class BulkActionMarshallerTest {
         assertHasSize(observable, 4);
 
         byte[] bytes = takeNth(observable, 0);
-        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
+        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"_retry_on_conflict\":0}}");
 
         bytes = takeNth(observable, 1);
         assertThat(new String(bytes)).isEqualTo("\n");
@@ -114,7 +114,7 @@ public class BulkActionMarshallerTest {
         assertHasSize(observable, 4);
 
         byte[] bytes = takeNth(observable, 0);
-        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
+        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"_retry_on_conflict\":0}}");
 
         bytes = takeNth(observable, 1);
         assertThat(new String(bytes)).isEqualTo("\n");
@@ -137,7 +137,7 @@ public class BulkActionMarshallerTest {
         assertHasSize(observable, 4);
 
         byte[] bytes = takeNth(observable, 0);
-        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
+        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"_retry_on_conflict\":0}}");
 
         bytes = takeNth(observable, 1);
         assertThat(new String(bytes)).isEqualTo("\n");
@@ -161,7 +161,7 @@ public class BulkActionMarshallerTest {
         assertHasSize(observable, 4);
 
         byte[] bytes = takeNth(observable, 0);
-        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
+        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"_retry_on_conflict\":0}}");
 
         bytes = takeNth(observable, 1);
         assertThat(new String(bytes)).isEqualTo("\n");
@@ -198,7 +198,7 @@ public class BulkActionMarshallerTest {
 
         // update request
         byte[] bytes = takeNth(observable, 0);
-        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"_retry_on_conflict\":0}}");
+        assertThat(new String(bytes)).isEqualTo("{\"update\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"_retry_on_conflict\":0}}");
         bytes = takeNth(observable, 1);
         assertThat(new String(bytes)).isEqualTo("\n");
         bytes = takeNth(observable, 2);
@@ -208,13 +208,13 @@ public class BulkActionMarshallerTest {
 
         // delete request
         bytes = takeNth(observable, 4);
-        assertThat(new String(bytes)).isEqualTo("{\"delete\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\"}}");
+        assertThat(new String(bytes)).isEqualTo("{\"delete\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\"}}");
         bytes = takeNth(observable, 5);
         assertThat(new String(bytes)).isEqualTo("\n");
 
         // index request
         bytes = takeNth(observable, 6);
-        assertThat(new String(bytes)).isEqualTo("{\"index\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"replication\":\"default\",\"op_type\":\"index\"}}");
+        assertThat(new String(bytes)).isEqualTo("{\"index\":{\"_index\":\"the_index\",\"_type\":\"the_type\",\"_id\":\"the_id\",\"op_type\":\"index\"}}");
         bytes = takeNth(observable, 7);
         assertThat(new String(bytes)).isEqualTo("\n");
         bytes = takeNth(observable, 8);

@@ -42,7 +42,6 @@ public class OptimizeActionHandler {
             RequestUriBuilder uriBuilder = new RequestUriBuilder(indices)
                     .addEndpoint("_optimize")
                     .addIndicesOptions(request)
-                    .addQueryParameter("upgrade", request.upgrade())
                     .addQueryParameter("flush", request.flush())
                     .addQueryParameter("max_num_segments", request.maxNumSegments())
                     .addQueryParameter("only_expunge_deletes", request.onlyExpungeDeletes());

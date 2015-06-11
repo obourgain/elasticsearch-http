@@ -32,7 +32,7 @@ public class TermVectorsActionHandlerTest extends AbstractTest {
                 .positions(true)
                 .termStatistics(true)
                 .fieldStatistics(true)
-                .selectedFields("text");
+                .selectedFields(new String[]{"text"});
 
         TermVectorResponse response = httpClient.termVectors(request).get();
         TermVectorResponseTest.assertTermVectorResponse(response);
@@ -48,7 +48,7 @@ public class TermVectorsActionHandlerTest extends AbstractTest {
                 .positions(false)
                 .termStatistics(false)
                 .fieldStatistics(false)
-                .selectedFields("text");
+                .selectedFields(new String[]{"text"});
 
         TermVectorResponse response = httpClient.termVectors(request).get();
         Assertions.assertThat(response.getTermVector().getFieldStatistics()).isNull();
@@ -75,7 +75,7 @@ public class TermVectorsActionHandlerTest extends AbstractTest {
                 .positions(false)
                 .termStatistics(false)
                 .fieldStatistics(false)
-                .selectedFields("text");
+                .selectedFields(new String[]{"text"});
 
         TermVectorResponse response = httpClient.termVectors(request).get();
         Assertions.assertThat(response.getTermVector().getFieldStatistics()).isNull();
@@ -102,7 +102,7 @@ public class TermVectorsActionHandlerTest extends AbstractTest {
                 .positions(true)
                 .termStatistics(false)
                 .fieldStatistics(false)
-                .selectedFields("text");
+                .selectedFields(new String[]{"text"});
 
         TermVectorResponse response = httpClient.termVectors(request).get();
         Assertions.assertThat(response.getTermVector().getFieldStatistics()).isNull();
@@ -129,7 +129,7 @@ public class TermVectorsActionHandlerTest extends AbstractTest {
                 .positions(false)
                 .termStatistics(true)
                 .fieldStatistics(false)
-                .selectedFields("text");
+                .selectedFields(new String[]{"text"});
 
         TermVectorResponse response = httpClient.termVectors(request).get();
 
@@ -155,7 +155,7 @@ public class TermVectorsActionHandlerTest extends AbstractTest {
                 .positions(false)
                 .termStatistics(false)
                 .fieldStatistics(true)
-                .selectedFields("text");
+                .selectedFields(new String[]{"text"});
 
         TermVectorResponse response = httpClient.termVectors(request).get();
 

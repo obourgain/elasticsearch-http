@@ -185,21 +185,6 @@ public class RequestUriBuilder {
         return this;
     }
 
-    public RequestUriBuilder addReplicationType(ReplicationType replicationType) {
-        switch (replicationType) {
-            case DEFAULT:
-                // noop
-                break;
-            case SYNC:
-            case ASYNC:
-                addQueryParameter("replication", replicationType.name().toLowerCase());
-                break;
-            default:
-                throw new IllegalStateException("replication  " + replicationType + " is not supported");
-        }
-        return this;
-    }
-
     public RequestUriBuilder addIndicesOptions(IndicesRequest request) {
         return addIndicesOptions(request.indicesOptions());
     }

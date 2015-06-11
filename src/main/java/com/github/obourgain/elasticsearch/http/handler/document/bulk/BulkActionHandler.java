@@ -51,7 +51,6 @@ public class BulkActionHandler {
             uriBuilder.addQueryParameter("refresh", String.valueOf(request.refresh()));
             uriBuilder.addQueryParameter("timeout", request.timeout().toString());
             uriBuilder.addConsistencyLevel(request.consistencyLevel());
-            uriBuilder.addReplicationType(request.replicationType());
 
             httpClient.getHttpClient().submit(HttpClientRequest.createPost(uriBuilder.toString())
                     .withContentSource(Observable.create(new ByteBufOnSubscribe(request))))

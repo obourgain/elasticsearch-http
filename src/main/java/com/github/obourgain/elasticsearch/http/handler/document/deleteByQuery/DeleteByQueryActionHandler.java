@@ -56,7 +56,6 @@ public class DeleteByQueryActionHandler {
             uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
 
             uriBuilder.addConsistencyLevel(request.consistencyLevel());
-            uriBuilder.addReplicationType(request.replicationType());
 
             if (request.timeout() != ShardReplicationOperationRequest.DEFAULT_TIMEOUT) {
                 uriBuilder.addQueryParameter("timeout", request.timeout().toString());

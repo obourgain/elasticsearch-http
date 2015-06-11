@@ -5,17 +5,33 @@ An elasticsearch client library similar to the transport client but using HTTP.
 The inputs of the client are similar to the transport client, so you can reuse your builders.
 The object returned are different and based on the returned JSON.
 
-This is not fully production ready nor production proof, some features are missing.
+This is not fully production-ready nor production proof, some features are missing.
 
 If you use it, even just to test, I would love to hear your feedback and do not hesitate to open issues or contribute.
 
 The current version uses RxNetty under the hood, but that may change.
 An API using Rx is planned but not yet developed, the current API exposes sync and async variant of each method like the transport client.
 
+### Compatibility
+<table>
+    <tr>
+        <th>Elasticsearch version</th>
+    </tr>
+    <tr>
+        <td>1.4.x</td>
+    </tr>
+    <tr>
+        <td>1.5.x</td>
+    </tr>
+    <tr>
+        <td>1.6.x</td>
+    </tr>
+</table> 
+
 ### Building
 Clone the repository and run ```mvn package``` to build it and run tests or ```mvn install``` to make it available in your local maven repository.
 
-### What works (or is supposed to) :
+### Features :
 * search with queries/filters
 * aggregations
 * document APIs (get, insert, update, delete ...)
@@ -27,17 +43,17 @@ Clone the repository and run ```mvn package``` to build it and run tests or ```m
 * explain
 * percolate & multipercolate
 
-### What does not work or is not supported
+### Not supported
 These features are either not implemented or too work-in-progress to be used with the http client
 * suggests : still work to do
-* facets : Those will be removed in 2.0 so I will not bother to implement support for those
-* admin apis : do NOT use it, some method are defined but not implemented or parsing responses may not be implemented.
+* facets : (already deprecated)
+* admin apis : work in progress
 * search shard
 * search template
 * _analyze : not implemented
 * probably a lot of other stuff
 
-### How to use it
+### Getting started
 
 Get the URL of at least one Elasticsearch node, with the _http_ port, and not the _transport_ port. 
 By default the port is in the range 9200-9299.

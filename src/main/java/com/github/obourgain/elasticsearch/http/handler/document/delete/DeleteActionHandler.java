@@ -45,7 +45,6 @@ public class DeleteActionHandler {
 
             uriBuilder.addVersionType(request.versionType());
             uriBuilder.addConsistencyLevel(request.consistencyLevel());
-            uriBuilder.addReplicationType(request.replicationType());
 
             if (request.refresh()) {
                 uriBuilder.addQueryParameter("refresh", true);

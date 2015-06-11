@@ -1,3 +1,5 @@
 cluster.name: elasticsearch-dev
 
-script.disable_dynamic: false
+script.inline: true
+script.indexed: true
+script.file: true

@@ -76,7 +76,6 @@ public class UpdateActionHandler {
         uriBuilder.addQueryParameterIfNotNull("routing", request.routing());
 
         uriBuilder.addConsistencyLevel(request.consistencyLevel());
-        uriBuilder.addReplicationType(request.replicationType());
 
         uriBuilder.addQueryParameterArrayAsCommaDelimitedIfNotNullNorEmpty("fields", request.fields());
         if (request.refresh()) {

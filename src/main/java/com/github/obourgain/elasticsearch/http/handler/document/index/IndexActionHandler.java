@@ -64,7 +64,6 @@ public class IndexActionHandler {
                 uriBuilder.addQueryParameter("ttl", String.valueOf(request.ttl()));
             }
             uriBuilder.addConsistencyLevel(request.consistencyLevel());
-            uriBuilder.addReplicationType(request.replicationType());
 
             if (request.refresh()) {
                 uriBuilder.addQueryParameter("refresh", true);
