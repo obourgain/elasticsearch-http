@@ -1,6 +1,8 @@
 elasticsearch-http
 ==================
 
+[![Build Status](https://travis-ci.org/obourgain/elasticsearch-http.svg)](https://travis-ci.org/obourgain/elasticsearch-http)
+
 An elasticsearch client library similar to the transport client but using HTTP.
 The inputs of the client are similar to the transport client, so you can reuse your builders.
 The object returned are different and based on the returned JSON.

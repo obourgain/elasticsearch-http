@@ -1,0 +1,14 @@
+language: java
+
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+  - openjdk7
+
+env:
+  matrix:
+    - ES_VERSION=es1.6
+    - ES_VERSION=es1.5
+    - ES_VERSION=es1.4
+
+script: "mvn clean install -P ES_VERSION"
