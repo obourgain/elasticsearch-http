@@ -44,12 +44,13 @@ Clone the repository and run ```mvn package``` to build it and run tests or ```m
 * scroll
 * explain
 * percolate & multipercolate
+* indices admin
 
 ### Not supported
 These features are either not implemented or too work-in-progress to be used with the http client
 * suggests : still work to do
 * facets : (already deprecated)
-* admin apis : work in progress
+* cluster admin apis : work in progress
 * search shard
 * search template
 * _analyze : not implemented
