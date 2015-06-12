@@ -8,9 +8,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * This list have similar properties than {@link CopyOnWriteArrayList} but allows to get a consistent snapshot of the collection.
+ * This class have similar properties than {@link CopyOnWriteArrayList} but allows to get a consistent snapshot of the collection.
  * It supports multiple writers through CAS and retry-loop, but this may be more costly than a lock if the mutation rate is high.
- * <p/>
+ *
  * This does not give any guarantee regarding mutability of contained objects.
  *
  * @param <E>
