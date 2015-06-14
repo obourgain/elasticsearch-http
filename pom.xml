@@ -4,7 +4,7 @@
 
     <groupId>com.github.obourgain</groupId>
     <artifactId>elasticsearch-http-client</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
 
     <name>Elasticsearch HTTP client</name>
     <description>An HTTP client for Elasticsearch</description>
