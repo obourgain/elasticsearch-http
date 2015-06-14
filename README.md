@@ -33,6 +33,16 @@ An API using Rx is planned but not yet developed, the current API exposes sync a
 ### Building
 Clone the repository and run ```mvn package``` to build it and run tests or ```mvn install``` to make it available in your local maven repository.
 
+### Add it to your project
+Using Maven :
+```
+<dependency>
+    <groupId>com.github.obourgain</groupId>
+    <artifactId>elasticsearch-http-client</artifactId>
+    <version>0.1</version>
+</dependency>
+```
+
 ### Features :
 * search with queries/filters
 * aggregations
