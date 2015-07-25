@@ -28,6 +28,9 @@ An API using Rx is planned but not yet developed, the current API exposes sync a
     <tr>
         <td>1.6.x</td>
     </tr>
+    <tr>
+        <td>1.7.x</td>
+    </tr>
 </table> 
 
 ### Building

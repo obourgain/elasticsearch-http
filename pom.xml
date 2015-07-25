@@ -222,10 +222,17 @@
 
     <profiles>
         <profile>
-            <id>es1.6</id>
+            <id>es1.7</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <properties>
+                <elasticsearch.version>1.7.0</elasticsearch.version>
+                <lucene.version>4.10.4</lucene.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>es1.6</id>
             <properties>
                 <elasticsearch.version>1.6.0</elasticsearch.version>
                 <lucene.version>4.10.4</lucene.version>
